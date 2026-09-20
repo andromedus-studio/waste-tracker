@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Waste Tracker — Gestion des déchets</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sidebar-bg: #171b26;
+    --sidebar-bg-hover: #22283a;
+    --sidebar-text: #9aa3b8;
+    --sidebar-text-active: #ffffff;
+    --accent: #3b6fd4;
+    --bg: #f3f4f7;
+    --surface: #ffffff;
+    --border: #e5e7ee;
+    --text-primary: #171b26;
+    --text-secondary: #6b7280;
+
+    --status-low-bg: #e8f6ee;
+    --status-low-ring: #2fae6b;
+    --status-low-text: #1e8a52;
+
+    --status-mod-bg: #fdeee2;
+    --status-mod-ring: #e8823d;
+    --status-mod-text: #c4631f;
+
+    --status-high-bg: #fdf3d9;
+    --status-high-ring: #e4a93b;
+    --status-high-text: #a97c14;
+
+    --status-crit-bg: #fbe6e6;
+    --status-crit-ring: #dc4c4c;
+    --status-crit-text: #b62f2f;
+
+    --shadow-card: 0 1px 2px rgba(23,27,38,0.06), 0 1px 1px rgba(23,27,38,0.04);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101319;
+      --surface: #171b26;
+      --border: #262c3d;
+      --text-primary: #eef0f5;
+      --text-secondary: #9aa3b8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101319;
+    --surface: #171b26;
+    --border: #262c3d;
+    --text-primary: #eef0f5;
+    --text-secondary: #9aa3b8;
+  }
+
+  * { box-sizing: border-box; }
+  html {
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+  }
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    display: flex;
+    min-height: 100%;
+  }
+  h1, h2, h3, .display {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+  }
+
+  /* ---------- Layout ---------- */
+  #app { display: flex; width: 100%; min-height: 100vh; }
+
+  .sidebar {
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    width: 236px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 14px;
+    padding-top: calc(20px + env(safe-area-inset-top, 0px));
+    position: fixed;
+    top: 0; bottom: 0; left: 0;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 40;
+  }
+  .sidebar.open { transform: translateX(0); }
+  @media (min-width: 900px) {
+    .sidebar { position: static; transform: none; }
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    padding: 6px 10px 22px 10px;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+  }
+  .brand .mark {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), #6f9af0);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    color: var(--sidebar-text);
+    user-select: none;
+  }
+  .nav-item:hover { background: var(--sidebar-bg-hover); color: #fff; }
+  .nav-item.active { background: var(--accent); color: #fff; }
+  .nav-item .n-icon { width: 18px; text-align: center; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 10px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: #3a4157;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 600; font-size: 13px;
+    flex-shrink: 0;
+  }
+  .sidebar-footer .name { color: #fff; font-size: 13px; font-weight: 600; }
+  .sidebar-footer .role { font-size: 11.5px; color: var(--sidebar-text); }
+
+  .sidebar-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 30;
+  }
+  .sidebar-backdrop.show { display: block; }
+  @media (min-width: 900px) { .sidebar-backdrop { display: none !important; } }
+
+  main {
+    flex: 1;
+    min-width: 0;
+    padding: 18px 18px 40px 18px;
+    padding-top: calc(18px + env(safe-area-inset-top, 0px));
+  }
+  @media (min-width: 900px) {
+    main { padding: 28px 32px 48px 32px; }
+  }
+
+  .topbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .topbar h1 { font-size: 22px; margin: 0; font-weight: 700; }
+  @media (min-width: 640px) { .topbar h1 { font-size: 26px; } }
+  .topbar .sub { color: var(--text-secondary); font-size: 13.5px; margin-top: 4px; }
+  .topbar .date { color: var(--text-secondary); font-size: 13px; white-space: nowrap; }
+
+  .menu-btn {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    margin-right: 10px;
+  }
+  @media (min-width: 900px) { .menu-btn { display: none; } }
+  .topbar-left { display: flex; align-items: center; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-top: 22px;
+  }
+  @media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1180px) { .grid { grid-template-columns: 1fr 1fr 1fr; } }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card:focus-visible, .icon-slot:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .card-head .titles h3 { font-size: 15px; margin: 0 0 3px 0; font-weight: 600; }
+  .card-head .titles .zone { font-size: 12.5px; color: var(--text-secondary); }
+
+  .badge {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .gauge-row { display: flex; align-items: center; gap: 16px; }
+  .gauge-wrap { position: relative; width: 84px; height: 84px; flex-shrink: 0; }
+  .gauge-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .gauge-wrap .icon-slot {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+  }
+  .gauge-pct {
+    position: absolute;
+    bottom: -20px; left: 0; right: 0;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .gauge-info { flex: 1; min-width: 0; padding-bottom: 4px; }
+  .gauge-info .status-label { font-size: 13.5px; font-weight: 600; margin-bottom: 6px; }
+  .bar-track {
+    height: 7px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .bar-fill { height: 100%; border-radius: 999px; }
+  .gauge-info .capacity { font-size: 12px; color: var(--text-secondary); }
+
+  .status-low   { --ring: var(--status-low-ring);  }
+  .status-mod   { --ring: var(--status-mod-ring);  }
+  .status-high  { --ring: var(--status-high-ring); }
+  .status-crit  { --ring: var(--status-crit-ring); }
+
+  .status-low .badge   { background: var(--status-low-bg);  color: var(--status-low-text); }
+  .status-mod .badge   { background: var(--status-mod-bg);  color: var(--status-mod-text); }
+  .status-high .badge  { background: var(--status-high-bg); color: var(--status-high-text); }
+  .status-crit .badge  { background: var(--status-crit-bg); color: var(--status-crit-text); }
+
+  .status-low .status-label  { color: var(--status-low-text); }
+  .status-mod .status-label  { color: var(--status-mod-text); }
+  .status-high .status-label { color: var(--status-high-text); }
+  .status-crit .status-label { color: var(--status-crit-text); }
+
+  .status-low .bar-fill  { background: var(--status-low-ring); }
+  .status-mod .bar-fill  { background: var(--status-mod-ring); }
+  .status-high .bar-fill { background: var(--status-high-ring); }
+  .status-crit .bar-fill { background: var(--status-crit-ring); }
+
+  /* ---------- Alert panel ---------- */
+  .alert-panel {
+    margin-top: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--status-crit-ring);
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: var(--shadow-card);
+  }
+  .alert-panel h3 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .alert-panel ul { margin: 0; padding: 0; list-style: none; }
+  .alert-panel li {
+    font-size: 13.5px;
+    padding: 4px 0;
+    color: var(--status-crit-text);
+    font-weight: 500;
+  }
+  .alert-panel .empty { color: var(--text-secondary); font-weight: 400; }
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(15,17,24,0.5);
+    align-items: center; justify-content: center;
+    padding: 20px;
+    z-index: 50;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 26px 26px 22px 26px;
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+  }
+  .modal h3 { font-size: 16px; margin: 0 0 18px 0; }
+  .modal .icon-slot.big {
+    width: 92px; height: 92px;
+    margin: 0 auto 12px auto;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 34px;
+    border: 6px solid var(--border);
+  }
+  .modal .capacity-line { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 14px; }
+  .modal .pct-display {
+    font-size: 30px;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+    margin-bottom: 14px;
+  }
+  .modal input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .modal .range-labels {
+    display: flex; justify-content: space-between;
+    font-size: 11.5px; color: var(--text-secondary);
+    margin-bottom: 22px;
+  }
+  .modal .actions { display: flex; gap: 10px; }
+  .btn {
+    flex: 1;
+    padding: 11px 14px;
+    border-radius: 9px;
+    font-size: 13.5px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .icon-slot { line-height: 1; }
+  .overflow-x { overflow-x: auto; }
+
+  /* ---------- Login screen ---------- */
+  .login-screen {
+    position: fixed; inset: 0;
+    background: var(--sidebar-bg);
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 20px;
+    z-index: 100;
+  }
+  .login-screen.show { display: flex; }
+  .login-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 36px 30px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+  }
+  .login-card .mark {
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), #6f9af0);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 16px auto;
+  }
+  .login-card h1 { font-size: 18px; margin: 0 0 6px 0; }
+  .login-card p { font-size: 13.5px; color: var(--text-secondary); margin: 0 0 22px 0; }
+  .google-btn {
+    width: 100%;
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .google-btn:hover { border-color: var(--accent); }
+  .login-error {
+    margin-top: 14px;
+    font-size: 12.5px;
+    color: var(--status-crit-text);
+    display: none;
+  }
+  .login-error.show { display: block; }
+
+  /* ---------- Demo mode banner ---------- */
+  .demo-banner {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background: var(--status-mod-bg);
+    color: var(--status-mod-text);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 9px;
+    margin-bottom: 14px;
+  }
+  .demo-banner.show { display: flex; }
+
+  .sidebar-footer { cursor: pointer; }
+  .sidebar-footer:hover .name { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="mark icon-slot" data-icon="logo">🗑️</div>
+    <h1>Waste Tracker</h1>
+    <p>Connectez-vous avec votre compte Google pour accéder au tableau de bord.</p>
+    <button class="google-btn" id="googleLoginBtn">
+      <span aria-hidden="true">G</span> Se connecter avec Google
+    </button>
+    <div class="login-error" id="loginError">La connexion a échoué. Réessayez.</div>
+  </div>
+</div>
+
+<div id="app">
+
+  <div class="sidebar-backdrop" id="backdrop"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="mark icon-slot" data-icon="logo">🗑️</span>
+      Waste Tracker
+    </div>
+    <nav>
+      <div class="nav-item active"><span class="n-icon icon-slot" data-icon="dashboard">📊</span> Dashboard</div>
+      <div class="nav-item"><span class="n-icon icon-slot" data-icon="bennes">🗃️</span> Bennes</div>
+      <div class="nav-item"><span class="n-icon icon-slot" data-icon="rapports">📄</span> Rapports</div>
+      <div class="nav-item"><span class="n-icon icon-slot" data-icon="parametres">⚙️</span> Paramètres</div>
+      <div class="nav-item"><span class="n-icon icon-slot" data-icon="utilisateurs">👥</span> Utilisateurs</div>
+    </nav>
+    <div class="sidebar-footer" id="sidebarFooter" title="Cliquer pour se déconnecter">
+      <div class="avatar" id="sidebarAvatar">JM</div>
+      <div>
+        <div class="name" id="sidebarName">Jean Martin</div>
+        <div class="role" id="sidebarRole">Administrateur</div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="menu-btn" id="menuBtn" aria-label="Ouvrir le menu">☰</button>
+        <div>
+          <h1>Tableau de bord — Gestion des déchets</h1>
+          <div class="sub">Site B (Zone Industrielle)</div>
+        </div>
+      </div>
+      <div class="date" id="dateLabel"></div>
+    </div>
+
+    <div class="demo-banner" id="demoBanner">⚠️ Mode démo — Firebase non configuré (voir firebaseConfig dans le code). Les données restent locales à ce navigateur.</div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="alert-panel">
+      <h3>⚠️ Alerte globale</h3>
+      <ul id="alertList"></ul>
+    </div>
+  </main>
+
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <h3 id="modalTitle">Ajuster le remplissage</h3>
+    <div class="icon-slot big" id="modalIcon">🛞</div>
+    <div class="capacity-line" id="modalCapacity"></div>
+    <div class="pct-display"><span id="modalPct">0</span>%</div>
+    <input type="range" min="0" max="100" value="0" id="modalSlider">
+    <div class="range-labels"><span>0%</span><span>100%</span></div>
+    <div class="actions">
+      <button class="btn" id="cancelBtn">Annuler</button>
+      <button class="btn primary" id="confirmBtn">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+/*
+  --------------------------------------------------------------
+  FIREBASE — à compléter avec les clés de votre projet
+  --------------------------------------------------------------
+  1. Créez un projet sur https://console.firebase.google.com
+  2. Activez Authentication > Google, et Firestore Database.
+  3. Copiez la config du projet (Paramètres du projet > Vos applications
+     > SDK setup and configuration) et collez-la ci-dessous.
+  4. Ajoutez le domaine où vous hébergez ce fichier (ex. votre page
+     GitHub Pages) dans Authentication > Settings > Domaines autorisés.
+
+  Tant que firebaseConfig contient encore les valeurs "VOTRE_...",
+  l'appli reste en MODE DÉMO : pas de connexion Google, pas de
+  synchronisation, données en localStorage (comportement identique
+  à la version précédente). Dès que vous renseignez de vraies clés,
+  l'écran de connexion Google et la synchro Firestore s'activent
+  automatiquement — rien d'autre à changer dans le code.
+  --------------------------------------------------------------
+  MODÈLE DE DONNÉES FIRESTORE
+  --------------------------------------------------------------
+  sites/{siteId}/containers/{containerId}
+    name, zone, icon, pct, used, total, unit
+  users/{uid}
+    email, role ('super_admin' | 'site_admin' | 'atelier'), siteId
+  (Zones et types de déchets configurables arriveront avec le module
+  Paramétrage admin — voir les prochaines étapes du projet.)
+  --------------------------------------------------------------
+  Les emojis dans les icon-slot (data-icon="...") sont des
+  placeholders : remplacez leur contenu par vos <img src="icons/xxx.svg">
+  une fois vos icônes prêtes — le nom dans data-icon indique laquelle
+  utiliser à chaque endroit.
+  --------------------------------------------------------------
+*/
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBktOo6ACN1b3qEkGGKS2lKPN33ev5Savc",
+  authDomain: "waste-tracking-2e609.firebaseapp.com",
+  projectId: "waste-tracking-2e609",
+  storageBucket: "waste-tracking-2e609.firebasestorage.app",
+  messagingSenderId: "269081398609",
+  appId: "1:269081398609:web:0a3cadf25281e6fc375770"
+};
+
+const SITE_ID = 'site-demo'; // à rendre sélectionnable quand le multi-site sera géré
+
+const FIREBASE_READY = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('VOTRE_');
+
+const STORAGE_KEY = 'waste-tracker-demo-v1';
+
+const DEFAULT_CONTAINERS = [
+  { id: 'c1', name: 'Benne à Pneus', zone: 'Zone Nord', icon: 'pneu', emoji: '🛞',
+    pct: 90, used: 18, total: 20, unit: 'm³' },
+  { id: 'c2', name: 'Déchets Souillés', zone: 'Atelier A', icon: 'dechets-souilles', emoji: '⚠️',
+    pct: 65, used: 6.5, total: 10, unit: 'm³' },
+  { id: 'c3', name: 'Fût Filtre à Huile', zone: 'Atelier B', icon: 'filtre-huile', emoji: '🛢️',
+    pct: 78, used: 15.6, total: 20, unit: 'L' },
+  { id: 'c4', name: 'Fût Liquide de Refroidissement', zone: 'Atelier B', icon: 'liquide-refroidissement', emoji: '🧴',
+    pct: 45, used: 90, total: 200, unit: 'L' },
+];
+
+function loadContainers() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) { /* ignore, fall back to defaults */ }
+  return JSON.parse(JSON.stringify(DEFAULT_CONTAINERS));
+}
+
+function saveContainers(containers) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(containers)); }
+  catch (e) { /* storage unavailable, demo state just won't persist */ }
+}
+
+let containers = loadContainers();
+let activeId = null;
+let currentUser = null;
+let db = null;
+let unsubscribeContainers = null;
+
+// Seuils d'alerte (configurables par l'admin de site dans la vraie appli)
+function statusFor(pct) {
+  if (pct >= 85) return { cls: 'status-crit', label: 'Remplissage Critique', tag: 'crit' };
+  if (pct >= 70) return { cls: 'status-high', label: 'Remplissage Élevé', tag: 'high' };
+  if (pct >= 50) return { cls: 'status-mod',  label: 'Remplissage Modéré', tag: 'mod' };
+  return              { cls: 'status-low',   label: 'Remplissage Faible', tag: 'low' };
+}
+
+function ringMarkup(pct, radius = 34) {
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference * (1 - pct / 100);
+  return `
+    <svg viewBox="0 0 84 84">
+      <circle cx="42" cy="42" r="${radius}" fill="none" stroke="var(--border)" stroke-width="8"/>
+      <circle cx="42" cy="42" r="${radius}" fill="none" stroke="var(--ring)" stroke-width="8"
+        stroke-linecap="round"
+        stroke-dasharray="${circumference}"
+        stroke-dashoffset="${offset}"/>
+    </svg>`;
+}
+
+function render() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = containers.map(c => {
+    const s = statusFor(c.pct);
+    return `
+      <div class="card ${s.cls}" tabindex="0" role="button" data-id="${c.id}" aria-label="${c.name}, ${c.pct}%">
+        <div class="card-head">
+          <div class="titles">
+            <h3>${c.name}</h3>
+            <div class="zone">${c.zone}</div>
+          </div>
+          <span class="badge">${c.pct}%</span>
+        </div>
+        <div class="gauge-row">
+          <div class="gauge-wrap">
+            ${ringMarkup(c.pct)}
+            <span class="icon-slot" data-icon="${c.icon}">${c.emoji}</span>
+          </div>
+          <div class="gauge-info">
+            <div class="status-label">${s.label}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${c.pct}%"></div></div>
+            <div class="capacity">Capacité : ${c.used}${c.unit} / ${c.total}${c.unit}</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', () => openModal(card.dataset.id));
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card.dataset.id); }
+    });
+  });
+
+  renderAlerts();
+}
+
+function renderAlerts() {
+  const list = document.getElementById('alertList');
+  const critical = containers.filter(c => c.pct >= 70).sort((a, b) => b.pct - a.pct);
+  if (critical.length === 0) {
+    list.innerHTML = `<li class="empty">Aucune alerte — tous les contenants sont sous le seuil.</li>`;
+    return;
+  }
+  list.innerHTML = critical.map(c => {
+    const s = statusFor(c.pct);
+    const label = s.tag === 'crit' ? 'Critique' : 'Élevé';
+    return `<li>${c.name} (${c.pct}% — ${label})</li>`;
+  }).join('');
+}
+
+// ---------- Modal ----------
+const modalBackdrop = document.getElementById('modalBackdrop');
+const modalSlider = document.getElementById('modalSlider');
+const modalPct = document.getElementById('modalPct');
+
+function openModal(id) {
+  activeId = id;
+  const c = containers.find(x => x.id === id);
+  document.getElementById('modalTitle').textContent = `Ajuster le remplissage — ${c.name}`;
+  document.getElementById('modalIcon').textContent = c.emoji;
+  document.getElementById('modalIcon').dataset.icon = c.icon;
+  document.getElementById('modalCapacity').textContent = `Capacité : ${c.used}${c.unit} / ${c.total}${c.unit}`;
+  modalSlider.value = c.pct;
+  modalPct.textContent = c.pct;
+  modalBackdrop.classList.add('show');
+}
+
+function closeModal() {
+  modalBackdrop.classList.remove('show');
+  activeId = null;
+}
+
+modalSlider.addEventListener('input', () => {
+  modalPct.textContent = modalSlider.value;
+});
+
+document.getElementById('cancelBtn').addEventListener('click', closeModal);
+modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) closeModal(); });
+
+document.getElementById('confirmBtn').addEventListener('click', async () => {
+  const c = containers.find(x => x.id === activeId);
+  const pct = Number(modalSlider.value);
+  const used = Math.round((pct / 100) * c.total * 10) / 10;
+
+  if (FIREBASE_READY && db) {
+    try {
+      const { doc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js');
+      await updateDoc(doc(db, 'sites', SITE_ID, 'containers', c.id), { pct, used });
+      // onSnapshot() met à jour containers[] et redessine automatiquement.
+    } catch (e) {
+      console.error('Écriture Firestore échouée, mise à jour locale seulement :', e);
+      c.pct = pct; c.used = used;
+      render();
+    }
+  } else {
+    c.pct = pct;
+    c.used = used;
+    saveContainers(containers);
+    render();
+  }
+  closeModal();
+});
+
+// ---------- Sidebar (mobile) ----------
+const sidebar = document.getElementById('sidebar');
+const backdrop = document.getElementById('backdrop');
+document.getElementById('menuBtn').addEventListener('click', () => {
+  sidebar.classList.add('open');
+  backdrop.classList.add('show');
+});
+backdrop.addEventListener('click', () => {
+  sidebar.classList.remove('open');
+  backdrop.classList.remove('show');
+});
+
+// ---------- Date ----------
+document.getElementById('dateLabel').textContent =
+  new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+// ---------- Auth / Firestore wiring ----------
+const loginScreen = document.getElementById('loginScreen');
+const sidebarAvatar = document.getElementById('sidebarAvatar');
+const sidebarName = document.getElementById('sidebarName');
+const sidebarRole = document.getElementById('sidebarRole');
+const sidebarFooter = document.getElementById('sidebarFooter');
+const demoBanner = document.getElementById('demoBanner');
+
+function initials(name) {
+  return (name || '?').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+}
+
+async function startFirebase() {
+  const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js');
+  const { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } =
+    await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js');
+  const { getFirestore, doc, getDoc, setDoc, collection, onSnapshot } =
+    await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js');
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+    document.getElementById('loginError').classList.remove('show');
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (e) {
+      console.error('Connexion Google échouée :', e);
+      document.getElementById('loginError').classList.add('show');
+    }
+  });
+
+  sidebarFooter.addEventListener('click', () => signOut(auth));
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      currentUser = null;
+      loginScreen.classList.add('show');
+      if (unsubscribeContainers) { unsubscribeContainers(); unsubscribeContainers = null; }
+      return;
+    }
+    currentUser = user;
+    loginScreen.classList.remove('show');
+    sidebarAvatar.textContent = initials(user.displayName);
+    sidebarName.textContent = user.displayName || user.email;
+
+    // Rôle : lu dans users/{uid}, créé avec le rôle par défaut 'atelier'
+    // au premier login. Un super admin ajustera ce champ dans la console
+    // Firestore en attendant le module de gestion des utilisateurs.
+    const userRef = doc(db, 'users', user.uid);
+    const userSnap = await getDoc(userRef);
+    let role = 'atelier';
+    if (!userSnap.exists()) {
+      await setDoc(userRef, { email: user.email, role, siteId: SITE_ID });
+    } else {
+      role = userSnap.data().role || 'atelier';
+    }
+    const roleLabels = { super_admin: 'Super Admin', site_admin: 'Administrateur de site', atelier: 'Atelier' };
+    sidebarRole.textContent = roleLabels[role] || role;
+
+    // Synchro temps réel des contenants de ce site
+    const containersRef = collection(db, 'sites', SITE_ID, 'containers');
+    unsubscribeContainers = onSnapshot(containersRef, async (snap) => {
+      if (snap.empty) {
+        // Premier lancement : on amorce Firestore avec les données de démo
+        await Promise.all(DEFAULT_CONTAINERS.map(c => setDoc(doc(containersRef, c.id), c)));
+        return; // le prochain onSnapshot() rendra les données qu'on vient d'écrire
+      }
+      containers = snap.docs.map(d => d.data());
+      render();
+    });
+  });
+}
+
+if (FIREBASE_READY) {
+  startFirebase().catch(e => {
+    console.error('Initialisation Firebase échouée, retour au mode démo :', e);
+    demoBanner.classList.add('show');
+    loginScreen.classList.remove('show');
+    render();
+  });
+} else {
+  // Mode démo : pas d'auth, données locales (comportement historique)
+  demoBanner.classList.add('show');
+  render();
+}
+</script>
+</body>
+</html>
