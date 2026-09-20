@@ -470,11 +470,11 @@
       Waste Tracker
     </div>
     <nav>
-      <div class="nav-item active"><span class="n-icon icon-slot" data-icon="dashboard">📊</span> Dashboard</div>
+      <div class="nav-item active" id="navDashboard"><span class="n-icon icon-slot" data-icon="dashboard">📊</span> Dashboard</div>
       <div class="nav-item"><span class="n-icon icon-slot" data-icon="bennes">🗃️</span> Bennes</div>
       <div class="nav-item"><span class="n-icon icon-slot" data-icon="rapports">📄</span> Rapports</div>
-      <div class="nav-item"><span class="n-icon icon-slot" data-icon="parametres">⚙️</span> Paramètres</div>
-      <div class="nav-item"><span class="n-icon icon-slot" data-icon="utilisateurs">👥</span> Utilisateurs</div>
+      <div class="nav-item" id="navSettings"><span class="n-icon icon-slot" data-icon="parametres">⚙️</span> Paramètres</div>
+      <div class="nav-item" id="navUsers"><span class="n-icon icon-slot" data-icon="utilisateurs">👥</span> Utilisateurs</div>
     </nav>
     <div class="sidebar-footer" id="sidebarFooter" title="Cliquer pour se déconnecter">
       <div class="avatar" id="sidebarAvatar">JM</div>
@@ -490,8 +490,8 @@
       <div class="topbar-left">
         <button class="menu-btn" id="menuBtn" aria-label="Ouvrir le menu">☰</button>
         <div>
-          <h1>Tableau de bord — Gestion des déchets</h1>
-          <div class="sub">Site B (Zone Industrielle)</div>
+          <h1 id="mainTitle">Tableau de bord — Gestion des déchets</h1>
+          <div class="sub" id="siteSubtitle">Chargement du site…</div>
         </div>
       </div>
       <div class="date" id="dateLabel"></div>
@@ -499,11 +499,99 @@
 
     <div class="demo-banner" id="demoBanner">⚠️ Mode démo — Firebase non configuré (voir firebaseConfig dans le code). Les données restent locales à ce navigateur.</div>
 
-    <div class="grid" id="grid"></div>
+    <div id="dashboardView">
+      <div class="grid" id="grid"></div>
 
-    <div class="alert-panel">
-      <h3>⚠️ Alerte globale</h3>
-      <ul id="alertList"></ul>
+      <div class="alert-panel">
+        <h3>⚠️ Alerte globale</h3>
+        <ul id="alertList"></ul>
+      </div>
+    </div>
+
+    <div id="settingsView" style="display:none;">
+      <div class="card" style="cursor:default; margin-bottom:14px;">
+        <h3 style="margin:0 0 10px 0; font-size:15px;">Nom du site</h3>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <input type="text" id="siteNameInput" placeholder="Ex. Site B (Zone Industrielle)"
+            style="flex:1; min-width:200px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
+          <button class="btn primary" id="saveSiteNameBtn" style="flex:none; width:auto; padding:9px 18px;">Enregistrer</button>
+        </div>
+      </div>
+
+      <div class="card" style="cursor:default; margin-bottom:14px;">
+        <h3 style="margin:0 0 14px 0; font-size:15px;">Ajouter un contenant</h3>
+        <div id="addContainerForm" style="display:grid; gap:10px; grid-template-columns: 1fr 1fr; align-items:end;">
+          <label style="font-size:12.5px; color:var(--text-secondary); grid-column: span 2;">
+            Nom du contenant
+            <input type="text" id="newName" placeholder="Ex. Benne à Cartons"
+              style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
+          </label>
+          <label style="font-size:12.5px; color:var(--text-secondary);">
+            Zone
+            <input type="text" id="newZone" placeholder="Ex. Atelier C"
+              style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
+          </label>
+          <label style="font-size:12.5px; color:var(--text-secondary);">
+            Icône (temporaire)
+            <select id="newIcon" style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;"></select>
+          </label>
+          <label style="font-size:12.5px; color:var(--text-secondary);">
+            Capacité totale
+            <input type="number" id="newTotal" min="0" step="0.1" placeholder="Ex. 10"
+              style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
+          </label>
+          <label style="font-size:12.5px; color:var(--text-secondary);">
+            Unité
+            <select id="newUnit" style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
+              <option value="m³">m³</option>
+              <option value="L">L</option>
+              <option value="kg">kg</option>
+              <option value="t">t</option>
+              <option value="pièce">pièce</option>
+            </select>
+          </label>
+          <button class="btn primary" id="addContainerBtn" style="grid-column: span 2;">Ajouter le contenant</button>
+        </div>
+      </div>
+
+      <div class="card" style="cursor:default;">
+        <h3 style="margin:0 0 14px 0; font-size:15px;">Contenants existants</h3>
+        <div class="overflow-x">
+          <table style="width:100%; border-collapse:collapse; font-size:13px;" id="containersTable">
+            <thead>
+              <tr style="text-align:left; color:var(--text-secondary); font-size:12px;">
+                <th style="padding:6px 8px;">Nom</th>
+                <th style="padding:6px 8px;">Zone</th>
+                <th style="padding:6px 8px;">Capacité</th>
+                <th style="padding:6px 8px;">Remplissage</th>
+                <th style="padding:6px 8px;"></th>
+              </tr>
+            </thead>
+            <tbody id="containersTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div id="usersView" style="display:none;">
+      <div class="card" style="cursor:default;">
+        <h3 style="margin:0 0 6px 0; font-size:15px;">Gestion des accès</h3>
+        <p style="margin:0 0 14px 0; font-size:12.5px; color:var(--text-secondary);">
+          Réservé au Super Admin. Attribue un rôle à chaque compte : Atelier (saisie terrain uniquement),
+          Administrateur de site (configuration + saisie), Super Admin (accès complet).
+        </p>
+        <div class="overflow-x">
+          <table style="width:100%; border-collapse:collapse; font-size:13px;">
+            <thead>
+              <tr style="text-align:left; color:var(--text-secondary); font-size:12px;">
+                <th style="padding:6px 8px;">Compte</th>
+                <th style="padding:6px 8px;">Rôle</th>
+                <th style="padding:6px 8px;"></th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -598,11 +686,48 @@ function saveContainers(containers) {
   catch (e) { /* storage unavailable, demo state just won't persist */ }
 }
 
+const SITE_NAME_KEY = 'waste-tracker-site-name-v1';
+function loadSiteName() {
+  try { return localStorage.getItem(SITE_NAME_KEY) || 'Site B (Zone Industrielle)'; }
+  catch (e) { return 'Site B (Zone Industrielle)'; }
+}
+function saveSiteNameLocal(name) {
+  try { localStorage.setItem(SITE_NAME_KEY, name); } catch (e) { /* ignore */ }
+}
+
+const ICON_EMOJI = {
+  'pneu': '🛞',
+  'batterie': '🔋',
+  'filtre-huile': '🛢️',
+  'huile-usagee': '🪣',
+  'gazole-usage': '⛽',
+  'liquide-refroidissement': '🧴',
+  'dechets-souilles': '⚠️',
+  'carton': '📦',
+  'tout-venant': '🚮',
+  'aluminium': '🥤',
+  'ferraille': '⚙️',
+  'plastique': '♻️',
+  'citerne': '🧪',
+  'poubelle': '🗑️',
+};
+const DEFAULT_ICON_KEY = 'poubelle';
+
 let containers = loadContainers();
+let users = [];
+let unsubscribeUsers = null;
+let siteName = null; // chargé depuis Firestore ou localStorage
 let activeId = null;
 let currentUser = null;
+let currentRole = null; // 'super_admin' | 'site_admin' | 'atelier' | null (démo)
 let db = null;
 let unsubscribeContainers = null;
+let currentView = 'dashboard'; // 'dashboard' | 'settings' | 'users'
+
+const ROLE_LABELS = { super_admin: 'Super Admin', site_admin: 'Administrateur de site', atelier: 'Atelier' };
+
+// Références Firestore (peuplées une seule fois dans startFirebase, réutilisées partout)
+let fs = null; // { doc, setDoc, updateDoc, deleteDoc, addDoc, collection, getDoc, onSnapshot }
 
 // Seuils d'alerte (configurables par l'admin de site dans la vraie appli)
 function statusFor(pct) {
@@ -627,30 +752,44 @@ function ringMarkup(pct, radius = 34) {
 
 function render() {
   const grid = document.getElementById('grid');
-  grid.innerHTML = containers.map(c => {
-    const s = statusFor(c.pct);
-    return `
-      <div class="card ${s.cls}" tabindex="0" role="button" data-id="${c.id}" aria-label="${c.name}, ${c.pct}%">
-        <div class="card-head">
-          <div class="titles">
-            <h3>${c.name}</h3>
-            <div class="zone">${c.zone}</div>
+  try {
+    grid.innerHTML = containers.map(c => {
+      // Valeurs de repli : un document incomplet ne doit jamais faire planter tout le tableau de bord.
+      const pct = Number.isFinite(c.pct) ? c.pct : 0;
+      const total = Number.isFinite(c.total) ? c.total : 0;
+      const used = Number.isFinite(c.used) ? c.used : 0;
+      const unit = c.unit || '';
+      const icon = c.icon || DEFAULT_ICON_KEY;
+      const emoji = c.emoji || ICON_EMOJI[icon] || ICON_EMOJI[DEFAULT_ICON_KEY];
+      const name = c.name || '(sans nom)';
+      const zone = c.zone || '';
+      const s = statusFor(pct);
+      return `
+        <div class="card ${s.cls}" tabindex="0" role="button" data-id="${c.id}" aria-label="${name}, ${pct}%">
+          <div class="card-head">
+            <div class="titles">
+              <h3>${name}</h3>
+              <div class="zone">${zone}</div>
+            </div>
+            <span class="badge">${pct}%</span>
           </div>
-          <span class="badge">${c.pct}%</span>
-        </div>
-        <div class="gauge-row">
-          <div class="gauge-wrap">
-            ${ringMarkup(c.pct)}
-            <span class="icon-slot" data-icon="${c.icon}">${c.emoji}</span>
+          <div class="gauge-row">
+            <div class="gauge-wrap">
+              ${ringMarkup(pct)}
+              <span class="icon-slot" data-icon="${icon}">${emoji}</span>
+            </div>
+            <div class="gauge-info">
+              <div class="status-label">${s.label}</div>
+              <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+              <div class="capacity">Capacité : ${used}${unit} / ${total}${unit}</div>
+            </div>
           </div>
-          <div class="gauge-info">
-            <div class="status-label">${s.label}</div>
-            <div class="bar-track"><div class="bar-fill" style="width:${c.pct}%"></div></div>
-            <div class="capacity">Capacité : ${c.used}${c.unit} / ${c.total}${c.unit}</div>
-          </div>
-        </div>
-      </div>`;
-  }).join('');
+        </div>`;
+    }).join('');
+  } catch (e) {
+    console.error('Erreur lors de l\'affichage des contenants :', e, containers);
+    grid.innerHTML = `<div style="color:var(--status-crit-text); font-size:13px;">Erreur d'affichage — regarde la console (F12) et envoie le message à Claude.</div>`;
+  }
 
   grid.querySelectorAll('.card').forEach(card => {
     card.addEventListener('click', () => openModal(card.dataset.id));
@@ -664,7 +803,10 @@ function render() {
 
 function renderAlerts() {
   const list = document.getElementById('alertList');
-  const critical = containers.filter(c => c.pct >= 70).sort((a, b) => b.pct - a.pct);
+  const critical = containers
+    .map(c => ({ ...c, pct: Number.isFinite(c.pct) ? c.pct : 0 }))
+    .filter(c => c.pct >= 70)
+    .sort((a, b) => b.pct - a.pct);
   if (critical.length === 0) {
     list.innerHTML = `<li class="empty">Aucune alerte — tous les contenants sont sous le seuil.</li>`;
     return;
@@ -672,8 +814,274 @@ function renderAlerts() {
   list.innerHTML = critical.map(c => {
     const s = statusFor(c.pct);
     const label = s.tag === 'crit' ? 'Critique' : 'Élevé';
-    return `<li>${c.name} (${c.pct}% — ${label})</li>`;
+    return `<li>${c.name || '(sans nom)'} (${c.pct}% — ${label})</li>`;
   }).join('');
+}
+
+function updateSiteSubtitle() {
+  document.getElementById('siteSubtitle').textContent = siteName || 'Site sans nom';
+}
+
+function generateLocalId() {
+  return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+}
+
+// ---------- CRUD contenants (abstraction démo / Firestore) ----------
+async function persistNewContainer(data) {
+  if (FIREBASE_READY && db && fs) {
+    const containersRef = fs.collection(db, 'sites', SITE_ID, 'containers');
+    const newRef = fs.doc(containersRef);
+    const full = { ...data, id: newRef.id, pct: 0, used: 0 };
+    await fs.setDoc(newRef, full);
+    // onSnapshot met à jour containers[] automatiquement
+  } else {
+    const full = { ...data, id: generateLocalId(), pct: 0, used: 0 };
+    containers.push(full);
+    saveContainers(containers);
+    render();
+    renderSettings();
+  }
+}
+
+async function persistContainerMeta(id, fields) {
+  if (FIREBASE_READY && db && fs) {
+    await fs.updateDoc(fs.doc(db, 'sites', SITE_ID, 'containers', id), fields);
+  } else {
+    const c = containers.find(x => x.id === id);
+    if (c) Object.assign(c, fields);
+    saveContainers(containers);
+    render();
+    renderSettings();
+  }
+}
+
+async function removeContainer(id) {
+  if (FIREBASE_READY && db && fs) {
+    await fs.deleteDoc(fs.doc(db, 'sites', SITE_ID, 'containers', id));
+  } else {
+    containers = containers.filter(x => x.id !== id);
+    saveContainers(containers);
+    render();
+    renderSettings();
+  }
+}
+
+async function persistSiteName(name) {
+  siteName = name;
+  updateSiteSubtitle();
+  if (FIREBASE_READY && db && fs) {
+    await fs.setDoc(fs.doc(db, 'sites', SITE_ID), { name }, { merge: true });
+  } else {
+    saveSiteNameLocal(name);
+  }
+}
+
+// ---------- Vue Paramètres ----------
+function populateIconSelect() {
+  const select = document.getElementById('newIcon');
+  if (select.options.length) return; // déjà rempli
+  const labels = {
+    'pneu': '🛞 Pneu',
+    'batterie': '🔋 Batterie de voiture',
+    'filtre-huile': '🛢️ Filtre à huile usagé',
+    'huile-usagee': '🪣 Huile usagée',
+    'gazole-usage': '⛽ Gazole usagé',
+    'liquide-refroidissement': '🧴 Liquide de refroidissement',
+    'dechets-souilles': '⚠️ Éléments souillés',
+    'carton': '📦 Carton',
+    'tout-venant': '🚮 Tout-venant',
+    'aluminium': '🥤 Aluminium',
+    'ferraille': '⚙️ Ferraille',
+    'plastique': '♻️ Plastique',
+    'citerne': '🧪 Citerne',
+    'poubelle': '🗑️ Autre / générique',
+  };
+  Object.entries(labels).forEach(([key, label]) => {
+    const opt = document.createElement('option');
+    opt.value = key; opt.textContent = label;
+    select.appendChild(opt);
+  });
+}
+
+function renderSettings() {
+  document.getElementById('siteNameInput').value = siteName || '';
+  populateIconSelect();
+
+  const tbody = document.getElementById('containersTableBody');
+  tbody.innerHTML = containers.map(c => {
+    const name = c.name || '(sans nom)';
+    const zone = c.zone || '';
+    const total = Number.isFinite(c.total) ? c.total : 0;
+    const unit = c.unit || '';
+    const pct = Number.isFinite(c.pct) ? c.pct : 0;
+    return `
+    <tr style="border-top:1px solid var(--border);" data-id="${c.id}">
+      <td style="padding:8px;"><input type="text" class="edit-name" value="${name}"
+        style="width:100%; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;"></td>
+      <td style="padding:8px;"><input type="text" class="edit-zone" value="${zone}"
+        style="width:100%; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;"></td>
+      <td style="padding:8px; white-space:nowrap;">
+        <input type="text" class="edit-total" value="${total}"
+          style="width:70px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;"> ${unit}
+      </td>
+      <td style="padding:8px; color:var(--text-secondary);">${pct}%</td>
+      <td style="padding:8px; white-space:nowrap;">
+        <button class="btn save-row" style="width:auto; padding:6px 10px; margin-right:6px;">Enregistrer</button>
+        <button class="btn delete-row" style="width:auto; padding:6px 10px; color:var(--status-crit-text); border-color:var(--status-crit-ring);">Supprimer</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('tr').forEach(row => {
+    const id = row.dataset.id;
+    row.querySelector('.save-row').addEventListener('click', async () => {
+      const name = row.querySelector('.edit-name').value.trim();
+      const zone = row.querySelector('.edit-zone').value.trim();
+      const total = Number(row.querySelector('.edit-total').value.replace(',', '.'));
+      if (!name || !zone || !Number.isFinite(total) || total <= 0) {
+        alert('Nom, zone et capacité (> 0) sont obligatoires.');
+        return;
+      }
+      try {
+        await persistContainerMeta(id, { name, zone, total });
+      } catch (e) {
+        console.error('Échec de la mise à jour :', e);
+        alert('La mise à jour a échoué : ' + (e && e.message ? e.message : e));
+      }
+    });
+    row.querySelector('.delete-row').addEventListener('click', async () => {
+      const c = containers.find(x => x.id === id);
+      if (confirm(`Supprimer "${c ? c.name : id}" ? Cette action est définitive.`)) {
+        try {
+          await removeContainer(id);
+        } catch (e) {
+          console.error('Échec de la suppression :', e);
+          alert('La suppression a échoué : ' + (e && e.message ? e.message : e));
+        }
+      }
+    });
+  });
+}
+
+function renderUsers() {
+  const tbody = document.getElementById('usersTableBody');
+  if (!users.length) {
+    tbody.innerHTML = `<tr><td colspan="3" style="padding:10px; color:var(--text-secondary);">Aucun compte pour l'instant — les comptes apparaissent ici après leur première connexion.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = users.map(u => `
+    <tr style="border-top:1px solid var(--border);" data-uid="${u.id}">
+      <td style="padding:8px;">${u.email || u.id}</td>
+      <td style="padding:8px;">
+        <select class="edit-role" style="padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;">
+          <option value="atelier" ${u.role === 'atelier' ? 'selected' : ''}>Atelier</option>
+          <option value="site_admin" ${u.role === 'site_admin' ? 'selected' : ''}>Administrateur de site</option>
+          <option value="super_admin" ${u.role === 'super_admin' ? 'selected' : ''}>Super Admin</option>
+        </select>
+      </td>
+      <td style="padding:8px;">
+        <button class="btn save-role" style="width:auto; padding:6px 10px;">Enregistrer</button>
+      </td>
+    </tr>`).join('');
+
+  tbody.querySelectorAll('tr').forEach(row => {
+    const uid = row.dataset.uid;
+    const btn = row.querySelector('.save-role');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+      const role = row.querySelector('.edit-role').value;
+      btn.disabled = true;
+      btn.textContent = '…';
+      try {
+        await persistUserRole(uid, role);
+        btn.textContent = 'Enregistré ✓';
+        setTimeout(() => { btn.textContent = 'Enregistrer'; btn.disabled = false; }, 1200);
+      } catch (e) {
+        console.error('Échec de la mise à jour du rôle :', e);
+        alert('Impossible de changer ce rôle : ' + (e && e.message ? e.message : e));
+        btn.textContent = 'Enregistrer';
+        btn.disabled = false;
+      }
+    });
+  });
+}
+
+async function persistUserRole(uid, role) {
+  if (!(FIREBASE_READY && db && fs)) return; // pas de gestion des rôles en mode démo
+  await fs.updateDoc(fs.doc(db, 'users', uid), { role });
+  // onSnapshot() sur users[] redessine automatiquement, y compris pour le compte
+  // actuellement connecté si c'est le sien qui vient de changer.
+}
+
+document.getElementById('saveSiteNameBtn').addEventListener('click', () => {
+  const name = document.getElementById('siteNameInput').value.trim();
+  if (name) persistSiteName(name);
+});
+
+document.getElementById('addContainerBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('addContainerBtn');
+  const name = document.getElementById('newName').value.trim();
+  const zone = document.getElementById('newZone').value.trim();
+  const icon = document.getElementById('newIcon').value || DEFAULT_ICON_KEY;
+  const rawTotal = document.getElementById('newTotal').value;
+  const total = Number(String(rawTotal).replace(',', '.'));
+  const unit = document.getElementById('newUnit').value;
+
+  if (!name || !zone || !Number.isFinite(total) || total <= 0) {
+    alert('Merci de renseigner le nom, la zone, et une capacité totale supérieure à 0 (utilise un point pour les décimales, ex. 10.5).');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Ajout en cours…';
+  try {
+    await persistNewContainer({ name, zone, icon, emoji: ICON_EMOJI[icon] || ICON_EMOJI[DEFAULT_ICON_KEY], total, unit });
+    document.getElementById('newName').value = '';
+    document.getElementById('newZone').value = '';
+    document.getElementById('newTotal').value = '';
+  } catch (e) {
+    console.error('Échec de l\'ajout du contenant :', e);
+    alert('L\'ajout a échoué : ' + (e && e.message ? e.message : e) + '\n\nOuvre la console (F12) pour le détail complet et transmets ce message si besoin.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Ajouter le contenant';
+  }
+});
+
+// ---------- Navigation entre vues ----------
+function setView(view) {
+  currentView = view;
+  document.getElementById('dashboardView').style.display = view === 'dashboard' ? '' : 'none';
+  document.getElementById('settingsView').style.display = view === 'settings' ? '' : 'none';
+  document.getElementById('usersView').style.display = view === 'users' ? '' : 'none';
+  const titles = {
+    dashboard: 'Tableau de bord — Gestion des déchets',
+    settings: 'Paramètres — Sites, zones et contenants',
+    users: 'Utilisateurs — Gestion des accès',
+  };
+  document.getElementById('mainTitle').textContent = titles[view] || titles.dashboard;
+  document.getElementById('navDashboard').classList.toggle('active', view === 'dashboard');
+  document.getElementById('navSettings').classList.toggle('active', view === 'settings');
+  document.getElementById('navUsers').classList.toggle('active', view === 'users');
+  if (view === 'settings') renderSettings();
+  if (view === 'users') renderUsers();
+  // Referme le menu mobile après un choix de section
+  sidebar.classList.remove('open');
+  backdrop.classList.remove('show');
+}
+
+document.getElementById('navDashboard').addEventListener('click', () => setView('dashboard'));
+document.getElementById('navSettings').addEventListener('click', () => setView('settings'));
+document.getElementById('navUsers').addEventListener('click', () => setView('users'));
+
+function updateNavForRole(role) {
+  // Un compte "atelier" n'a accès qu'au tableau de bord, pas au paramétrage.
+  const settingsAllowed = !FIREBASE_READY || role === 'super_admin' || role === 'site_admin';
+  const usersAllowed = FIREBASE_READY && role === 'super_admin';
+  document.getElementById('navSettings').style.display = settingsAllowed ? '' : 'none';
+  document.getElementById('navUsers').style.display = usersAllowed ? '' : 'none';
+  if (!settingsAllowed && currentView === 'settings') setView('dashboard');
+  if (!usersAllowed && currentView === 'users') setView('dashboard');
 }
 
 // ---------- Modal ----------
@@ -710,10 +1118,9 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
   const pct = Number(modalSlider.value);
   const used = Math.round((pct / 100) * c.total * 10) / 10;
 
-  if (FIREBASE_READY && db) {
+  if (FIREBASE_READY && db && fs) {
     try {
-      const { doc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js');
-      await updateDoc(doc(db, 'sites', SITE_ID, 'containers', c.id), { pct, used });
+      await fs.updateDoc(fs.doc(db, 'sites', SITE_ID, 'containers', c.id), { pct, used });
       // onSnapshot() met à jour containers[] et redessine automatiquement.
     } catch (e) {
       console.error('Écriture Firestore échouée, mise à jour locale seulement :', e);
@@ -761,8 +1168,10 @@ async function startFirebase() {
   const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js');
   const { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } =
     await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js');
-  const { getFirestore, doc, getDoc, setDoc, collection, onSnapshot } =
+  const { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, onSnapshot } =
     await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js');
+
+  fs = { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, onSnapshot };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
@@ -784,8 +1193,10 @@ async function startFirebase() {
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       currentUser = null;
+      currentRole = null;
       loginScreen.classList.add('show');
       if (unsubscribeContainers) { unsubscribeContainers(); unsubscribeContainers = null; }
+      if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
       return;
     }
     currentUser = user;
@@ -793,31 +1204,64 @@ async function startFirebase() {
     sidebarAvatar.textContent = initials(user.displayName);
     sidebarName.textContent = user.displayName || user.email;
 
-    // Rôle : lu dans users/{uid}, créé avec le rôle par défaut 'atelier'
-    // au premier login. Un super admin ajustera ce champ dans la console
-    // Firestore en attendant le module de gestion des utilisateurs.
-    const userRef = doc(db, 'users', user.uid);
-    const userSnap = await getDoc(userRef);
-    let role = 'atelier';
-    if (!userSnap.exists()) {
-      await setDoc(userRef, { email: user.email, role, siteId: SITE_ID });
-    } else {
-      role = userSnap.data().role || 'atelier';
-    }
-    const roleLabels = { super_admin: 'Super Admin', site_admin: 'Administrateur de site', atelier: 'Atelier' };
-    sidebarRole.textContent = roleLabels[role] || role;
-
-    // Synchro temps réel des contenants de ce site
-    const containersRef = collection(db, 'sites', SITE_ID, 'containers');
-    unsubscribeContainers = onSnapshot(containersRef, async (snap) => {
-      if (snap.empty) {
-        // Premier lancement : on amorce Firestore avec les données de démo
-        await Promise.all(DEFAULT_CONTAINERS.map(c => setDoc(doc(containersRef, c.id), c)));
-        return; // le prochain onSnapshot() rendra les données qu'on vient d'écrire
+    try {
+      // Rôle : lu dans users/{uid}, créé avec le rôle par défaut 'atelier'
+      // au premier login. Un super admin ajustera ce champ dans la console
+      // Firestore en attendant le module de gestion des utilisateurs.
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+      let role = 'atelier';
+      if (!userSnap.exists()) {
+        await setDoc(userRef, { email: user.email, role, siteId: SITE_ID });
+      } else {
+        role = userSnap.data().role || 'atelier';
       }
-      containers = snap.docs.map(d => d.data());
-      render();
-    });
+      currentRole = role;
+      sidebarRole.textContent = ROLE_LABELS[role] || role;
+      updateNavForRole(role);
+
+      if (role === 'super_admin') {
+        const usersRef = collection(db, 'users');
+        unsubscribeUsers = onSnapshot(usersRef, (snap) => {
+          users = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          if (currentView === 'users') renderUsers();
+        }, (err) => console.error('Erreur de synchronisation des utilisateurs :', err));
+      }
+
+      // Nom du site
+      const siteRef = doc(db, 'sites', SITE_ID);
+      const siteSnap = await getDoc(siteRef);
+      if (siteSnap.exists() && siteSnap.data().name) {
+        siteName = siteSnap.data().name;
+      } else {
+        siteName = 'Site B (Zone Industrielle)';
+        await setDoc(siteRef, { name: siteName }, { merge: true });
+      }
+      updateSiteSubtitle();
+
+      // Synchro temps réel des contenants de ce site
+      const containersRef = collection(db, 'sites', SITE_ID, 'containers');
+      unsubscribeContainers = onSnapshot(containersRef, async (snap) => {
+        if (snap.empty) {
+          // Premier lancement : on amorce Firestore avec les données de démo
+          await Promise.all(DEFAULT_CONTAINERS.map(c => setDoc(doc(containersRef, c.id), c)));
+          return; // le prochain onSnapshot() rendra les données qu'on vient d'écrire
+        }
+        containers = snap.docs.map(d => d.data());
+        render();
+        if (currentView === 'settings') renderSettings();
+      }, (err) => {
+        console.error('Erreur de synchronisation Firestore (onSnapshot) :', err);
+        document.getElementById('siteSubtitle').textContent = 'Erreur de synchronisation — voir console (F12)';
+      });
+    } catch (e) {
+      console.error('Erreur lors du chargement des données Firestore (rôle/site) :', e);
+      document.getElementById('siteSubtitle').textContent =
+        'Erreur de permissions Firestore — voir console (F12) : ' + (e && e.message ? e.message : e);
+      demoBanner.textContent = '⚠️ Connecté, mais Firestore a refusé une lecture (probablement les règles de sécurité). Voir la console (F12).';
+      demoBanner.classList.add('show');
+      render(); // affiche au moins les 4 contenants par défaut en mémoire, à défaut de mieux
+    }
   });
 }
 
@@ -826,11 +1270,17 @@ if (FIREBASE_READY) {
     console.error('Initialisation Firebase échouée, retour au mode démo :', e);
     demoBanner.classList.add('show');
     loginScreen.classList.remove('show');
+    siteName = loadSiteName();
+    updateSiteSubtitle();
+    updateNavForRole(null);
     render();
   });
 } else {
   // Mode démo : pas d'auth, données locales (comportement historique)
   demoBanner.classList.add('show');
+  siteName = loadSiteName();
+  updateSiteSubtitle();
+  updateNavForRole(null);
   render();
 }
 </script>
