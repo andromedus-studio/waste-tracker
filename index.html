@@ -205,6 +205,18 @@
   @media (min-width: 900px) { .menu-btn { display: none; } }
   .topbar-left { display: flex; align-items: center; }
 
+  .icon-btn {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 15px;
+  }
+  .icon-btn:hover { border-color: var(--accent); }
+
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -570,7 +582,7 @@
         </div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
-        <button class="menu-btn" id="themeToggleBtn" aria-label="Changer de thème" title="Changer de thème">🌙</button>
+        <button class="icon-btn" id="themeToggleBtn" aria-label="Changer de thème" title="Changer de thème">🌙</button>
         <div class="date" id="dateLabel"></div>
       </div>
     </div>
