@@ -104,7 +104,7 @@
   }
   .sidebar.open { transform: translateX(0); }
   @media (min-width: 900px) {
-    .sidebar { position: static; transform: none; }
+    .sidebar { transform: none; }
   }
 
   .brand {
@@ -176,7 +176,7 @@
     padding-top: calc(18px + env(safe-area-inset-top, 0px));
   }
   @media (min-width: 900px) {
-    main { padding: 28px 32px 48px 32px; }
+    main { padding: 28px 32px 48px 32px; margin-left: 236px; }
   }
 
   .topbar {
@@ -578,12 +578,12 @@
     <div class="demo-banner" id="demoBanner">⚠️ Mode démo — Firebase non configuré (voir firebaseConfig dans le code). Les données restent locales à ce navigateur.</div>
 
     <div id="dashboardView">
-      <div id="zonesContainer"></div>
-
-      <div class="alert-panel">
+      <div class="alert-panel" style="margin-top:0; margin-bottom:16px;">
         <h3>⚠️ Alerte globale</h3>
         <ul id="alertList"></ul>
       </div>
+
+      <div id="zonesContainer"></div>
     </div>
 
     <div id="settingsView" style="display:none;">
@@ -899,21 +899,40 @@ function saveLocalHistory(all) {
 function addLocalHistoryEntry(containerId, pct, used) {
   const all = loadLocalHistory();
   if (!all[containerId]) all[containerId] = [];
-  all[containerId].push({ ts: new Date().toISOString(), pct, used });
+  all[containerId].push({ id: generateLocalId(), ts: new Date().toISOString(), pct, used });
   saveLocalHistory(all);
+}
+
+function removeLocalHistoryEntry(containerId, entryId) {
+  const all = loadLocalHistory();
+  if (all[containerId]) {
+    all[containerId] = all[containerId].filter(e => e.id !== entryId);
+    saveLocalHistory(all);
+  }
 }
 
 async function recordHistory(containerId, pct, used) {
   if (FIREBASE_READY && db && fs) {
     try {
       const histRef = fs.collection(db, 'sites', SITE_ID, 'containers', containerId, 'history');
-      await fs.setDoc(fs.doc(histRef), { ts: new Date().toISOString(), pct, used });
+      const newRef = fs.doc(histRef);
+      await fs.setDoc(newRef, { id: newRef.id, ts: new Date().toISOString(), pct, used });
     } catch (e) {
       console.error('Échec de l\'enregistrement de l\'historique :', e);
       // Non bloquant : la mise à jour du contenant lui-même a déjà réussi.
     }
   } else {
     addLocalHistoryEntry(containerId, pct, used);
+  }
+}
+
+async function removeHistoryEntry(containerId, entryId) {
+  if (FIREBASE_READY && db && fs) {
+    await fs.deleteDoc(fs.doc(db, 'sites', SITE_ID, 'containers', containerId, 'history', entryId));
+    // onSnapshot() du rapport ouvert redessine automatiquement.
+  } else {
+    removeLocalHistoryEntry(containerId, entryId);
+    if (reportSelectedId === containerId) selectReportContainer(containerId);
   }
 }
 
@@ -1499,7 +1518,7 @@ function selectReportContainer(id) {
   if (FIREBASE_READY && db && fs) {
     const histRef = fs.collection(db, 'sites', SITE_ID, 'containers', id, 'history');
     unsubscribeHistory = fs.onSnapshot(histRef, (snap) => {
-      const entries = snap.docs.map(d => d.data()).sort((a, b) => new Date(a.ts) - new Date(b.ts));
+      const entries = snap.docs.map(d => ({ ...d.data(), id: d.data().id || d.id })).sort((a, b) => new Date(a.ts) - new Date(b.ts));
       renderReportDetailContent(entries, c);
     }, (err) => {
       console.error('Erreur de lecture de l\'historique :', err);
@@ -1527,6 +1546,7 @@ function renderReportDetailContent(entries, c) {
   chartWrap.innerHTML = barChartSvg(recent, Number.isFinite(c && c.threshold) ? c.threshold : DEFAULT_THRESHOLD);
 
   const unit = (c && c.unit) || '';
+  const canDelete = canDragZones(); // même règle que pour les zones : réservé aux admins
   tableWrap.innerHTML = `
     <table style="width:100%; border-collapse:collapse; font-size:13px;">
       <thead>
@@ -1534,17 +1554,39 @@ function renderReportDetailContent(entries, c) {
           <th style="padding:6px 8px;">Date</th>
           <th style="padding:6px 8px;">Remplissage</th>
           <th style="padding:6px 8px;">Quantité</th>
+          <th style="padding:6px 8px;"></th>
         </tr>
       </thead>
       <tbody>
         ${entries.slice().reverse().map(e => `
-          <tr style="border-top:1px solid var(--border);">
+          <tr style="border-top:1px solid var(--border);" data-entry-id="${e.id || ''}">
             <td style="padding:8px;">${formatDateShort(e.ts)}</td>
             <td style="padding:8px;">${Number.isFinite(e.pct) ? e.pct : 0}%</td>
             <td style="padding:8px;">${Number.isFinite(e.used) ? e.used : 0}${unit}</td>
+            <td style="padding:8px;">
+              ${canDelete && e.id ? `<button class="btn delete-entry" style="width:auto; padding:4px 9px; font-size:12px; color:var(--status-crit-text); border-color:var(--status-crit-ring);">Supprimer</button>` : ''}
+            </td>
           </tr>`).join('')}
       </tbody>
     </table>`;
+
+  if (canDelete) {
+    tableWrap.querySelectorAll('.delete-entry').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const row = btn.closest('tr');
+        const entryId = row.dataset.entryId;
+        if (!entryId) return;
+        if (confirm('Supprimer cette entrée de l\'historique ? Utile en cas de mauvaise manipulation ou de valeur erronée.')) {
+          try {
+            await removeHistoryEntry(c.id, entryId);
+          } catch (e) {
+            console.error('Échec de la suppression de l\'entrée :', e);
+            alert('La suppression a échoué : ' + (e && e.message ? e.message : e));
+          }
+        }
+      });
+    });
+  }
 }
 
 function renderReports() {
