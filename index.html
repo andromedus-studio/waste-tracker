@@ -559,7 +559,10 @@
           <div class="sub" id="siteSubtitle">Chargement du site…</div>
         </div>
       </div>
-      <div class="date" id="dateLabel"></div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button class="menu-btn" id="themeToggleBtn" aria-label="Changer de thème" title="Changer de thème">🌙</button>
+        <div class="date" id="dateLabel"></div>
+      </div>
     </div>
 
     <div class="demo-banner" id="demoBanner">⚠️ Mode démo — Firebase non configuré (voir firebaseConfig dans le code). Les données restent locales à ce navigateur.</div>
@@ -801,10 +804,14 @@ const ICON_EMOJI = {
   'dechets-souilles': '⚠️',
   'carton': '📦',
   'tout-venant': '🚮',
-  'aluminium': '🥤',
+  'aluminium': '⭕',
   'ferraille': '⚙️',
   'plastique': '♻️',
   'citerne': '🧪',
+  'aerosol': '🧯',
+  'inflammable': '🔥',
+  'palette': '🪵',
+  'pare-brise': '🚗',
   'poubelle': '🗑️',
 };
 const DEFAULT_ICON_KEY = 'poubelle';
@@ -1236,15 +1243,19 @@ function populateIconSelect() {
     'batterie': '🔋 Batterie de voiture',
     'filtre-huile': '🛢️ Filtre à huile usagé',
     'huile-usagee': '🪣 Huile usagée',
-    'gazole-usage': '⛽ Gazole usagé',
+    'gazole-usage': '⛽ Gazole/carburant usagé',
     'liquide-refroidissement': '🧴 Liquide de refroidissement',
     'dechets-souilles': '⚠️ Éléments souillés',
     'carton': '📦 Carton',
     'tout-venant': '🚮 Tout-venant',
-    'aluminium': '🥤 Aluminium',
+    'aluminium': '⭕ Jante aluminium',
     'ferraille': '⚙️ Ferraille',
     'plastique': '♻️ Plastique',
     'citerne': '🧪 Citerne',
+    'aerosol': '🧯 Aérosol',
+    'inflammable': '🔥 Inflammable',
+    'palette': '🪵 Palette bois',
+    'pare-brise': '🚗 Pare-brise',
     'poubelle': '🗑️ Autre / générique',
   };
   Object.entries(labels).forEach(([key, label]) => {
@@ -1692,6 +1703,36 @@ backdrop.addEventListener('click', () => {
   sidebar.classList.remove('open');
   backdrop.classList.remove('show');
 });
+
+// ---------- Thème clair/sombre ----------
+const THEME_KEY = 'waste-tracker-theme-v1';
+function applyTheme(theme) {
+  if (theme === 'light' || theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', theme);
+  } else {
+    document.documentElement.removeAttribute('data-theme'); // suit le système
+  }
+  const btn = document.getElementById('themeToggleBtn');
+  if (btn) {
+    const effectiveDark = theme === 'dark' ||
+      (theme !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    btn.textContent = effectiveDark ? '☀️' : '🌙';
+  }
+}
+function initTheme() {
+  let saved = null;
+  try { saved = localStorage.getItem(THEME_KEY); } catch (e) { /* ignore */ }
+  applyTheme(saved);
+}
+document.getElementById('themeToggleBtn').addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme');
+  const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const currentlyDark = current === 'dark' || (!current && systemDark);
+  const next = currentlyDark ? 'light' : 'dark';
+  try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* ignore */ }
+  applyTheme(next);
+});
+initTheme();
 
 // ---------- Date ----------
 document.getElementById('dateLabel').textContent =
