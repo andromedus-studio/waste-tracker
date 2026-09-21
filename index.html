@@ -198,15 +198,6 @@
   @media (min-width: 900px) { .menu-btn { display: none; } }
   .topbar-left { display: flex; align-items: center; }
 
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 14px;
-    margin-top: 22px;
-  }
-  @media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } }
-  @media (min-width: 1180px) { .grid { grid-template-columns: 1fr 1fr 1fr; } }
-
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -445,6 +436,78 @@
 
   .sidebar-footer { cursor: pointer; }
   .sidebar-footer:hover .name { text-decoration: underline; }
+
+  /* ---------- Zones (dashboard) ---------- */
+  .zone-section {
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+  }
+  .zone-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 14.5px;
+  }
+  .zone-count {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.5);
+  }
+  .zone-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 640px) { .zone-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 1180px) { .zone-grid { grid-template-columns: 1fr 1fr 1fr; } }
+  .zone-empty-hint {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    padding: 10px 2px;
+  }
+  .zone-section.drag-over {
+    outline: 3px dashed currentColor;
+    outline-offset: -3px;
+  }
+  .card.dragging-source { opacity: 0.35; }
+  .drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 200;
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    display: flex; align-items: center; gap: 8px;
+    transform: translate(-50%, -50%);
+  }
+
+  /* ---------- Formulaire zones (Paramètres) ---------- */
+  .zone-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    font-size: 12.5px;
+    margin: 0 8px 8px 0;
+  }
+  .zone-chip .swatch { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  .zone-chip button {
+    border: none; background: none; cursor: pointer;
+    color: var(--text-secondary); font-size: 13px; line-height: 1; padding: 0 2px;
+  }
+  .zone-chip button:hover { color: var(--status-crit-text); }
 </style>
 </head>
 <body>
@@ -499,7 +562,7 @@
     <div class="demo-banner" id="demoBanner">⚠️ Mode démo — Firebase non configuré (voir firebaseConfig dans le code). Les données restent locales à ce navigateur.</div>
 
     <div id="dashboardView">
-      <div class="grid" id="grid"></div>
+      <div id="zonesContainer"></div>
 
       <div class="alert-panel">
         <h3>⚠️ Alerte globale</h3>
@@ -518,6 +581,28 @@
       </div>
 
       <div class="card" style="cursor:default; margin-bottom:14px;">
+        <h3 style="margin:0 0 6px 0; font-size:15px;">Zones du site</h3>
+        <p style="margin:0 0 12px 0; font-size:12.5px; color:var(--text-secondary);">
+          Ces zones apparaissent comme des blocs colorés sur le tableau de bord. Classe un contenant
+          dans une zone en le glissant dessus (appui long) depuis le Dashboard.
+        </p>
+        <div id="zoneChips" style="margin-bottom:12px;"></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:end;">
+          <label style="font-size:12.5px; color:var(--text-secondary); flex:1; min-width:160px;">
+            Nom de la zone
+            <input type="text" id="newZoneName" placeholder="Ex. Extérieur"
+              style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
+          </label>
+          <label style="font-size:12.5px; color:var(--text-secondary);">
+            Couleur
+            <input type="color" id="newZoneColor" value="#3b6fd4"
+              style="display:block; margin-top:4px; width:46px; height:38px; padding:2px; border-radius:8px; border:1px solid var(--border); background:var(--bg); cursor:pointer;">
+          </label>
+          <button class="btn primary" id="addZoneBtn" style="width:auto; padding:9px 18px;">Ajouter la zone</button>
+        </div>
+      </div>
+
+      <div class="card" style="cursor:default; margin-bottom:14px;">
         <h3 style="margin:0 0 14px 0; font-size:15px;">Ajouter un contenant</h3>
         <div id="addContainerForm" style="display:grid; gap:10px; grid-template-columns: 1fr 1fr; align-items:end;">
           <label style="font-size:12.5px; color:var(--text-secondary); grid-column: span 2;">
@@ -526,9 +611,10 @@
               style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
           </label>
           <label style="font-size:12.5px; color:var(--text-secondary);">
-            Zone
-            <input type="text" id="newZone" placeholder="Ex. Atelier C"
-              style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
+            Zone (facultatif — se fait aussi par glisser-déposer)
+            <select id="newZone" style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
+              <option value="">Non classé</option>
+            </select>
           </label>
           <label style="font-size:12.5px; color:var(--text-secondary);">
             Icône (temporaire)
@@ -721,8 +807,10 @@ const ICON_EMOJI = {
 const DEFAULT_ICON_KEY = 'poubelle';
 
 let containers = loadContainers();
+let zones = loadLocalZones();
 let users = [];
 let unsubscribeUsers = null;
+let unsubscribeZones = null;
 let siteName = null; // chargé depuis Firestore ou localStorage
 let activeId = null;
 let currentUser = null;
@@ -734,6 +822,23 @@ let reportSelectedId = null;
 let currentView = 'dashboard'; // 'dashboard' | 'settings' | 'users' | 'reports'
 
 const ROLE_LABELS = { super_admin: 'Super Admin', site_admin: 'Administrateur de site', atelier: 'Atelier' };
+
+const ZONES_KEY = 'waste-tracker-zones-v1';
+function loadLocalZones() {
+  try { return JSON.parse(localStorage.getItem(ZONES_KEY) || '[]'); }
+  catch (e) { return []; }
+}
+function saveLocalZones(z) {
+  try { localStorage.setItem(ZONES_KEY, JSON.stringify(z)); } catch (e) { /* ignore */ }
+}
+function hexToRgba(hex, alpha) {
+  const h = (hex || '#3b6fd4').replace('#', '');
+  const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
+  const r = parseInt(full.substring(0, 2), 16) || 59;
+  const g = parseInt(full.substring(2, 4), 16) || 111;
+  const b = parseInt(full.substring(4, 6), 16) || 212;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
 
 // ---------- Historique de remplissage (pour l'écran Rapports) ----------
 const HISTORY_KEY = 'waste-tracker-history-v1';
@@ -789,55 +894,178 @@ function ringMarkup(pct, radius = 34) {
     </svg>`;
 }
 
+function cardMarkup(c) {
+  const pct = Number.isFinite(c.pct) ? c.pct : 0;
+  const total = Number.isFinite(c.total) ? c.total : 0;
+  const used = Number.isFinite(c.used) ? c.used : 0;
+  const unit = c.unit || '';
+  const icon = c.icon || DEFAULT_ICON_KEY;
+  const emoji = c.emoji || ICON_EMOJI[icon] || ICON_EMOJI[DEFAULT_ICON_KEY];
+  const name = c.name || '(sans nom)';
+  const s = statusFor(pct);
+  return `
+    <div class="card ${s.cls}" tabindex="0" role="button" data-id="${c.id}" aria-label="${name}, ${pct}%">
+      <div class="card-head">
+        <div class="titles">
+          <h3>${name}</h3>
+        </div>
+        <span class="badge">${pct}%</span>
+      </div>
+      <div class="gauge-row">
+        <div class="gauge-wrap">
+          ${ringMarkup(pct)}
+          <span class="icon-slot" data-icon="${icon}">${emoji}</span>
+        </div>
+        <div class="gauge-info">
+          <div class="status-label">${s.label}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+          <div class="capacity">Capacité : ${used}${unit} / ${total}${unit}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
 function render() {
-  const grid = document.getElementById('grid');
+  const wrap = document.getElementById('zonesContainer');
   try {
-    grid.innerHTML = containers.map(c => {
-      // Valeurs de repli : un document incomplet ne doit jamais faire planter tout le tableau de bord.
-      const pct = Number.isFinite(c.pct) ? c.pct : 0;
-      const total = Number.isFinite(c.total) ? c.total : 0;
-      const used = Number.isFinite(c.used) ? c.used : 0;
-      const unit = c.unit || '';
-      const icon = c.icon || DEFAULT_ICON_KEY;
-      const emoji = c.emoji || ICON_EMOJI[icon] || ICON_EMOJI[DEFAULT_ICON_KEY];
-      const name = c.name || '(sans nom)';
-      const zone = c.zone || '';
-      const s = statusFor(pct);
+    const byZone = {};
+    const unassigned = [];
+    containers.forEach(c => {
+      if (c.zoneId && zones.some(z => z.id === c.zoneId)) {
+        (byZone[c.zoneId] = byZone[c.zoneId] || []).push(c);
+      } else {
+        unassigned.push(c);
+      }
+    });
+
+    const sections = zones.map(z => {
+      const items = byZone[z.id] || [];
+      const bg = hexToRgba(z.color, 0.10);
       return `
-        <div class="card ${s.cls}" tabindex="0" role="button" data-id="${c.id}" aria-label="${name}, ${pct}%">
-          <div class="card-head">
-            <div class="titles">
-              <h3>${name}</h3>
-              <div class="zone">${zone}</div>
-            </div>
-            <span class="badge">${pct}%</span>
+        <div class="zone-section" data-zone-id="${z.id}" style="background:${bg}; border-color:${hexToRgba(z.color, 0.4)};">
+          <div class="zone-header" style="color:${z.color};">
+            <span>${z.name}</span>
+            <span class="zone-count" style="color:${z.color};">${items.length}</span>
           </div>
-          <div class="gauge-row">
-            <div class="gauge-wrap">
-              ${ringMarkup(pct)}
-              <span class="icon-slot" data-icon="${icon}">${emoji}</span>
-            </div>
-            <div class="gauge-info">
-              <div class="status-label">${s.label}</div>
-              <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-              <div class="capacity">Capacité : ${used}${unit} / ${total}${unit}</div>
-            </div>
+          <div class="zone-grid">
+            ${items.map(cardMarkup).join('') || `<div class="zone-empty-hint">Glisse un contenant ici pour le classer dans cette zone.</div>`}
           </div>
         </div>`;
     }).join('');
+
+    const unassignedSection = `
+      <div class="zone-section" data-zone-id="" style="background:var(--surface); border-style:dashed;">
+        <div class="zone-header" style="color:var(--text-secondary);">
+          <span>Non classé</span>
+          <span class="zone-count" style="background:var(--bg); color:var(--text-secondary);">${unassigned.length}</span>
+        </div>
+        <div class="zone-grid">
+          ${unassigned.map(cardMarkup).join('') || `<div class="zone-empty-hint">Tous les contenants sont classés dans une zone.</div>`}
+        </div>
+      </div>`;
+
+    wrap.innerHTML = sections + unassignedSection;
   } catch (e) {
     console.error('Erreur lors de l\'affichage des contenants :', e, containers);
-    grid.innerHTML = `<div style="color:var(--status-crit-text); font-size:13px;">Erreur d'affichage — regarde la console (F12) et envoie le message à Claude.</div>`;
+    wrap.innerHTML = `<div style="color:var(--status-crit-text); font-size:13px;">Erreur d'affichage — regarde la console (F12) et envoie le message à Claude.</div>`;
   }
 
-  grid.querySelectorAll('.card').forEach(card => {
-    card.addEventListener('click', () => openModal(card.dataset.id));
-    card.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(card.dataset.id); }
-    });
-  });
+  wrap.querySelectorAll('.card').forEach(card => attachCardInteraction(card));
 
   renderAlerts();
+}
+
+// ---------- Glisser-déposer (appui long) pour classer un contenant dans une zone ----------
+const LONG_PRESS_MS = 350;
+const MOVE_CANCEL_PX = 10;
+
+function createGhost(card) {
+  const icon = card.querySelector('.icon-slot');
+  const title = card.querySelector('h3');
+  const ghost = document.createElement('div');
+  ghost.className = 'drag-ghost';
+  ghost.innerHTML = `<span>${icon ? icon.outerHTML : ''}</span><span>${title ? title.textContent : ''}</span>`;
+  return ghost;
+}
+
+function zoneSectionAt(x, y) {
+  const el = document.elementFromPoint(x, y);
+  return el ? el.closest('.zone-section') : null;
+}
+
+function canDragZones() {
+  return !FIREBASE_READY || currentRole === 'super_admin' || currentRole === 'site_admin';
+}
+
+function attachCardInteraction(card) {
+  const containerId = card.dataset.id;
+
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(containerId); }
+  });
+
+  if (!canDragZones()) {
+    // Compte atelier : pas de droit sur les zones (réservé aux admins), on garde le simple tap.
+    card.addEventListener('click', () => openModal(containerId));
+    return;
+  }
+
+  card.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const startX = e.clientX, startY = e.clientY;
+    let dragging = false;
+    let ghost = null;
+    let lastZoneEl = null;
+
+    const longPressTimer = setTimeout(() => {
+      dragging = true;
+      card.classList.add('dragging-source');
+      ghost = createGhost(card);
+      ghost.style.left = startX + 'px';
+      ghost.style.top = startY + 'px';
+      document.body.appendChild(ghost);
+      if (navigator.vibrate) { try { navigator.vibrate(15); } catch (err) {} }
+    }, LONG_PRESS_MS);
+
+    function onMove(ev) {
+      const dx = ev.clientX - startX, dy = ev.clientY - startY;
+      if (!dragging) {
+        if (Math.hypot(dx, dy) > MOVE_CANCEL_PX) clearTimeout(longPressTimer);
+        return;
+      }
+      ev.preventDefault();
+      ghost.style.left = ev.clientX + 'px';
+      ghost.style.top = ev.clientY + 'px';
+      const zoneEl = zoneSectionAt(ev.clientX, ev.clientY);
+      if (zoneEl !== lastZoneEl) {
+        if (lastZoneEl) lastZoneEl.classList.remove('drag-over');
+        if (zoneEl) zoneEl.classList.add('drag-over');
+        lastZoneEl = zoneEl;
+      }
+    }
+
+    function onUp(ev) {
+      clearTimeout(longPressTimer);
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      card.classList.remove('dragging-source');
+      if (lastZoneEl) lastZoneEl.classList.remove('drag-over');
+
+      if (dragging) {
+        if (ghost) ghost.remove();
+        const zoneEl = zoneSectionAt(ev.clientX, ev.clientY);
+        if (zoneEl) {
+          const zoneId = zoneEl.dataset.zoneId || null;
+          assignContainerZone(containerId, zoneId);
+        }
+      } else {
+        openModal(containerId);
+      }
+    }
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp, { once: true });
+  });
 }
 
 function renderAlerts() {
@@ -905,6 +1133,66 @@ async function removeContainer(id) {
   }
 }
 
+// ---------- CRUD zones ----------
+async function persistNewZone(name, color) {
+  if (FIREBASE_READY && db && fs) {
+    const zonesRef = fs.collection(db, 'sites', SITE_ID, 'zones');
+    const newRef = fs.doc(zonesRef);
+    await fs.setDoc(newRef, { name, color, id: newRef.id });
+  } else {
+    zones.push({ id: generateLocalId(), name, color });
+    saveLocalZones(zones);
+    render();
+    renderZonesSettings();
+  }
+}
+
+async function persistZoneMeta(id, fields) {
+  if (FIREBASE_READY && db && fs) {
+    await fs.updateDoc(fs.doc(db, 'sites', SITE_ID, 'zones', id), fields);
+  } else {
+    const z = zones.find(x => x.id === id);
+    if (z) Object.assign(z, fields);
+    saveLocalZones(zones);
+    render();
+    renderZonesSettings();
+  }
+}
+
+async function removeZone(id) {
+  // Les contenants de cette zone repassent en "Non classé" plutôt que d'être supprimés.
+  const affected = containers.filter(c => c.zoneId === id);
+  if (FIREBASE_READY && db && fs) {
+    await Promise.all(affected.map(c =>
+      fs.updateDoc(fs.doc(db, 'sites', SITE_ID, 'containers', c.id), { zoneId: null })
+    ));
+    await fs.deleteDoc(fs.doc(db, 'sites', SITE_ID, 'zones', id));
+  } else {
+    affected.forEach(c => { c.zoneId = null; });
+    saveContainers(containers);
+    zones = zones.filter(z => z.id !== id);
+    saveLocalZones(zones);
+    render();
+    renderZonesSettings();
+  }
+}
+
+async function assignContainerZone(containerId, zoneId) {
+  if (FIREBASE_READY && db && fs) {
+    try {
+      await fs.updateDoc(fs.doc(db, 'sites', SITE_ID, 'containers', containerId), { zoneId: zoneId || null });
+    } catch (e) {
+      console.error('Échec de l\'affectation de zone :', e);
+      alert('Impossible de déplacer ce contenant : ' + (e && e.message ? e.message : e));
+    }
+  } else {
+    const c = containers.find(x => x.id === containerId);
+    if (c) c.zoneId = zoneId || null;
+    saveContainers(containers);
+    render();
+  }
+}
+
 async function persistSiteName(name) {
   siteName = name;
   updateSiteSubtitle();
@@ -942,14 +1230,69 @@ function populateIconSelect() {
   });
 }
 
+function populateZoneSelect(select, selectedId) {
+  select.innerHTML = '<option value="">Non classé</option>' +
+    zones.map(z => `<option value="${z.id}" ${z.id === selectedId ? 'selected' : ''}>${z.name}</option>`).join('');
+}
+
+function renderZonesSettings() {
+  const wrap = document.getElementById('zoneChips');
+  if (!wrap) return;
+  if (!zones.length) {
+    wrap.innerHTML = `<p style="font-size:12.5px; color:var(--text-secondary); margin:0;">Aucune zone pour l'instant.</p>`;
+  } else {
+    wrap.innerHTML = zones.map(z => `
+      <span class="zone-chip" data-id="${z.id}">
+        <span class="swatch" style="background:${z.color};"></span>
+        ${z.name}
+        <button class="delete-zone" title="Supprimer la zone">✕</button>
+      </span>`).join('');
+    wrap.querySelectorAll('.delete-zone').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const chip = btn.closest('.zone-chip');
+        const id = chip.dataset.id;
+        const z = zones.find(x => x.id === id);
+        if (confirm(`Supprimer la zone "${z ? z.name : id}" ? Les contenants qu'elle contient repasseront en "Non classé".`)) {
+          try {
+            await removeZone(id);
+          } catch (e) {
+            console.error('Échec de la suppression de la zone :', e);
+            alert('La suppression a échoué : ' + (e && e.message ? e.message : e));
+          }
+        }
+      });
+    });
+  }
+  // Garde le sélecteur du formulaire d'ajout de contenant à jour aussi.
+  const newZoneSelect = document.getElementById('newZone');
+  if (newZoneSelect) populateZoneSelect(newZoneSelect, newZoneSelect.value);
+}
+
+document.getElementById('addZoneBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('addZoneBtn');
+  const name = document.getElementById('newZoneName').value.trim();
+  const color = document.getElementById('newZoneColor').value || '#3b6fd4';
+  if (!name) { alert('Merci de donner un nom à la zone.'); return; }
+  btn.disabled = true;
+  try {
+    await persistNewZone(name, color);
+    document.getElementById('newZoneName').value = '';
+  } catch (e) {
+    console.error('Échec de la création de la zone :', e);
+    alert('La création a échoué : ' + (e && e.message ? e.message : e));
+  } finally {
+    btn.disabled = false;
+  }
+});
+
 function renderSettings() {
   document.getElementById('siteNameInput').value = siteName || '';
   populateIconSelect();
+  renderZonesSettings();
 
   const tbody = document.getElementById('containersTableBody');
   tbody.innerHTML = containers.map(c => {
     const name = c.name || '(sans nom)';
-    const zone = c.zone || '';
     const total = Number.isFinite(c.total) ? c.total : 0;
     const unit = c.unit || '';
     const pct = Number.isFinite(c.pct) ? c.pct : 0;
@@ -957,8 +1300,8 @@ function renderSettings() {
     <tr style="border-top:1px solid var(--border);" data-id="${c.id}">
       <td style="padding:8px;"><input type="text" class="edit-name" value="${name}"
         style="width:100%; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;"></td>
-      <td style="padding:8px;"><input type="text" class="edit-zone" value="${zone}"
-        style="width:100%; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;"></td>
+      <td style="padding:8px;"><select class="edit-zone"
+        style="padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;"></select></td>
       <td style="padding:8px; white-space:nowrap;">
         <input type="text" class="edit-total" value="${total}"
           style="width:70px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;"> ${unit}
@@ -973,16 +1316,18 @@ function renderSettings() {
 
   tbody.querySelectorAll('tr').forEach(row => {
     const id = row.dataset.id;
+    const c = containers.find(x => x.id === id);
+    populateZoneSelect(row.querySelector('.edit-zone'), c ? c.zoneId : '');
     row.querySelector('.save-row').addEventListener('click', async () => {
       const name = row.querySelector('.edit-name').value.trim();
-      const zone = row.querySelector('.edit-zone').value.trim();
+      const zoneId = row.querySelector('.edit-zone').value || null;
       const total = Number(row.querySelector('.edit-total').value.replace(',', '.'));
-      if (!name || !zone || !Number.isFinite(total) || total <= 0) {
-        alert('Nom, zone et capacité (> 0) sont obligatoires.');
+      if (!name || !Number.isFinite(total) || total <= 0) {
+        alert('Nom et capacité (> 0) sont obligatoires.');
         return;
       }
       try {
-        await persistContainerMeta(id, { name, zone, total });
+        await persistContainerMeta(id, { name, zoneId, total });
       } catch (e) {
         console.error('Échec de la mise à jour :', e);
         alert('La mise à jour a échoué : ' + (e && e.message ? e.message : e));
@@ -1189,21 +1534,21 @@ document.getElementById('saveSiteNameBtn').addEventListener('click', () => {
 document.getElementById('addContainerBtn').addEventListener('click', async () => {
   const btn = document.getElementById('addContainerBtn');
   const name = document.getElementById('newName').value.trim();
-  const zone = document.getElementById('newZone').value.trim();
+  const zoneId = document.getElementById('newZone').value || null;
   const icon = document.getElementById('newIcon').value || DEFAULT_ICON_KEY;
   const rawTotal = document.getElementById('newTotal').value;
   const total = Number(String(rawTotal).replace(',', '.'));
   const unit = document.getElementById('newUnit').value;
 
-  if (!name || !zone || !Number.isFinite(total) || total <= 0) {
-    alert('Merci de renseigner le nom, la zone, et une capacité totale supérieure à 0 (utilise un point pour les décimales, ex. 10.5).');
+  if (!name || !Number.isFinite(total) || total <= 0) {
+    alert('Merci de renseigner le nom et une capacité totale supérieure à 0 (utilise un point pour les décimales, ex. 10.5).');
     return;
   }
 
   btn.disabled = true;
   btn.textContent = 'Ajout en cours…';
   try {
-    await persistNewContainer({ name, zone, icon, emoji: ICON_EMOJI[icon] || ICON_EMOJI[DEFAULT_ICON_KEY], total, unit });
+    await persistNewContainer({ name, zoneId, icon, emoji: ICON_EMOJI[icon] || ICON_EMOJI[DEFAULT_ICON_KEY], total, unit });
     document.getElementById('newName').value = '';
     document.getElementById('newZone').value = '';
     document.getElementById('newTotal').value = '';
@@ -1374,6 +1719,7 @@ async function startFirebase() {
       if (unsubscribeContainers) { unsubscribeContainers(); unsubscribeContainers = null; }
       if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
       if (unsubscribeHistory) { unsubscribeHistory(); unsubscribeHistory = null; }
+      if (unsubscribeZones) { unsubscribeZones(); unsubscribeZones = null; }
       return;
     }
     currentUser = user;
@@ -1415,6 +1761,14 @@ async function startFirebase() {
         await setDoc(siteRef, { name: siteName }, { merge: true });
       }
       updateSiteSubtitle();
+
+      // Synchro temps réel des zones du site (visibles par tous les rôles)
+      const zonesRef = collection(db, 'sites', SITE_ID, 'zones');
+      unsubscribeZones = onSnapshot(zonesRef, (snap) => {
+        zones = snap.docs.map(d => d.data());
+        render();
+        if (currentView === 'settings') renderZonesSettings();
+      }, (err) => console.error('Erreur de synchronisation des zones :', err));
 
       // Synchro temps réel des contenants de ce site
       const containersRef = collection(db, 'sites', SITE_ID, 'containers');
