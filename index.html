@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Waste Tracker — Gestion des déchets</title>
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIldhc3RlIFRyYWNrZXIiLCAic2hvcnRfbmFtZSI6ICJXYXN0ZSBUcmFja2VyIiwgImRlc2NyaXB0aW9uIjogIlN1aXZpIGV0IGdlc3Rpb24gZGVzIGRlY2hldHMgLSBHcm91cGUgTWlkaSBBdXRvIiwgInN0YXJ0X3VybCI6ICIuIiwgInNjb3BlIjogIi4iLCAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwgImJhY2tncm91bmRfY29sb3IiOiAiIzEwMTMxOSIsICJ0aGVtZV9jb2xvciI6ICIjM2I2ZmQ0IiwgImljb25zIjogW3sic3JjIjogImRhdGE6aW1hZ2UvcG5nO2Jhc2U2NCxpVkJPUncwS0dnb0FBQUFOU1VoRVVnQUFBTUFBQUFEQUNBWUFBQUJTM0d3SEFBQUVSMGxFUVZSNG5PM2MzVkhiVUJTRlVabEpONkVEMGhPVUFqMkZEcUFlOHBBaFk0ai9KRjNwU21ldjlSN3NVYzZuSTFrZUg0YU5lWGg4KytqOUhsak82OHY5b2ZkN09OYjF6UmgyaHFGdkZLdS9zS0hua3JWaldPM0ZERDVqckJYQzRpOWk4SmxqNlJBVysrTUduNWFXQ3FINUh6WDRMS2wxQ0hjdC81amhaMm10WjZ4SlRRYWZIbHBzZzlrYndQRFRTNHZabXhXQTRhZTN1VE00T1FERHoxYk1tY1ZKQVJoK3RtYnFUSTRPd1BDelZWTm1jMVFBaHArdEd6dWpOd2RnK05tTE1iTjZVd0NHbjcyNWRXYXZCbUQ0MmF0YlpyZnBWeUZnYnk0RzRPelAzbDJiNGJNQkdINnF1RFRMTG9HSWRqSUFaMytxT1RmVE5nRFIvZ3ZBMlorcVRzMjJEVUMwTHdFNCsxUGQ5eG0zQVlqMkx3Qm5mMUljejdvTlFEUUJFTzF1R0Z6K2tPZHo1bTBBb2dtQWFBSWdtZ0NJZG5BRFRESWJnR2dDSUpvQWlDWUFvZ21BYUFJZ21nQ0lKZ0NpQ1lCb0FpQ2FBSWdtQUtJSmdHZ0NJSm9BaVBhajl4dW81dmZ6ejhWZjQ5ZlQrK0t2a2NJR2FHaU40Vi96ZFJJSW9KRzFoMUlFYlFpQWFBSWdtZ0NJSmdDaUNZQm9BaUJhdVIvRzh2SGdzcW85aEN1MUFRei84bjQvL3l4MW5Nc0VVT2svWlErcUhPOHlBY0FVQWlDYUFJZ21BS0lKZ0dnQ0lKb0FpRlltZ0dwUEtMZXV5dkV1RXdCTVVTcUFLbWVsTGZ2MTlGN3FPSmY3TXR5eEtvL3JlNnMwOE4rVjJnQXdsZ0NJVmpxQXlxdDdMZFdQWWVrQTRCb0JFRTBBUkJNQTBmdzY5RXpITjRsam56dE0vYmR6WHBPdmJBQ2lDWUJvQWlDYUFJaFdQb0RxVHpLWGxIRHN5Z2NBbHdpQWFBSWdtZ0NJSmdDaUNZQm9BcGpwK0xzNGEzeHM2SHRBYlFtQWFCRUJKRHpRYVMzbG1FVUVBT2NJZ0dnQ0lKb0FpQ1lBb2dtQWFBSWdtZ0NJRmhOQXlvT2RGcEtPVlV3QWNJb0FpQ1lBb2dtQWFBSWdtZ0NJSmdDaUNZQm9BaUJhVkFCSlR6aW5TanRHVVFIQWR3Sm9ZSzJmUnZHVEtPMEpnR2dDSUpvQWlDWUFvZ21BYUFJZ1dsd0FhUTk2eGtnOE5uRUJ3REVCRUUwQVJCTUEwUTRQajI4ZnZkL0UybnlQNWpRM3dSQkdBRVFUQU5FRVFMVElBQkp2OXE1SlBTYVJBY0FuQVJCTkFFUVRBTkVpbndUREp4dUFhQUlnbWdDSUpnQ2lDWUJvQWlDYUFJZ21BS0lKZ0dnQ0lKb0FpQ1lBb2dtQWFBSWdtZ0NJSmdDaTNiMiszQjk2dndubzRmWGwvbUFERUUwQVJCTUEwUVJBdEx0aCtIc3owUHVOd0pvK1o5NEdJSm9BaVBZdkFKZEJwRGllZFJ1QWFGOENzQVdvN3Z1TTJ3QkUreThBVzRDcVRzMjJEVUMwa3dIWUFsUnpicVp0QUtLZERjQVdvSXBMczN4eEE0aUF2YnMyd3k2QmlIWTFBRnVBdmJwbGRtL2FBQ0pnYjI2ZDJac3ZnVVRBWG95WjFWSDNBQ0pnNjhiTzZPaWJZQkd3VlZObWM5S25RQ0pnYTZiTzVPU1BRVVhBVnN5WnhWblBBVVJBYjNObmNQYURNQkhRUzR2WmF6cThENDl2SHkzL0hwelM4cVRiOUtzUXRnRkxhejFqaXcyc2JVQkxTNTFjRno5akM0RTVscjZxV08yU1JRaU1zZGJsOU9yWDdFTGdrclh2STd2ZXRJcUJZZWo3NGNubVByVVJSVzFiKzZUd0QzQm9JQUZVYkJLdUFBQUFBRWxGVGtTdVFtQ0MiLCAic2l6ZXMiOiAiMTkyeDE5MiIsICJ0eXBlIjogImltYWdlL3BuZyIsICJwdXJwb3NlIjogImFueSJ9LCB7InNyYyI6ICJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQWdBQUFBSUFDQVlBQUFEMGVOVDZBQUFOMDBsRVFWUjRuTzNjeTNVYTNSYUYwWkxIelViT1FNNUpEZ1huaERPUTQ5RnRhUEFiU3p3S3FQTmNjN2JkS0k2RTlzY3VYRThMWFhwNWZYdHZmUTBBVy9qOTYvdFQ2MnZnS3orVVJneDRnQThDb1EySFhvRmhEM0FiVVZDZUF5N0F3QWZZbGlEWW5nUGRnSUVQVUpjZ2VKd0R2Sk9oRDlBSE1YQWZoM1lEUXgrZ2IySmdQUWQxaGFFUE1DWXhjSm5ET2NQZ0I1aURFRGpOb1J3eDlBSG1KZ2IrY2hDTHdRK1FSZ2lFQjREQkQ1QXRPUVFpWDdqQkQ4Q3h4QkNJZXNFR1B3Q1hKSVZBeEFzMStBRzRSVUlJZkd0OUFhVVovZ0RjS21GMlRGczRDVDg4QU1xYmRSc3czWXN5K0FFb1liWVFtT29XZ09FUFFDbXp6WmdwYW1hMkh3b0FmWnRoR3pEOEJzRHdCNkMyR1diUDBBRXd3dzhBZ0RHTlBvT0dYR0dNZnVnQXpHWEVXd0xEYlFBTWZ3QjZNK0pzR2lvQVJqeGdBREtNTnFPR1dGbU1kcWdBWkJ2aGxrRDNHd0RESDREUmpEQzd1ZzZBRVE0UUFFN3BmWVoxR3dDOUh4d0FYTlB6TE9zeUFIbytNQUM0UmE4enJic0E2UFdnQU9CZVBjNjJyZ0tneHdNQ2dDMzBOdU82Q1lEZURnWUF0dGJUck9zaUFIbzZFQUFvcVplWjF6d0FlamtJQUtpbGg5blhOQUI2T0FBQWFLSDFER3dXQUsxZk9BQzAxbklXTmdrQXd4OEFQclNhaWRVRHdQQUhnSCsxbUkxVkE4RHdCNERUYXMvSWFnRmcrQVBBWlRWblpaVUFNUHdCWUoxYU03UDVjd0FBZ1BxS0I0QlAvd0J3bXhxenMyZ0FHUDRBY0ovU003UllBQmorQVBDWWtyUFVkd0FBSUZDUkFQRHBId0MyVVdxbWJoNEFoajhBYkt2RWJOMDBBQXgvQUNoajZ4bnJPd0FBRUdpekFQRHBId0RLMm5MV2JoSUFoajhBMUxIVnpIVUxBQUFDUFJ3QVB2MERRRjFiekY0YkFBQUk5RkFBK1BRUEFHMDhPb1B2RGdEREh3RGFlbVFXdXdVQUFJSHVDZ0NmL2dHZ0QvZk9aQnNBQUFoMGN3RDQ5QThBZmJsbk50c0FBRUNnbXdMQXAzOEE2Tk90TTlvR0FBQUNyUTRBbi80Qm9HKzN6R29iQUFBSXRDb0FmUG9IZ0RHc25kazJBQUFRU0FBQVFLQ3JBV0Q5RHdCaldUTzdiUUFBSU5ERkFQRHBId0RHZEcyRzJ3QUFRQ0FCQUFDQnpnYUE5VDhBak8zU0xMY0JBSUJBQWdBQUFwME1BT3QvQUpqRHVabHVBd0FBZ1FRQUFBVDZFZ0RXL3dBd2wxT3ozUVlBQUFJSkFBQUlKQUFBSU5BL0FlRCtQd0RNNmZPTXR3RUFnRUFDQUFBQ0NRQUFDUFJmQUxqL0R3QnpPNTcxTmdBQUVFZ0FBRUFnQVFBQWdRUUFBQVQ2dGl5K0FBZ0FLUTR6M3dZQUFBSUpBQUFJSkFBQUlKQUFBSUJBQWdBQUFna0FBQWdrQUFBZzBKTm5BQUJBSGhzQUFBZ2tBQUFna0FBQWdFQUNBQUFDQ1FBQUNDUUFBQ0NRQUFDQVFBSUFBQUlKQUFBSUpBQUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQUFDQ1FBQUNBUUFJQUFBSUpBQUFJSkFBQUlKQUFBSUJBQWdBQUFna0FBQWdrQUFBZ2tBQUFnRUFDQUFBQ0NRQUFDQ1FBQUNDUUFBQ0FRQUlBQUFJSkFBQUlKQUFBSUpBQUFJQkEvMnQ5QVpCcXYzdHVmUWxkK1BIelQrdExnRWcyQU5DQTRmL1hmdmZzUEtBQkFRQVZHWGJuT1Jlb1N3QUEzUkFCVUk4QWdFb010M1djRTlRaEFLQUNRKzAyemd2S0V3QUFFRWdBQUVBZ0FRQUFnUVFBQUFRU0FBQVFTQUFBUUNBQkFBQ0JCQUFBQkJJQUFCQklBQUJBSUFFQUFJRUVBQUFFRWdBQUVFZ0FBRUFnQVFBQWdRUUFBQVFTQUFBUVNBQUFRQ0FCQUFDQkJBQUFCSHA2ZVgxN2IzMFJqR08vZTI1OUNjQVpQMzcrYVgwSkRFUUFzSXJCRDJNUkExempGZ0JYR2Y0d0h1OWJyaEVBWE9TUENJekwrNWRMQkFCbitlTUI0L00rNWh3QndFbithTUE4dko4NVJRQUFRQ0FCd0JjK0xjQjh2Sy81VEFBQVFDQUJBQUNCQkFBQUJCSUFBQkJJQUFCQUlBRUFBSUVFQUFBRUVnQUFFRWdBQUVBZ0FRQUFnUVFBQUFRU0FBQVFTQUFBUUNBQkFBQ0JCQUFBQkJJQUFCQklBUERGajU5L1dsOENzREh2YXo0VEFBQVFTQUFBVE02bmYwNFJBSnprRHdiQTNBUUFaNGtBR0ovM01lY0lBQzd5eHdQRzVmM0xKUUtBcS93UmdiSDgrUG5IKzVhcm5sNWUzOTViWHdUajJPK2VXMThDY0lhaHp5MEVBSnNTQ0ZDT0FjK1czQUlBZ0VBQ0FBQUNDUUFBQ0NRQTJKUjdsRkNHOXhaYkV3QUFFRWdBQUVBZ0FRQUFnUVFBQUFRU0FBQVFTQUFBUUNBQkFBQ0JCQUFBQkJJQUFCQklBTEE1VHl5RGJYbFBVWUlBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQUFDQ1FBQUNBUUU4dnIyL3ZyUytDT2UxM3o2MHZvWWsxVDIxcmRUYTlYbHV2MTlVRFR3R2tGQnNBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQUFDQ1FBQUNBUUFJQUFBSUpBQUFJSkFBb3hoUE00REhlUTVRa0FHQmpheDVaNncvN1h4NERERzBJQUFBSUpBQUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQUtNb1Q3K0ErM2p1VUpnQUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQUFDQ1FBS0M0eENlYTdYZlBWLzlONHJsOHR1WU0xcHpsYlB4dVVJTUFBSUJBQWdBQUFna0FBQWdrQUFBZ2tBQUFnRUFDQUFBQ0NRQUFDQ1FBQUNDUUFBQ0FRQUtBS2p6WkROYnhYcUVXQVFBQWdRUUFBQVFTQUFBUVNBQUFRQ0FCQUFDQkJBQUFCQklBQUJCSUFBQkFJQUVBQUlFRUFOVjR3aGxjNWoxQ1RRSUFDdG52bnEvK20rUS8rR3RlKzVvekJPNGpBQUFna0FBQWdFQUNBQUFDQ1FBQUNDUUFBQ0NRQUFDQVFBSUFBQUlKQUFBSUpBQ29Ldm5CTjNDSjl3YTFDUUFBQ0NRQUFDQ1FBQUNBUUFJQUFBSUpBQUFJSkFBQUlKQUFBSUJBQWdBQUFna0FBQWdrQUFBZ2tBQ2d1cVJIbnU1M3oxZi9UZEo1SEt4NXpXdk9iaGFKdndPMEp3QUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQUFDQ1FBS0FKVHo2REQ5NEx0Q0lBQUNDUUFBQ0FRQUlBQUFJSkFBQUlKQUFBSUpBQUFJQkFBZ0FBQWdrQUFBZ2tBQUFna0FDZ0dVOUFJNTMzQUMwSkFDaHN2M3UrK20rU0JzR2ExN3JteklESENBQUFDQ1FBQUNDUUFBQ0FRQUlBQUFJSkFBQUlKQUFBSUpBQUFJQkFBZ0FBQWdrQW1rcDZBQTRjODd0UGF3SUFBQUlKQUFBSUpBQUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQWFDN2hrYWo3M2ZQVmY1TndEbXRlNDVxekdsM0N6NXIrQ1FBQUNDUUFBQ0NRQUFDQVFBSUFBQUlKQUFBSUpBQUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FPaUNKNk9Sd3U4NnZYaDZlWDE3YjMwUnNDd1pqNEFGQVVBdmJBQUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQTZJWUhwREE3ditQMFJBQUFRQ0FCQUFDQkJBQUFCQklBQUJCSUFBQkFJQUVBQUlFRUFBQUVFZ0FBRUVnQUFFQWdBVUJYUENtTldmbmRwamNDQUFBQ0NRQUFDQ1FBQUNDUUFBQ0FRQUlBQUFJOXZieSt2YmUrQ0FDZ0xoc0FBQWdrQUFBZ2tBQUFnRUFDQUFBQ0NRQUFDQ1FBQUNDUUFBQ0FRQUlBQUFJSkFBQUlKQUFBSUpBQUFJQkFBZ0FBQWdrQUFBZ2tBQUFna0FBQWdFQUNBQUFDQ1FBQUNDUUFBQ0NRQUFDQVFBSUFBQUlKQUFBSUpBQUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQUFDQ1FBQUNBUUFJQUFBSUpBQUFJSkFBQUlKQUFBSUJBQWdBQUFna0FBQWdrQUFBZ2tBQUFnRUFDQUFBQ2Zmdjk2L3RUNjRzQUFPcjUvZXY3a3cwQUFBUVNBQUFRU0FBQVFDQUJBQUNCQkFBQUJCSUFBQkJJQUFCQW9HL0w4dkgvQVZ0ZkNBQlEzbUhtMndBQVFDQUJBQUNCQkFBQUJCSUFBQkRvdndEd1JVQUFtTnZ4ckxjQkFJQkFBZ0FBQWdrQUFBajBUd0Q0SGdBQXpPbnpqTGNCQUlCQUFnQUFBZ2tBQUFqMEpRQjhEd0FBNW5KcXR0c0FBRUFnQVFBQWdVNEdnTnNBQURDSGN6UGRCZ0FBQWdrQUFBaDBOZ0RjQmdDQXNWMmE1VFlBQUJCSUFBQkFvSXNCNERZQUFJenAyZ3kzQVFDQVFGY0R3QllBQU1heVpuYmJBQUJBSUFFQUFJRldCWURiQUFBd2hyVXoyd1lBQUFLdERnQmJBQURvMnkyejJnWUFBQUxkRkFDMkFBRFFwMXRudEEwQUFBUzZPUUJzQVFDZ0wvZk1aaHNBQUFoMFZ3RFlBZ0JBSCs2ZHlUWUFBQkRvN2dDd0JRQ0F0aDZaeFE5dEFFUUFBTFR4NkF4MkN3QUFBajBjQUxZQUFGRFhGclBYQmdBQUFtMFNBTFlBQUZESFZqTjNzdzJBQ0FDQXNyYWN0VzRCQUVDZ1RRUEFGZ0FBeXRoNnhtNitBUkFCQUxDdEVyTzF5QzBBRVFBQTJ5ZzFVMzBIQUFBQ0ZRc0FXd0FBZUV6SldWcDBBeUFDQU9BK3BXZG84VnNBSWdBQWJsTmpkdm9PQUFBRXFoSUF0Z0FBc0U2dG1WbHRBeUFDQU9DeW1yT3k2aTBBRVFBQXA5V2VrZFcvQXlBQ0FPQmZMV1pqa3k4QmlnQUErTkJxSmpiN1h3QWlBSUIwTFdkaDAvOEdLQUlBU05WNkJqWi9Ea0RyQXdDQTJucVlmYzBEWUZuNk9BZ0FxS0dYbWRkRkFDeExQd2NDQUtYME5PdTZDWUJsNmV0Z0FHQkx2YzI0cmdKZ1dmbzdJQUI0VkkrenJic0FXSlkrRHdvQTd0SHJUT3N5QUphbDN3TURnTFY2bm1YZEJzQ3k5SDF3QUhCSjd6T3M2d0JZbHY0UEVBQStHMkYyZFgrQngxNWUzOTViWHdNQW5EUEM0RC9vZmdOd2JLU0RCU0RMYUROcXFBQllsdkVPR0lENWpUaWJocnZnWTI0SkFORFNpSVAvWUxnTndMR1JEeDZBc1kwK2c0WU9nR1VaL3djQXdIaG1tRDNEdjRCamJna0FVTklNZy85ZytBM0FzWmwrTUFEMFpiWVpNOVdMT1dZYkFNQVdaaHY4QjFPK3FHTkNBSUI3ekRyNEQ2YTZCWERLN0Q5QUFMYVhNRHVtZjRISGJBTUF1Q1JoOEIvRXZOQmpRZ0NBWTBtRC95RHVCUjhUQWdEWkVnZi9RZXdMUHlZRUFMSWtELzZEK0FNNEpnUUE1bWJ3LytVZ3poQURBSE13OUU5ektGY0lBWUF4R2Z5WE9ad2JpQUdBdmhuNjZ6bW9PNGtCZ0Q0WSt2ZHhhQnNRQXdCMUdmcVBjNEFGQ0FLQWJSbjQyM09nRlFnQ2dOc1krT1U1NEVaRUFjQUh3NzROaDk0cGdRRE13b0R2MC84QndDVEk5czRQcGlzQUFBQUFTVVZPUks1Q1lJST0iLCAic2l6ZXMiOiAiNTEyeDUxMiIsICJ0eXBlIjogImltYWdlL3BuZyIsICJwdXJwb3NlIjogImFueSJ9LCB7InNyYyI6ICJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQU1BQUFBREFDQVlBQUFCUzNHd0hBQUFFUjBsRVFWUjRuTzNjM1ZIYlVCU0ZVWmxKTjZFRDBoT1VBajJGRHFBZThwQWhZNGovSkYzcFNtZXY5UjdzVWM2bkkxa2VINGFOZVhoOCsrajlIbGpPNjh2OW9mZDdPTmIxelJoMmhxRnZGS3Uvc0tIbmtyVmpXTzNGREQ1anJCWEM0aTlpOEpsajZSQVcrK01HbjVhV0NxSDVIelg0TEtsMUNIY3QvNWpoWjJtdFo2eEpUUWFmSGxwc2c5a2J3UERUUzR2Wm14V0E0YWUzdVRNNE9RRER6MWJNbWNWSkFSaCt0bWJxVEk0T3dQQ3pWVk5tYzFRQWhwK3RHenVqTndkZytObUxNYk42VXdDR243MjVkV2F2Qm1ENDJhdGJacmZwVnlGZ2J5NEc0T3pQM2wyYjRiTUJHSDZxdURUTExvR0lkaklBWjMrcU9UZlROZ0RSL2d2QTJaK3FUczIyRFVDMEx3RTQrMVBkOXhtM0FZajJMd0JuZjFJY3o3b05RRFFCRU8xdUdGeitrT2R6NW0wQW9nbUFhQUlnbWdDSWRuQURUREliZ0dnQ0lKb0FpQ1lBb2dtQWFBSWdtZ0NJSmdDaUNZQm9BaUNhQUlnbUFLSUpnR2dDSUpvQWlQYWo5eHVvNXZmeno4VmY0OWZUKytLdmtjSUdhR2lONFYvemRSSUlvSkcxaDFJRWJRaUFhQUlnbWdDSUpnQ2lDWUJvQWlCYXVSL0c4dkhnc3FvOWhDdTFBUXovOG40Ly95eDFuTXNFVU9rL1pRK3FITzh5QWNBVUFpQ2FBSWdtQUtJSmdHZ0NJSm9BaUZZbWdHcFBLTGV1eXZFdUV3Qk1VU3FBS21lbExmdjE5RjdxT0pmN010eXhLby9yZTZzMDhOK1YyZ0F3bGdDSVZqcUF5cXQ3TGRXUFlla0E0Qm9CRUUwQVJCTUEwZnc2OUV6SE40bGpuenRNL2JkelhwT3ZiQUNpQ1lCb0FpQ2FBSWhXUG9EcVR6S1hsSERzeWdjQWx3aUFhQUlnbWdDSUpnQ2lDWUJvQXBqcCtMczRhM3hzNkh0QWJRbUFhQkVCSkR6UWFTM2xtRVVFQU9jSWdHZ0NJSm9BaUNZQW9nbUFhQUlnbWdDSUZoTkF5b09kRnBLT1ZVd0FjSW9BaUNZQW9nbUFhQUlnbWdDSUpnQ2lDWUJvQWlCYVZBQkpUemluU2p0R1VRSEFkd0pvWUsyZlJ2R1RLTzBKZ0dnQ0lKb0FpQ1lBb2dtQWFBSWdXbHdBYVE5NnhrZzhObkVCd0RFQkVFMEFSQk1BMFE0UGoyOGZ2ZC9FMm55UDVqUTN3UkJHQUVRVEFORUVRTFRJQUJKdjlxNUpQU2FSQWNBbkFSQk5BRVFUQU5FaW53VERKeHVBYUFJZ21nQ0lKZ0NpQ1lCb0FpQ2FBSWdtQUtJSmdHZ0NJSm9BaUNZQW9nbUFhQUlnbWdDSUpnQ2kzYjIrM0I5NnZ3bm80ZlhsL21BREVFMEFSQk1BMFFSQXRMdGgrSHN6MFB1TndKbytaOTRHSUpvQWlQWXZBSmRCcERpZWRSdUFhRjhDc0FXbzd2dU0yd0JFK3k4QVc0Q3FUczIyRFVDMGt3SFlBbFJ6YnFadEFLS2REY0FXb0lwTHMzeHhBNGlBdmJzMnd5NkJpSFkxQUZ1QXZicGxkbS9hQUNKZ2IyNmQyWnN2Z1VUQVhveVoxVkgzQUNKZzY4Yk82T2liWUJHd1ZWTm1jOUtuUUNKZ2E2Yk81T1NQUVVYQVZzeVp4Vm5QQVVSQWIzTm5jUGFETUJIUVM0dlphenE4RDQ5dkh5My9IcHpTOHFUYjlLc1F0Z0ZMYXoxaml3MnNiVUJMUzUxY0Z6OWpDNEU1bHI2cVdPMlNSUWlNc2RibDlPclg3RUxna3JYdkk3dmV0SXFCWWVqNzRjbm1QclVSUlcxYis2VHdEM0JvSUFGVWJCS3VBQUFBQUVsRlRrU3VRbUNDIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9wbmciLCAicHVycG9zZSI6ICJtYXNrYWJsZSJ9LCB7InNyYyI6ICJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQWdBQUFBSUFDQVlBQUFEMGVOVDZBQUFOMDBsRVFWUjRuTzNjeTNVYTNSYUYwWkxIelViT1FNNUpEZ1huaERPUTQ5RnRhUEFiU3p3S3FQTmNjN2JkS0k2RTlzY3VYRThMWFhwNWZYdHZmUTBBVy9qOTYvdFQ2MnZnS3orVVJneDRnQThDb1EySFhvRmhEM0FiVVZDZUF5N0F3QWZZbGlEWW5nUGRnSUVQVUpjZ2VKd0R2Sk9oRDlBSE1YQWZoM1lEUXgrZ2IySmdQUWQxaGFFUE1DWXhjSm5ET2NQZ0I1aURFRGpOb1J3eDlBSG1KZ2IrY2hDTHdRK1FSZ2lFQjREQkQ1QXRPUVFpWDdqQkQ4Q3h4QkNJZXNFR1B3Q1hKSVZBeEFzMStBRzRSVUlJZkd0OUFhVVovZ0RjS21GMlRGczRDVDg4QU1xYmRSc3czWXN5K0FFb1liWVFtT29XZ09FUFFDbXp6WmdwYW1hMkh3b0FmWnRoR3pEOEJzRHdCNkMyR1diUDBBRXd3dzhBZ0RHTlBvT0dYR0dNZnVnQXpHWEVXd0xEYlFBTWZ3QjZNK0pzR2lvQVJqeGdBREtNTnFPR1dGbU1kcWdBWkJ2aGxrRDNHd0RESDREUmpEQzd1ZzZBRVE0UUFFN3BmWVoxR3dDOUh4d0FYTlB6TE9zeUFIbytNQUM0UmE4enJic0E2UFdnQU9CZVBjNjJyZ0tneHdNQ2dDMzBOdU82Q1lEZURnWUF0dGJUck9zaUFIbzZFQUFvcVplWjF6d0FlamtJQUtpbGg5blhOQUI2T0FBQWFLSDFER3dXQUsxZk9BQzAxbklXTmdrQXd4OEFQclNhaWRVRHdQQUhnSCsxbUkxVkE4RHdCNERUYXMvSWFnRmcrQVBBWlRWblpaVUFNUHdCWUoxYU03UDVjd0FBZ1BxS0I0QlAvd0J3bXhxenMyZ0FHUDRBY0ovU003UllBQmorQVBDWWtyUFVkd0FBSUZDUkFQRHBId0MyVVdxbWJoNEFoajhBYkt2RWJOMDBBQXgvQUNoajZ4bnJPd0FBRUdpekFQRHBId0RLMm5MV2JoSUFoajhBMUxIVnpIVUxBQUFDUFJ3QVB2MERRRjFiekY0YkFBQUk5RkFBK1BRUEFHMDhPb1B2RGdEREh3RGFlbVFXdXdVQUFJSHVDZ0NmL2dHZ0QvZk9aQnNBQUFoMGN3RDQ5QThBZmJsbk50c0FBRUNnbXdMQXAzOEE2Tk90TTlvR0FBQUNyUTRBbi80Qm9HKzN6R29iQUFBSXRDb0FmUG9IZ0RHc25kazJBQUFRU0FBQVFLQ3JBV0Q5RHdCaldUTzdiUUFBSU5ERkFQRHBId0RHZEcyRzJ3QUFRQ0FCQUFDQnpnYUE5VDhBak8zU0xMY0JBSUJBQWdBQUFwME1BT3QvQUpqRHVabHVBd0FBZ1FRQUFBVDZFZ0RXL3dBd2wxT3ozUVlBQUFJSkFBQUlKQUFBSU5BL0FlRCtQd0RNNmZPTXR3RUFnRUFDQUFBQ0NRQUFDUFJmQUxqL0R3QnpPNTcxTmdBQUVFZ0FBRUFnQVFBQWdRUUFBQVQ2dGl5K0FBZ0FLUTR6M3dZQUFBSUpBQUFJSkFBQUlKQUFBSUJBQWdBQUFna0FBQWdrQUFBZzBKTm5BQUJBSGhzQUFBZ2tBQUFna0FBQWdFQUNBQUFDQ1FBQUNDUUFBQ0NRQUFDQVFBSUFBQUlKQUFBSUpBQUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQUFDQ1FBQUNBUUFJQUFBSUpBQUFJSkFBQUlKQUFBSUJBQWdBQUFna0FBQWdrQUFBZ2tBQUFnRUFDQUFBQ0NRQUFDQ1FBQUNDUUFBQ0FRQUlBQUFJSkFBQUlKQUFBSUpBQUFJQkEvMnQ5QVpCcXYzdHVmUWxkK1BIelQrdExnRWcyQU5DQTRmL1hmdmZzUEtBQkFRQVZHWGJuT1Jlb1N3QUEzUkFCVUk4QWdFb010M1djRTlRaEFLQUNRKzAyemd2S0V3QUFFRWdBQUVBZ0FRQUFnUVFBQUFRU0FBQVFTQUFBUUNBQkFBQ0JCQUFBQkJJQUFCQklBQUJBSUFFQUFJRUVBQUFFRWdBQUVFZ0FBRUFnQVFBQWdRUUFBQVFTQUFBUVNBQUFRQ0FCQUFDQkJBQUFCSHA2ZVgxN2IzMFJqR08vZTI1OUNjQVpQMzcrYVgwSkRFUUFzSXJCRDJNUkExempGZ0JYR2Y0d0h1OWJyaEVBWE9TUENJekwrNWRMQkFCbitlTUI0L00rNWh3QndFbithTUE4dko4NVJRQUFRQ0FCd0JjK0xjQjh2Sy81VEFBQVFDQUJBQUNCQkFBQUJCSUFBQkJJQUFCQUlBRUFBSUVFQUFBRUVnQUFFRWdBQUVBZ0FRQUFnUVFBQUFRU0FBQVFTQUFBUUNBQkFBQ0JCQUFBQkJJQUFCQklBUERGajU5L1dsOENzREh2YXo0VEFBQVFTQUFBVE02bmYwNFJBSnprRHdiQTNBUUFaNGtBR0ovM01lY0lBQzd5eHdQRzVmM0xKUUtBcS93UmdiSDgrUG5IKzVhcm5sNWUzOTViWHdUajJPK2VXMThDY0lhaHp5MEVBSnNTQ0ZDT0FjK1czQUlBZ0VBQ0FBQUNDUUFBQ0NRQTJKUjdsRkNHOXhaYkV3QUFFRWdBQUVBZ0FRQUFnUVFBQUFRU0FBQVFTQUFBUUNBQkFBQ0JCQUFBQkJJQUFCQklBTEE1VHl5RGJYbFBVWUlBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQUFDQ1FBQUNBUUU4dnIyL3ZyUytDT2UxM3o2MHZvWWsxVDIxcmRUYTlYbHV2MTlVRFR3R2tGQnNBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQUFDQ1FBQUNBUUFJQUFBSUpBQUFJSkFBb3hoUE00REhlUTVRa0FHQmpheDVaNncvN1h4NERERzBJQUFBSUpBQUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQUtNb1Q3K0ErM2p1VUpnQUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQUFDQ1FBS0M0eENlYTdYZlBWLzlONHJsOHR1WU0xcHpsYlB4dVVJTUFBSUJBQWdBQUFna0FBQWdrQUFBZ2tBQUFnRUFDQUFBQ0NRQUFDQ1FBQUNDUUFBQ0FRQUtBS2p6WkROYnhYcUVXQVFBQWdRUUFBQVFTQUFBUVNBQUFRQ0FCQUFDQkJBQUFCQklBQUJCSUFBQkFJQUVBQUlFRUFOVjR3aGxjNWoxQ1RRSUFDdG52bnEvK20rUS8rR3RlKzVvekJPNGpBQUFna0FBQWdFQUNBQUFDQ1FBQUNDUUFBQ0NRQUFDQVFBSUFBQUlKQUFBSUpBQ29Ldm5CTjNDSjl3YTFDUUFBQ0NRQUFDQ1FBQUNBUUFJQUFBSUpBQUFJSkFBQUlKQUFBSUJBQWdBQUFna0FBQWdrQUFBZ2tBQ2d1cVJIbnU1M3oxZi9UZEo1SEt4NXpXdk9iaGFKdndPMEp3QUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQUFDQ1FBS0FKVHo2REQ5NEx0Q0lBQUNDUUFBQ0FRQUlBQUFJSkFBQUlKQUFBSUpBQUFJQkFBZ0FBQWdrQUFBZ2tBQUFna0FDZ0dVOUFJNTMzQUMwSkFDaHN2M3UrK20rU0JzR2ExN3JteklESENBQUFDQ1FBQUNDUUFBQ0FRQUlBQUFJSkFBQUlKQUFBSUpBQUFJQkFBZ0FBQWdrQW1rcDZBQTRjODd0UGF3SUFBQUlKQUFBSUpBQUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQWFDN2hrYWo3M2ZQVmY1TndEbXRlNDVxekdsM0N6NXIrQ1FBQUNDUUFBQ0NRQUFDQVFBSUFBQUlKQUFBSUpBQUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FPaUNKNk9Sd3U4NnZYaDZlWDE3YjMwUnNDd1pqNEFGQVVBdmJBQUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQTZJWUhwREE3ditQMFJBQUFRQ0FCQUFDQkJBQUFCQklBQUJCSUFBQkFJQUVBQUlFRUFBQUVFZ0FBRUVnQUFFQWdBVUJYUENtTldmbmRwamNDQUFBQ0NRQUFDQ1FBQUNDUUFBQ0FRQUlBQUFJOXZieSt2YmUrQ0FDZ0xoc0FBQWdrQUFBZ2tBQUFnRUFDQUFBQ0NRQUFDQ1FBQUNDUUFBQ0FRQUlBQUFJSkFBQUlKQUFBSUpBQUFJQkFBZ0FBQWdrQUFBZ2tBQUFna0FBQWdFQUNBQUFDQ1FBQUNDUUFBQ0NRQUFDQVFBSUFBQUlKQUFBSUpBQUFJSkFBQUlCQUFnQUFBZ2tBQUFna0FBQWdrQUFBZ0VBQ0FBQUNDUUFBQ0NRQUFDQ1FBQUNBUUFJQUFBSUpBQUFJSkFBQUlKQUFBSUJBQWdBQUFna0FBQWdrQUFBZ2tBQUFnRUFDQUFBQ2Zmdjk2L3RUNjRzQUFPcjUvZXY3a3cwQUFBUVNBQUFRU0FBQVFDQUJBQUNCQkFBQUJCSUFBQkJJQUFCQW9HL0w4dkgvQVZ0ZkNBQlEzbUhtMndBQVFDQUJBQUNCQkFBQUJCSUFBQkRvdndEd1JVQUFtTnZ4ckxjQkFJQkFBZ0FBQWdrQUFBajBUd0Q0SGdBQXpPbnpqTGNCQUlCQUFnQUFBZ2tBQUFqMEpRQjhEd0FBNW5KcXR0c0FBRUFnQVFBQWdVNEdnTnNBQURDSGN6UGRCZ0FBQWdrQUFBaDBOZ0RjQmdDQXNWMmE1VFlBQUJCSUFBQkFvSXNCNERZQUFJenAyZ3kzQVFDQVFGY0R3QllBQU1heVpuYmJBQUJBSUFFQUFJRldCWURiQUFBd2hyVXoyd1lBQUFLdERnQmJBQURvMnkyejJnWUFBQUxkRkFDMkFBRFFwMXRudEEwQUFBUzZPUUJzQVFDZ0wvZk1aaHNBQUFoMFZ3RFlBZ0JBSCs2ZHlUWUFBQkRvN2dDd0JRQ0F0aDZaeFE5dEFFUUFBTFR4NkF4MkN3QUFBajBjQUxZQUFGRFhGclBYQmdBQUFtMFNBTFlBQUZESFZqTjNzdzJBQ0FDQXNyYWN0VzRCQUVDZ1RRUEFGZ0FBeXRoNnhtNitBUkFCQUxDdEVyTzF5QzBBRVFBQTJ5ZzFVMzBIQUFBQ0ZRc0FXd0FBZUV6SldWcDBBeUFDQU9BK3BXZG84VnNBSWdBQWJsTmpkdm9PQUFBRXFoSUF0Z0FBc0U2dG1WbHRBeUFDQU9DeW1yT3k2aTBBRVFBQXA5V2VrZFcvQXlBQ0FPQmZMV1pqa3k4QmlnQUErTkJxSmpiN1h3QWlBSUIwTFdkaDAvOEdLQUlBU05WNkJqWi9Ea0RyQXdDQTJucVlmYzBEWUZuNk9BZ0FxS0dYbWRkRkFDeExQd2NDQUtYME5PdTZDWUJsNmV0Z0FHQkx2YzI0cmdKZ1dmbzdJQUI0VkkrenJic0FXSlkrRHdvQTd0SHJUT3N5QUphbDN3TURnTFY2bm1YZEJzQ3k5SDF3QUhCSjd6T3M2d0JZbHY0UEVBQStHMkYyZFgrQngxNWUzOTViWHdNQW5EUEM0RC9vZmdOd2JLU0RCU0RMYUROcXFBQllsdkVPR0lENWpUaWJocnZnWTI0SkFORFNpSVAvWUxnTndMR1JEeDZBc1kwK2c0WU9nR1VaL3djQXdIaG1tRDNEdjRCamJna0FVTklNZy85ZytBM0FzWmwrTUFEMFpiWVpNOVdMT1dZYkFNQVdaaHY4QjFPK3FHTkNBSUI3ekRyNEQ2YTZCWERLN0Q5QUFMYVhNRHVtZjRISGJBTUF1Q1JoOEIvRXZOQmpRZ0NBWTBtRC95RHVCUjhUQWdEWkVnZi9RZXdMUHlZRUFMSWtELzZEK0FNNEpnUUE1bWJ3LytVZ3poQURBSE13OUU5ektGY0lBWUF4R2Z5WE9ad2JpQUdBdmhuNjZ6bW9PNGtCZ0Q0WSt2ZHhhQnNRQXdCMUdmcVBjNEFGQ0FLQWJSbjQyM09nRlFnQ2dOc1krT1U1NEVaRUFjQUh3NzROaDk0cGdRRE13b0R2MC84QndDVEk5czRQcGlzQUFBQUFTVVZPUks1Q1lJST0iLCAic2l6ZXMiOiAiNTEyeDUxMiIsICJ0eXBlIjogImltYWdlL3BuZyIsICJwdXJwb3NlIjogIm1hc2thYmxlIn1dfQ==">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAER0lEQVR4nO3c3VHbUBSFUZlJN6ED0hOUAj2FDqAe8pAhY4j/JF3pSmev9R7sUc6nI1keH4aNeXh8++j9HljO68v9ofd7ONb1zRh2hqFvFKu/sKHnkrVjWO3FDD5jrBXC4i9i8Jlj6RAW++MGn5aWCqH5HzX4LKl1CHct/5jhZ2mtZ6xJTQafHlpsg9kbwPDTS4vZmxWA4ae3uTM4OQDDz1bMmcVJARh+tmbqTI4OwPCzVVNmc1QAhp+tGzujNwdg+NmLMbN6UwCGn725dWavBmD42atbZrfpVyFgby4G4OzP3l2b4bMBGH6quDTLLoGIdjIAZ3+qOTfTNgDR/gvA2Z+qTs22DUC0LwE4+1Pd9xm3AYj2LwBnf1Icz7oNQDQBEO1uGFz+kOdz5m0AogmAaAIgmgCIdnADTDIbgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiPaj9xuo5vfzz8Vf49fT++KvkcIGaGiN4V/zdRIIoJG1h1IEbQiAaAIgmgCIJgCiCYBoAiBauR/G8vHgsqo9hCu1AQz/8n4//yx1nMsEUOk/ZQ+qHO8yAcAUAiCaAIgmAKIJgGgCIJoAiFYmgGpPKLeuyvEuEwBMUSqAKmelLfv19F7qOJf7MtyxKo/re6s08N+V2gAwlgCIVjqAyqt7LdWPYekA4BoBEE0ARBMA0fw69EzHN4ljnztM/bdzXpOvbACiCYBoAiCaAIhWPoDqTzKXlHDsygcAlwiAaAIgmgCIJgCiCYBoApjp+Ls4a3xs6HtAbQmAaBEBJDzQaS3lmEUEAOcIgGgCIJoAiCYAogmAaAIgmgCIFhNAyoOdFpKOVUwAcIoAiCYAogmAaAIgmgCIJgCiCYBoAiBaVABJTzinSjtGUQHAdwJoYK2fRvGTKO0JgGgCIJoAiCYAogmAaAIgWlwAaQ96xkg8NnEBwDEBEE0ARBMA0Q4Pj28fvd/E2nyP5jQ3wRBGAEQTANEEQLTIABJv9q5JPSaRAcAnARBNAEQTANEinwTDJxuAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiCYAogmAaAIgmgCIJgCi3b2+3B96vwno4fXl/mADEE0ARBMA0QRAtLth+Hsz0PuNwJo+Z94GIJoAiPYvAJdBpDiedRuAaF8CsAWo7vuM2wBE+y8AW4CqTs22DUC0kwHYAlRzbqZtAKKdDcAWoIpLs3xxA4iAvbs2wy6BiHY1AFuAvbpldm/aACJgb26d2ZsvgUTAXoyZ1VH3ACJg68bO6OibYBGwVVNmc9KnQCJga6bO5OSPQUXAVsyZxVnPAURAb3NncPaDMBHQS4vZazq8D49vHy3/HpzS8qTb9KsQtgFLaz1jiw2sbUBLS51cFz9jC4E5lr6qWO2SRQiMsdbl9OrX7ELgkrXvI7vetIqBYej74cnmPrURRW1b+6TwD3BoIAFUbBKuAAAAAElFTkSuQmCC">
+<meta name="theme-color" content="#3b6fd4">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Waste Tracker">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -541,6 +548,9 @@
       <div class="nav-item" id="navSettings"><span class="n-icon icon-slot" data-icon="parametres">⚙️</span> Paramètres</div>
       <div class="nav-item" id="navUsers"><span class="n-icon icon-slot" data-icon="utilisateurs">👥</span> Utilisateurs</div>
     </nav>
+    <button id="installAppBtn" class="nav-item" style="display:none; border:none; width:100%; text-align:left; cursor:pointer; margin-top:8px; background:var(--accent); color:#fff;">
+      <span class="n-icon">⬇️</span> Installer l'app
+    </button>
     <div class="sidebar-footer" id="sidebarFooter" title="Cliquer pour se déconnecter">
       <div class="avatar" id="sidebarAvatar">JM</div>
       <div>
@@ -641,6 +651,11 @@
               <option value="pièce">pièce</option>
             </select>
           </label>
+          <label style="font-size:12.5px; color:var(--text-secondary);">
+            Seuil critique (%)
+            <input type="number" id="newThreshold" min="1" max="100" step="1" value="85"
+              style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
+          </label>
           <button class="btn primary" id="addContainerBtn" style="grid-column: span 2;">Ajouter le contenant</button>
         </div>
       </div>
@@ -654,6 +669,7 @@
                 <th style="padding:6px 8px;">Nom</th>
                 <th style="padding:6px 8px;">Zone</th>
                 <th style="padding:6px 8px;">Capacité</th>
+                <th style="padding:6px 8px;">Seuil critique</th>
                 <th style="padding:6px 8px;">Remplissage</th>
                 <th style="padding:6px 8px;"></th>
               </tr>
@@ -904,12 +920,18 @@ async function recordHistory(containerId, pct, used) {
 // Références Firestore (peuplées une seule fois dans startFirebase, réutilisées partout)
 let fs = null; // { doc, setDoc, updateDoc, deleteDoc, addDoc, collection, getDoc, onSnapshot }
 
-// Seuils d'alerte (configurables par l'admin de site dans la vraie appli)
-function statusFor(pct) {
-  if (pct >= 85) return { cls: 'status-crit', label: 'Remplissage Critique', tag: 'crit' };
-  if (pct >= 70) return { cls: 'status-high', label: 'Remplissage Élevé', tag: 'high' };
-  if (pct >= 50) return { cls: 'status-mod',  label: 'Remplissage Modéré', tag: 'mod' };
-  return              { cls: 'status-low',   label: 'Remplissage Faible', tag: 'low' };
+const DEFAULT_THRESHOLD = 85;
+
+// Seuils d'alerte : le seuil critique est configurable par contenant (Paramètres),
+// les paliers intermédiaires (modéré/élevé) sont dérivés proportionnellement.
+function statusFor(pct, threshold) {
+  const crit = Number.isFinite(threshold) ? threshold : DEFAULT_THRESHOLD;
+  const high = Math.max(crit - 15, 50);
+  const mod = Math.max(crit - 35, 25);
+  if (pct >= crit) return { cls: 'status-crit', label: 'Remplissage Critique', tag: 'crit' };
+  if (pct >= high) return { cls: 'status-high', label: 'Remplissage Élevé', tag: 'high' };
+  if (pct >= mod)  return { cls: 'status-mod',  label: 'Remplissage Modéré', tag: 'mod' };
+  return                  { cls: 'status-low',   label: 'Remplissage Faible', tag: 'low' };
 }
 
 function ringMarkup(pct, radius = 34) {
@@ -933,7 +955,8 @@ function cardMarkup(c) {
   const icon = c.icon || DEFAULT_ICON_KEY;
   const emoji = c.emoji || ICON_EMOJI[icon] || ICON_EMOJI[DEFAULT_ICON_KEY];
   const name = c.name || '(sans nom)';
-  const s = statusFor(pct);
+  const threshold = Number.isFinite(c.threshold) ? c.threshold : DEFAULT_THRESHOLD;
+  const s = statusFor(pct, threshold);
   return `
     <div class="card ${s.cls}" tabindex="0" role="button" data-id="${c.id}" aria-label="${name}, ${pct}%">
       <div class="card-head">
@@ -1099,21 +1122,37 @@ function attachCardInteraction(card) {
   });
 }
 
+// ---------- Badge sur l'icône de l'app (PWA installée) ----------
+function updateAppBadge(criticalCount) {
+  if (!('setAppBadge' in navigator)) return; // navigateur/app non installée : pas de badge possible
+  try {
+    if (criticalCount > 0) {
+      navigator.setAppBadge(criticalCount).catch(() => {});
+    } else {
+      navigator.clearAppBadge().catch(() => {});
+    }
+  } catch (e) { /* API non disponible sur ce navigateur, on ignore silencieusement */ }
+}
+
 function renderAlerts() {
   const list = document.getElementById('alertList');
-  const critical = containers
-    .map(c => ({ ...c, pct: Number.isFinite(c.pct) ? c.pct : 0 }))
-    .filter(c => c.pct >= 70)
+  const withStatus = containers.map(c => {
+    const pct = Number.isFinite(c.pct) ? c.pct : 0;
+    const threshold = Number.isFinite(c.threshold) ? c.threshold : DEFAULT_THRESHOLD;
+    return { ...c, pct, status: statusFor(pct, threshold) };
+  });
+  const critical = withStatus
+    .filter(c => c.status.tag === 'crit' || c.status.tag === 'high')
     .sort((a, b) => b.pct - a.pct);
   if (critical.length === 0) {
     list.innerHTML = `<li class="empty">Aucune alerte — tous les contenants sont sous le seuil.</li>`;
-    return;
+  } else {
+    list.innerHTML = critical.map(c => {
+      const label = c.status.tag === 'crit' ? 'Critique' : 'Élevé';
+      return `<li>${c.name || '(sans nom)'} (${c.pct}% — ${label})</li>`;
+    }).join('');
   }
-  list.innerHTML = critical.map(c => {
-    const s = statusFor(c.pct);
-    const label = s.tag === 'crit' ? 'Critique' : 'Élevé';
-    return `<li>${c.name || '(sans nom)'} (${c.pct}% — ${label})</li>`;
-  }).join('');
+  updateAppBadge(withStatus.filter(c => c.status.tag === 'crit').length);
 }
 
 function updateSiteSubtitle() {
@@ -1331,6 +1370,7 @@ function renderSettings() {
     const total = Number.isFinite(c.total) ? c.total : 0;
     const unit = c.unit || '';
     const pct = Number.isFinite(c.pct) ? c.pct : 0;
+    const threshold = Number.isFinite(c.threshold) ? c.threshold : DEFAULT_THRESHOLD;
     return `
     <tr style="border-top:1px solid var(--border);" data-id="${c.id}">
       <td style="padding:8px;"><input type="text" class="edit-name" value="${name}"
@@ -1340,6 +1380,10 @@ function renderSettings() {
       <td style="padding:8px; white-space:nowrap;">
         <input type="text" class="edit-total" value="${total}"
           style="width:70px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;"> ${unit}
+      </td>
+      <td style="padding:8px; white-space:nowrap;">
+        <input type="number" class="edit-threshold" value="${threshold}" min="1" max="100"
+          style="width:60px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;">%
       </td>
       <td style="padding:8px; color:var(--text-secondary);">${pct}%</td>
       <td style="padding:8px; white-space:nowrap;">
@@ -1357,12 +1401,14 @@ function renderSettings() {
       const name = row.querySelector('.edit-name').value.trim();
       const zoneId = row.querySelector('.edit-zone').value || null;
       const total = Number(row.querySelector('.edit-total').value.replace(',', '.'));
+      let threshold = Number(row.querySelector('.edit-threshold').value);
+      if (!Number.isFinite(threshold) || threshold < 1 || threshold > 100) threshold = DEFAULT_THRESHOLD;
       if (!name || !Number.isFinite(total) || total <= 0) {
         alert('Nom et capacité (> 0) sont obligatoires.');
         return;
       }
       try {
-        await persistContainerMeta(id, { name, zoneId, total });
+        await persistContainerMeta(id, { name, zoneId, total, threshold });
       } catch (e) {
         console.error('Échec de la mise à jour :', e);
         alert('La mise à jour a échoué : ' + (e && e.message ? e.message : e));
@@ -1406,7 +1452,7 @@ function formatDateShort(iso) {
   } catch (e) { return iso; }
 }
 
-function barChartSvg(entries) {
+function barChartSvg(entries, threshold) {
   const w = 700, h = 220, padL = 34, padB = 30, padT = 14, padR = 10;
   const chartW = w - padL - padR, chartH = h - padT - padB;
   const n = entries.length;
@@ -1417,7 +1463,7 @@ function barChartSvg(entries) {
     const x = padL + i * (chartW / n) + ((chartW / n) - barW) / 2;
     const barH = (pct / 100) * chartH;
     const y = padT + (chartH - barH);
-    const s = statusFor(pct);
+    const s = statusFor(pct, threshold);
     const color = `var(--status-${s.tag === 'crit' ? 'crit' : s.tag === 'high' ? 'high' : s.tag === 'mod' ? 'mod' : 'low'}-ring)`;
     return `
       <rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="4" fill="${color}"></rect>
@@ -1478,7 +1524,7 @@ function renderReportDetailContent(entries, c) {
   }
 
   const recent = entries.slice(-20); // les 20 derniers points, pour garder le graphique lisible
-  chartWrap.innerHTML = barChartSvg(recent);
+  chartWrap.innerHTML = barChartSvg(recent, Number.isFinite(c && c.threshold) ? c.threshold : DEFAULT_THRESHOLD);
 
   const unit = (c && c.unit) || '';
   tableWrap.innerHTML = `
@@ -1574,6 +1620,9 @@ document.getElementById('addContainerBtn').addEventListener('click', async () =>
   const rawTotal = document.getElementById('newTotal').value;
   const total = Number(String(rawTotal).replace(',', '.'));
   const unit = document.getElementById('newUnit').value;
+  const rawThreshold = document.getElementById('newThreshold').value;
+  let threshold = Number(rawThreshold);
+  if (!Number.isFinite(threshold) || threshold < 1 || threshold > 100) threshold = DEFAULT_THRESHOLD;
 
   if (!name || !Number.isFinite(total) || total <= 0) {
     alert('Merci de renseigner le nom et une capacité totale supérieure à 0 (utilise un point pour les décimales, ex. 10.5).');
@@ -1583,10 +1632,11 @@ document.getElementById('addContainerBtn').addEventListener('click', async () =>
   btn.disabled = true;
   btn.textContent = 'Ajout en cours…';
   try {
-    await persistNewContainer({ name, zoneId, icon, emoji: ICON_EMOJI[icon] || ICON_EMOJI[DEFAULT_ICON_KEY], total, unit });
+    await persistNewContainer({ name, zoneId, icon, emoji: ICON_EMOJI[icon] || ICON_EMOJI[DEFAULT_ICON_KEY], total, unit, threshold });
     document.getElementById('newName').value = '';
     document.getElementById('newZone').value = '';
     document.getElementById('newTotal').value = '';
+    document.getElementById('newThreshold').value = '85';
   } catch (e) {
     console.error('Échec de l\'ajout du contenant :', e);
     alert('L\'ajout a échoué : ' + (e && e.message ? e.message : e) + '\n\nOuvre la console (F12) pour le détail complet et transmets ce message si besoin.');
@@ -1702,6 +1752,39 @@ document.getElementById('menuBtn').addEventListener('click', () => {
 backdrop.addEventListener('click', () => {
   sidebar.classList.remove('open');
   backdrop.classList.remove('show');
+});
+
+// ---------- PWA : installation + service worker ----------
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    self.addEventListener('install', () => self.skipWaiting());
+    self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+    self.addEventListener('fetch', (e) => {
+      e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    });
+  `;
+  const swBlob = new Blob([swCode], { type: 'application/javascript' });
+  navigator.serviceWorker.register(URL.createObjectURL(swBlob))
+    .catch(e => console.warn('Enregistrement du service worker échoué :', e));
+}
+
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const btn = document.getElementById('installAppBtn');
+  if (btn) btn.style.display = '';
+});
+document.getElementById('installAppBtn').addEventListener('click', async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  document.getElementById('installAppBtn').style.display = 'none';
+});
+window.addEventListener('appinstalled', () => {
+  const btn = document.getElementById('installAppBtn');
+  if (btn) btn.style.display = 'none';
 });
 
 // ---------- Thème clair/sombre ----------
