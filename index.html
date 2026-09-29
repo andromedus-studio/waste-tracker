@@ -500,6 +500,7 @@
     outline-offset: -3px;
   }
   .card.dragging-source { opacity: 0.35; }
+  body.dragging-active { user-select: none; -webkit-user-select: none; }
   .drag-ghost {
     position: fixed;
     pointer-events: none;
@@ -1061,8 +1062,8 @@ function render() {
 }
 
 // ---------- Glisser-déposer (appui long) pour classer un contenant dans une zone ----------
-const LONG_PRESS_MS = 350;
-const MOVE_CANCEL_PX = 10;
+const LONG_PRESS_MS = 500;
+const MOVE_CANCEL_PX = 12;
 
 function createGhost(card) {
   const icon = card.querySelector('.icon-slot');
@@ -1105,6 +1106,7 @@ function attachCardInteraction(card) {
     const longPressTimer = setTimeout(() => {
       dragging = true;
       card.classList.add('dragging-source');
+      document.body.classList.add('dragging-active'); // coupe la sélection de texte pendant le drag (souris)
       ghost = createGhost(card);
       ghost.style.left = startX + 'px';
       ghost.style.top = startY + 'px';
@@ -1112,9 +1114,21 @@ function attachCardInteraction(card) {
       if (navigator.vibrate) { try { navigator.vibrate(15); } catch (err) {} }
     }, LONG_PRESS_MS);
 
+    function cleanup() {
+      clearTimeout(longPressTimer);
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      document.removeEventListener('pointercancel', onCancel);
+      card.classList.remove('dragging-source');
+      document.body.classList.remove('dragging-active');
+      if (lastZoneEl) lastZoneEl.classList.remove('drag-over');
+      if (ghost) { ghost.remove(); ghost = null; }
+    }
+
     function onMove(ev) {
       const dx = ev.clientX - startX, dy = ev.clientY - startY;
       if (!dragging) {
+        // Pas encore en mode drag : si ça bouge, c'est probablement un scroll — on laisse faire.
         if (Math.hypot(dx, dy) > MOVE_CANCEL_PX) clearTimeout(longPressTimer);
         return;
       }
@@ -1129,16 +1143,19 @@ function attachCardInteraction(card) {
       }
     }
 
-    function onUp(ev) {
-      clearTimeout(longPressTimer);
-      document.removeEventListener('pointermove', onMove);
-      document.removeEventListener('pointerup', onUp);
-      card.classList.remove('dragging-source');
-      if (lastZoneEl) lastZoneEl.classList.remove('drag-over');
+    // Le navigateur envoie pointercancel (pas pointerup) quand il reprend la main pour
+    // faire défiler la page — sans ce nettoyage, le minuteur se déclenchait quand même
+    // et lançait un drag fantôme après un simple scroll.
+    function onCancel() {
+      cleanup();
+    }
 
-      if (dragging) {
-        if (ghost) ghost.remove();
-        const zoneEl = zoneSectionAt(ev.clientX, ev.clientY);
+    function onUp(ev) {
+      const wasDragging = dragging;
+      const zoneEl = wasDragging ? zoneSectionAt(ev.clientX, ev.clientY) : null;
+      cleanup();
+
+      if (wasDragging) {
         if (zoneEl) {
           const zoneId = zoneEl.dataset.zoneId || null;
           assignContainerZone(containerId, zoneId);
@@ -1150,6 +1167,7 @@ function attachCardInteraction(card) {
 
     document.addEventListener('pointermove', onMove);
     document.addEventListener('pointerup', onUp, { once: true });
+    document.addEventListener('pointercancel', onCancel, { once: true });
   });
 }
 
