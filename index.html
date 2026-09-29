@@ -537,6 +537,60 @@
     color: var(--text-secondary); font-size: 13px; line-height: 1; padding: 0 2px;
   }
   .zone-chip button:hover { color: var(--status-crit-text); }
+
+  /* ---------- Rapports : liste à gauche (PC) / menu déroulant (mobile) ---------- */
+  .reports-layout { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  .reports-side .report-list { display: none; }
+  .report-select {
+    width: 100%; padding: 12px 14px; border-radius: 10px; font-size: 15px; font-weight: 600;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text-primary);
+  }
+  .report-item {
+    display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+    padding: 9px 10px; border-radius: 10px; border: 1px solid transparent;
+    background: transparent; color: var(--text-primary); cursor: pointer; font-size: 13.5px;
+  }
+  .report-item:hover { background: var(--bg); }
+  .report-item.active { background: var(--bg); border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+  .report-item .icon-img, .report-item svg { width: 26px; height: 26px; flex-shrink: 0; }
+  .report-item .ri-name { flex: 1; min-width: 0; font-weight: 600; }
+  .report-item .ri-zone { display: block; font-size: 11.5px; font-weight: 400; color: var(--text-secondary); }
+  .pct-badge { padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .pct-badge.low  { background: var(--status-low-bg);  color: var(--status-low-text); }
+  .pct-badge.mod  { background: var(--status-mod-bg);  color: var(--status-mod-text); }
+  .pct-badge.high { background: var(--status-high-bg); color: var(--status-high-text); }
+  .pct-badge.crit { background: var(--status-crit-bg); color: var(--status-crit-text); }
+  .report-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .report-head .icon-img, .report-head svg { width: 40px; height: 40px; }
+  .report-head h3 { margin: 0; font-size: 17px; }
+  .report-head small { color: var(--text-secondary); font-size: 12.5px; }
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .kpi { background: var(--bg); border-radius: 10px; padding: 10px 12px; }
+  .kpi span { display: block; font-size: 11.5px; color: var(--text-secondary); }
+  .kpi b { display: block; margin-top: 2px; font-size: 16px; }
+  .hist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .hist-table th { text-align: left; padding: 6px 8px; color: var(--text-secondary); font-size: 12px; }
+  .hist-table td { padding: 8px; border-top: 1px solid var(--border); }
+  @media (min-width: 900px) {
+    .reports-layout { grid-template-columns: 300px 1fr; align-items: start; }
+    .reports-side { position: sticky; top: 16px; max-height: calc(100vh - 110px); overflow-y: auto; }
+    .reports-side .report-select { display: none; }
+    .reports-side .report-list { display: flex; flex-direction: column; gap: 4px; }
+  }
+  @media (max-width: 639px) {
+    .kpi b { font-size: 14px; }
+    .hist-table thead { display: none; }
+    .hist-table, .hist-table tbody { display: block; }
+    .hist-table tr {
+      display: grid; grid-template-columns: 1fr auto; grid-template-areas: "date pct" "qty del";
+      gap: 4px 10px; padding: 10px 0; border-top: 1px solid var(--border); align-items: center;
+    }
+    .hist-table td { padding: 0; border: 0; }
+    .hist-table td.c-date { grid-area: date; font-weight: 600; }
+    .hist-table td.c-pct  { grid-area: pct; text-align: right; }
+    .hist-table td.c-qty  { grid-area: qty; color: var(--text-secondary); }
+    .hist-table td.c-del  { grid-area: del; text-align: right; }
+  }
 </style>
 </head>
 <body>
@@ -703,7 +757,9 @@
         <h3 style="margin:0 0 6px 0; font-size:15px;">Gestion des accès</h3>
         <p style="margin:0 0 14px 0; font-size:12.5px; color:var(--text-secondary);">
           Réservé au Super Admin. Attribue un rôle à chaque compte : Atelier (saisie terrain uniquement),
-          Administrateur de site (configuration + saisie), Super Admin (accès complet).
+          Administrateur de site (configuration + saisie), Super Admin (accès complet).<br>
+          Case « Alerte e-mail » : la personne reçoit un e-mail quand un contenant passe son seuil critique.
+          Tu peux indiquer une autre adresse (plusieurs possibles, séparées par une virgule).
         </p>
         <div class="overflow-x">
           <table style="width:100%; border-collapse:collapse; font-size:13px;">
@@ -711,6 +767,7 @@
               <tr style="text-align:left; color:var(--text-secondary); font-size:12px;">
                 <th style="padding:6px 8px;">Compte</th>
                 <th style="padding:6px 8px;">Rôle</th>
+                <th style="padding:6px 8px;">Alerte e-mail</th>
                 <th style="padding:6px 8px;"></th>
               </tr>
             </thead>
@@ -720,12 +777,12 @@
       </div>
     </div>
     <div id="reportsView" style="display:none;">
-      <div class="card" style="cursor:default; margin-bottom:14px;">
-        <h3 style="margin:0 0 12px 0; font-size:15px;">Choisir un contenant</h3>
-        <div id="reportsPicker" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+      <div class="reports-layout">
+        <div class="card reports-side" style="cursor:default;">
+          <div id="reportsPicker"></div>
+        </div>
+        <div id="reportsDetail"></div>
       </div>
-
-      <div id="reportsDetail"></div>
     </div>
   </main>
 
@@ -770,7 +827,12 @@
   sites/{siteId}/containers/{containerId}
     name, zone, icon, pct, used, total, unit
   users/{uid}
-    email, role ('super_admin' | 'site_admin' | 'atelier'), siteId
+    email, role ('super_admin' | 'site_admin' | 'atelier'), siteId,
+    alertEmail (bool), alertEmailAddress (autre adresse, optionnel)
+  sites/{siteId}/settings/alertRecipients
+    emails[] (copie des destinataires, lisible par tous les comptes)
+  mail/{id}
+    to[], message{subject, html} -> lu par l'extension « Trigger Email »
   (Zones et types de déchets configurables arriveront avec le module
   Paramétrage admin — voir les prochaines étapes du projet.)
   --------------------------------------------------------------
@@ -848,6 +910,7 @@ const ICON_EMOJI = {
   'inflammable': '🔥',
   'palette': '🪵',
   'pare-brise': '🚗',
+  'pare-chocs': '🚘',
   'deee': '💻',
   'ampoules': '💡',
   'piles': '🪫',
@@ -873,14 +936,17 @@ const ICON_KEYS = [
   'pneu', 'batterie', 'filtre-huile', 'huile-usagee', 'gazole-usage',
   'liquide-refroidissement', 'liquide-de-frein', 'dechets-souilles', 'carton',
   'tout-venant', 'aluminium', 'ferraille', 'plastique', 'citerne', 'aerosol',
-  'inflammable', 'palette', 'pare-brise', 'deee', 'ampoules', 'piles',
+  'inflammable', 'palette', 'pare-brise', 'pare-chocs', 'deee', 'ampoules', 'piles',
   'solvant', 'peinture', 'clim', 'lave-glace', 'eaux-usees', 'pieces-usagees',
   'catalyseur', 'poubelle',
 ];
 
 function iconMarkup(iconKey, emojiFallback) {
   if (ICON_KEYS.indexOf(iconKey) >= 0) {
-    return '<img src="' + ICON_DIR + '/' + iconKey + '.png?v=' + ICONS_VERSION + '" alt="" class="icon-img">';
+    // Si le fichier PNG est introuvable (mauvais nom, pas encore envoyé), on retombe sur l'emoji.
+    const fb = String(emojiFallback || ICON_EMOJI[iconKey] || ICON_EMOJI[DEFAULT_ICON_KEY]).replace(/["'<>&]/g, '');
+    return '<img src="' + ICON_DIR + '/' + iconKey + '.png?v=' + ICONS_VERSION + '" alt="" class="icon-img" ' +
+           'onerror="this.replaceWith(document.createTextNode(\'' + fb + '\'))">';
   }
   return emojiFallback || ICON_EMOJI[iconKey] || ICON_EMOJI[DEFAULT_ICON_KEY];
 }
@@ -1364,6 +1430,7 @@ function populateIconSelect() {
     'inflammable': '🔥 Inflammable',
     'palette': '🪵 Palette bois',
     'pare-brise': '🚗 Pare-brise',
+    'pare-chocs': '🚘 Pare-chocs',
     'deee': '💻 DEEE / électronique',
     'ampoules': '💡 Lampes / ampoules',
     'piles': '🪫 Piles et petites batteries',
@@ -1508,19 +1575,34 @@ function renderSettings() {
 }
 
 // ---------- Vue Rapports ----------
+function pctBadgeClass(c) {
+  const pct = Number.isFinite(c.pct) ? c.pct : 0;
+  return statusFor(pct, Number.isFinite(c.threshold) ? c.threshold : DEFAULT_THRESHOLD).tag;
+}
+
 function renderReportsPicker() {
   const picker = document.getElementById('reportsPicker');
-  picker.innerHTML = containers.map(c => `
-    <button class="btn report-pick-btn" data-id="${c.id}"
-      style="width:auto; padding:8px 14px; display:flex; align-items:center; gap:8px;
-             ${c.id === reportSelectedId ? 'background:var(--accent); border-color:var(--accent); color:#fff;' : ''}">
-      <span class="icon-slot" data-icon="${c.icon || DEFAULT_ICON_KEY}">${iconMarkup(c.icon || DEFAULT_ICON_KEY, c.emoji)}</span>
-      ${c.name || '(sans nom)'}
-    </button>`).join('');
+  const zoneName = c => { const z = zones.find(z => z.id === c.zoneId); return z ? z.name : 'Non classé'; };
+  const sorted = containers.slice().sort((a, b) => (b.pct || 0) - (a.pct || 0));
+  picker.innerHTML = `
+    <select class="report-select" id="reportSelect" aria-label="Choisir un contenant">
+      <option value="">— Choisir un contenant —</option>
+      ${sorted.map(c => `<option value="${c.id}" ${c.id === reportSelectedId ? 'selected' : ''}>${escapeHtml(c.name || '(sans nom)')} — ${c.pct || 0}%</option>`).join('')}
+    </select>
+    <div class="report-list">
+      ${sorted.map(c => `
+        <button class="report-item ${c.id === reportSelectedId ? 'active' : ''}" data-id="${c.id}">
+          <span class="icon-slot" data-icon="${c.icon || DEFAULT_ICON_KEY}">${iconMarkup(c.icon || DEFAULT_ICON_KEY, c.emoji)}</span>
+          <span class="ri-name">${escapeHtml(c.name || '(sans nom)')}<span class="ri-zone">${escapeHtml(zoneName(c))}</span></span>
+          <span class="pct-badge ${pctBadgeClass(c)}">${c.pct || 0}%</span>
+        </button>`).join('')}
+    </div>`;
 
-  picker.querySelectorAll('.report-pick-btn').forEach(btn => {
+  picker.querySelectorAll('.report-item').forEach(btn => {
     btn.addEventListener('click', () => selectReportContainer(btn.dataset.id));
   });
+  const sel = picker.querySelector('#reportSelect');
+  sel.addEventListener('change', () => { if (sel.value) selectReportContainer(sel.value); });
 }
 
 function formatDateShort(iso) {
@@ -1532,7 +1614,9 @@ function formatDateShort(iso) {
 }
 
 function barChartSvg(entries, threshold) {
-  const w = 700, h = 220, padL = 34, padB = 30, padT = 14, padR = 10;
+  const compact = window.matchMedia('(max-width: 639px)').matches;
+  if (compact) entries = entries.slice(-8);
+  const w = compact ? 360 : 700, h = compact ? 200 : 220, padL = 34, padB = 30, padT = 14, padR = 10;
   const chartW = w - padL - padR, chartH = h - padT - padB;
   const n = entries.length;
   const barGap = 10;
@@ -1563,14 +1647,25 @@ function selectReportContainer(id) {
   renderReportsPicker();
   const detail = document.getElementById('reportsDetail');
   const c = containers.find(x => x.id === id);
+  const z = c ? zones.find(z => z.id === c.zoneId) : null;
   detail.innerHTML = `
     <div class="card" style="cursor:default; margin-bottom:14px;">
-      <h3 style="margin:0 0 14px 0; font-size:15px;">${c ? c.name : ''} — évolution du remplissage</h3>
+      <div class="report-head">
+        <span class="icon-slot" data-icon="${c ? (c.icon || DEFAULT_ICON_KEY) : ''}">${c ? iconMarkup(c.icon || DEFAULT_ICON_KEY, c.emoji) : ''}</span>
+        <div>
+          <h3>${escapeHtml(c ? c.name : '')}</h3>
+          <small>${escapeHtml(z ? z.name : 'Non classé')}</small>
+        </div>
+      </div>
+      <div class="kpis" id="reportKpis"></div>
+    </div>
+    <div class="card" style="cursor:default; margin-bottom:14px;">
+      <h3 style="margin:0 0 14px 0; font-size:15px;">Évolution du remplissage</h3>
       <div id="reportChartWrap">Chargement de l'historique…</div>
     </div>
     <div class="card" style="cursor:default;">
       <h3 style="margin:0 0 14px 0; font-size:15px;">Historique détaillé</h3>
-      <div class="overflow-x" id="reportTableWrap"></div>
+      <div id="reportTableWrap"></div>
     </div>`;
 
   if (unsubscribeHistory) { unsubscribeHistory(); unsubscribeHistory = null; }
@@ -1594,7 +1689,19 @@ function selectReportContainer(id) {
 function renderReportDetailContent(entries, c) {
   const chartWrap = document.getElementById('reportChartWrap');
   const tableWrap = document.getElementById('reportTableWrap');
+  const kpis = document.getElementById('reportKpis');
   if (!chartWrap || !tableWrap) return; // vue quittée entre-temps
+
+  const threshold = Number.isFinite(c && c.threshold) ? c.threshold : DEFAULT_THRESHOLD;
+  const unit = (c && c.unit) || '';
+  const curPct = Number.isFinite(c && c.pct) ? c.pct : 0;
+  const last = entries.length ? entries[entries.length - 1] : null;
+  if (kpis) {
+    kpis.innerHTML = `
+      <div class="kpi"><span>Remplissage actuel</span><b><span class="pct-badge ${statusFor(curPct, threshold).tag}">${curPct}%</span></b></div>
+      <div class="kpi"><span>Dernier relevé</span><b>${last ? formatDateShort(last.ts) : '—'}</b></div>
+      <div class="kpi"><span>Seuil critique</span><b>${threshold}%</b></div>`;
+  }
 
   if (!entries.length) {
     chartWrap.innerHTML = `<p style="font-size:13px; color:var(--text-secondary); margin:0;">Aucun mouvement enregistré pour l'instant — ajuste le curseur de remplissage depuis le tableau de bord pour commencer l'historique.</p>`;
@@ -1603,30 +1710,26 @@ function renderReportDetailContent(entries, c) {
   }
 
   const recent = entries.slice(-20); // les 20 derniers points, pour garder le graphique lisible
-  chartWrap.innerHTML = barChartSvg(recent, Number.isFinite(c && c.threshold) ? c.threshold : DEFAULT_THRESHOLD);
+  chartWrap.innerHTML = barChartSvg(recent, threshold);
 
-  const unit = (c && c.unit) || '';
   const canDelete = canDragZones(); // même règle que pour les zones : réservé aux admins
   tableWrap.innerHTML = `
-    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+    <table class="hist-table">
       <thead>
-        <tr style="text-align:left; color:var(--text-secondary); font-size:12px;">
-          <th style="padding:6px 8px;">Date</th>
-          <th style="padding:6px 8px;">Remplissage</th>
-          <th style="padding:6px 8px;">Quantité</th>
-          <th style="padding:6px 8px;"></th>
-        </tr>
+        <tr><th>Date</th><th>Remplissage</th><th>Quantité</th><th></th></tr>
       </thead>
       <tbody>
-        ${entries.slice().reverse().map(e => `
-          <tr style="border-top:1px solid var(--border);" data-entry-id="${e.id || ''}">
-            <td style="padding:8px;">${formatDateShort(e.ts)}</td>
-            <td style="padding:8px;">${Number.isFinite(e.pct) ? e.pct : 0}%</td>
-            <td style="padding:8px;">${Number.isFinite(e.used) ? e.used : 0}${unit}</td>
-            <td style="padding:8px;">
+        ${entries.slice().reverse().map(e => {
+          const p = Number.isFinite(e.pct) ? e.pct : 0;
+          return `
+          <tr data-entry-id="${e.id || ''}">
+            <td class="c-date">${formatDateShort(e.ts)}</td>
+            <td class="c-pct"><span class="pct-badge ${statusFor(p, threshold).tag}">${p}%</span></td>
+            <td class="c-qty">${Number.isFinite(e.used) ? e.used : 0}${unit}</td>
+            <td class="c-del">
               ${canDelete && e.id ? `<button class="btn delete-entry" style="width:auto; padding:4px 9px; font-size:12px; color:var(--status-crit-text); border-color:var(--status-crit-ring);">Supprimer</button>` : ''}
             </td>
-          </tr>`).join('')}
+          </tr>`; }).join('')}
       </tbody>
     </table>`;
 
@@ -1649,6 +1752,10 @@ function renderReportDetailContent(entries, c) {
   }
 }
 
+window.matchMedia('(max-width: 639px)').addEventListener('change', () => {
+  if (currentView === 'reports') renderReports();
+});
+
 function renderReports() {
   renderReportsPicker();
   if (reportSelectedId && containers.find(x => x.id === reportSelectedId)) {
@@ -1662,18 +1769,26 @@ function renderReports() {
 function renderUsers() {
   const tbody = document.getElementById('usersTableBody');
   if (!users.length) {
-    tbody.innerHTML = `<tr><td colspan="3" style="padding:10px; color:var(--text-secondary);">Aucun compte pour l'instant — les comptes apparaissent ici après leur première connexion.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4" style="padding:10px; color:var(--text-secondary);">Aucun compte pour l'instant — les comptes apparaissent ici après leur première connexion.</td></tr>`;
     return;
   }
   tbody.innerHTML = users.map(u => `
     <tr style="border-top:1px solid var(--border);" data-uid="${u.id}">
-      <td style="padding:8px;">${u.email || u.id}</td>
+      <td style="padding:8px;">${escapeHtml(u.email || u.id)}</td>
       <td style="padding:8px;">
         <select class="edit-role" style="padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;">
           <option value="atelier" ${u.role === 'atelier' ? 'selected' : ''}>Atelier</option>
           <option value="site_admin" ${u.role === 'site_admin' ? 'selected' : ''}>Administrateur de site</option>
           <option value="super_admin" ${u.role === 'super_admin' ? 'selected' : ''}>Super Admin</option>
         </select>
+      </td>
+      <td style="padding:8px; min-width:210px;">
+        <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+          <input type="checkbox" class="edit-alert" ${u.alertEmail ? 'checked' : ''} style="width:18px; height:18px;"> Recevoir les alertes
+        </label>
+        <input type="text" class="edit-alert-addr" value="${escapeHtml(u.alertEmailAddress || '')}"
+          placeholder="Autre adresse (sinon ${escapeHtml(u.email || 'celle du compte')})"
+          style="width:100%; margin-top:6px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:12.5px;">
       </td>
       <td style="padding:8px;">
         <button class="btn save-role" style="width:auto; padding:6px 10px;">Enregistrer</button>
@@ -1686,10 +1801,16 @@ function renderUsers() {
     if (!btn) return;
     btn.addEventListener('click', async () => {
       const role = row.querySelector('.edit-role').value;
+      const alertEmail = row.querySelector('.edit-alert').checked;
+      const alertEmailAddress = row.querySelector('.edit-alert-addr').value.trim();
+      if (alertEmailAddress && parseEmails(alertEmailAddress).length !== alertEmailAddress.split(/[,;\s]+/).filter(Boolean).length) {
+        alert('Adresse e-mail invalide. Sépare plusieurs adresses par une virgule.');
+        return;
+      }
       btn.disabled = true;
       btn.textContent = '…';
       try {
-        await persistUserRole(uid, role);
+        await persistUserSettings(uid, { role, alertEmail, alertEmailAddress });
         btn.textContent = 'Enregistré ✓';
         setTimeout(() => { btn.textContent = 'Enregistrer'; btn.disabled = false; }, 1200);
       } catch (e) {
@@ -1702,9 +1823,27 @@ function renderUsers() {
   });
 }
 
-async function persistUserRole(uid, role) {
+function escapeHtml(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+function parseEmails(str) {
+  return String(str || '').split(/[,;\s]+/).map(x => x.trim()).filter(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x));
+}
+
+// Liste des destinataires d'alerte, recopiée dans sites/{siteId}/settings/alertRecipients
+// pour que n'importe quel compte (même « Atelier ») puisse la lire sans accéder à la collection users.
+async function syncAlertRecipients(list) {
+  const emails = [...new Set(list.filter(u => u.alertEmail).flatMap(u => {
+    const own = parseEmails(u.alertEmailAddress);
+    return own.length ? own : parseEmails(u.email);
+  }))];
+  await fs.setDoc(fs.doc(db, 'sites', SITE_ID, 'settings', 'alertRecipients'), { emails, updatedAt: new Date().toISOString() });
+}
+
+async function persistUserSettings(uid, fields) {
   if (!(FIREBASE_READY && db && fs)) return; // pas de gestion des rôles en mode démo
-  await fs.updateDoc(fs.doc(db, 'users', uid), { role });
+  await fs.updateDoc(fs.doc(db, 'users', uid), fields);
+  await syncAlertRecipients(users.map(u => u.id === uid ? { ...u, ...fields } : u));
   // onSnapshot() sur users[] redessine automatiquement, y compris pour le compte
   // actuellement connecté si c'est le sien qui vient de changer.
 }
@@ -1819,15 +1958,45 @@ modalSlider.addEventListener('input', () => {
 document.getElementById('cancelBtn').addEventListener('click', closeModal);
 modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) closeModal(); });
 
+// Écrit un document dans la collection « mail » : l'extension Firebase
+// « Trigger Email from Firestore » se charge de l'envoi réel.
+async function notifyThresholdCrossed(c, oldPct, newPct) {
+  if (!(FIREBASE_READY && db && fs && fs.addDoc)) return;
+  const threshold = Number.isFinite(c.threshold) ? c.threshold : DEFAULT_THRESHOLD;
+  if (!(oldPct < threshold && newPct >= threshold)) return; // uniquement au franchissement du seuil
+  try {
+    const snap = await fs.getDoc(fs.doc(db, 'sites', SITE_ID, 'settings', 'alertRecipients'));
+    const emails = snap.exists() ? (snap.data().emails || []) : [];
+    if (!emails.length) return;
+    const zone = zones.find(z => z.id === c.zoneId);
+    const who = currentUser ? (currentUser.displayName || currentUser.email) : '';
+    await fs.addDoc(fs.collection(db, 'mail'), {
+      to: emails,
+      message: {
+        subject: '⚠️ Alerte déchets — ' + (c.name || 'Contenant') + ' à ' + newPct + '%',
+        html: '<p><b>' + escapeHtml(c.name || 'Contenant') + '</b> a atteint <b>' + newPct + '%</b> ' +
+              '(seuil critique : ' + threshold + '%).</p>' +
+              '<p>Site : ' + escapeHtml(siteName || '') + (zone ? ' — Zone : ' + escapeHtml(zone.name) : '') + '<br>' +
+              (who ? 'Relevé saisi par : ' + escapeHtml(who) + '<br>' : '') +
+              'Le ' + new Date().toLocaleString('fr-FR') + '</p>'
+      }
+    });
+  } catch (e) {
+    console.error('Envoi de l\'alerte e-mail impossible (non bloquant) :', e);
+  }
+}
+
 document.getElementById('confirmBtn').addEventListener('click', async () => {
   const c = containers.find(x => x.id === activeId);
   const pct = Number(modalSlider.value);
+  const oldPct = Number.isFinite(c.pct) ? c.pct : 0;
   const used = Math.round((pct / 100) * c.total * 10) / 10;
 
   if (FIREBASE_READY && db && fs) {
     try {
       await fs.updateDoc(fs.doc(db, 'sites', SITE_ID, 'containers', c.id), { pct, used });
       await recordHistory(c.id, pct, used);
+      notifyThresholdCrossed(c, oldPct, pct);
       // onSnapshot() met à jour containers[] et redessine automatiquement.
     } catch (e) {
       console.error('Écriture Firestore échouée, mise à jour locale seulement :', e);
@@ -1939,10 +2108,10 @@ async function startFirebase() {
   const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js');
   const { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } =
     await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js');
-  const { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, onSnapshot } =
+  const { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, onSnapshot } =
     await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js');
 
-  fs = { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, onSnapshot };
+  fs = { doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, onSnapshot };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
