@@ -730,9 +730,9 @@
     <h3 id="modalTitle">Ajuster le remplissage</h3>
     <div class="icon-slot big" id="modalIcon">🛞</div>
     <div class="capacity-line" id="modalCapacity"></div>
-    <div class="pct-display"><span id="modalPct">0</span>%</div>
+    <div class="pct-display"><span id="modalPct">0</span><span id="modalUnitSuffix">%</span></div>
     <input type="range" min="0" max="100" value="0" id="modalSlider">
-    <div class="range-labels"><span>0%</span><span>100%</span></div>
+    <div class="range-labels"><span id="modalRangeMin">0%</span><span id="modalRangeMax">100%</span></div>
     <div class="actions">
       <button class="btn" id="cancelBtn">Annuler</button>
       <button class="btn primary" id="confirmBtn">Confirmer</button>
@@ -1764,6 +1764,7 @@ function updateNavForRole(role) {
 const modalBackdrop = document.getElementById('modalBackdrop');
 const modalSlider = document.getElementById('modalSlider');
 const modalPct = document.getElementById('modalPct');
+let modalMode = 'pct'; // 'pct' (curseur en %) ou 'unit' (curseur en nombre, pour l'unité "pièce")
 
 function openModal(id) {
   activeId = id;
@@ -1772,8 +1773,32 @@ function openModal(id) {
   document.getElementById('modalIcon').innerHTML = iconMarkup(c.icon, c.emoji);
   document.getElementById('modalIcon').dataset.icon = c.icon;
   document.getElementById('modalCapacity').textContent = `Capacité : ${c.used}${c.unit} / ${c.total}${c.unit}`;
-  modalSlider.value = c.pct;
-  modalPct.textContent = c.pct;
+
+  const total = Number.isFinite(c.total) ? c.total : 0;
+  modalMode = (c.unit === 'pièce') ? 'unit' : 'pct';
+
+  if (modalMode === 'unit') {
+    const maxUnits = Math.max(1, Math.round(total));
+    const currentUsed = Number.isFinite(c.used) ? Math.round(c.used) : Math.round(((c.pct || 0) / 100) * total);
+    modalSlider.min = 0;
+    modalSlider.max = maxUnits;
+    modalSlider.step = 1;
+    modalSlider.value = Math.min(currentUsed, maxUnits);
+    modalPct.textContent = modalSlider.value;
+    document.getElementById('modalUnitSuffix').textContent = ' ' + c.unit;
+    document.getElementById('modalRangeMin').textContent = '0';
+    document.getElementById('modalRangeMax').textContent = maxUnits + ' ' + c.unit;
+  } else {
+    modalSlider.min = 0;
+    modalSlider.max = 100;
+    modalSlider.step = 1;
+    modalSlider.value = c.pct;
+    modalPct.textContent = c.pct;
+    document.getElementById('modalUnitSuffix').textContent = '%';
+    document.getElementById('modalRangeMin').textContent = '0%';
+    document.getElementById('modalRangeMax').textContent = '100%';
+  }
+
   modalBackdrop.classList.add('show');
 }
 
@@ -1791,8 +1816,15 @@ modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) c
 
 document.getElementById('confirmBtn').addEventListener('click', async () => {
   const c = containers.find(x => x.id === activeId);
-  const pct = Number(modalSlider.value);
-  const used = Math.round((pct / 100) * c.total * 10) / 10;
+  const total = Number.isFinite(c.total) ? c.total : 0;
+  let pct, used;
+  if (modalMode === 'unit') {
+    used = Number(modalSlider.value);
+    pct = total > 0 ? Math.round((used / total) * 100) : 0;
+  } else {
+    pct = Number(modalSlider.value);
+    used = Math.round((pct / 100) * total * 10) / 10;
+  }
 
   if (FIREBASE_READY && db && fs) {
     try {
