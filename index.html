@@ -861,8 +861,8 @@ const ICON_EMOJI = {
   'poubelle': '🗑️',
 };
 const DEFAULT_ICON_KEY = 'poubelle';
-// ---------- Icônes : fichiers SVG séparés dans le dossier icons/ ----------
-// Chaque icône est un fichier icons/<nom>.svg posé à côté de ce index.html.
+// ---------- Icônes : fichiers PNG séparés dans le dossier icons/ ----------
+// Chaque icône est un fichier icons/<nom>.png posé à côté de ce index.html.
 // Pour changer une icône : remplace simplement le fichier SVG (sur GitHub
 // par ex.) — aucun code à modifier ici.
 // Après un remplacement, incrémente ICONS_VERSION (1 -> 2) pour que les
@@ -880,7 +880,7 @@ const ICON_KEYS = [
 
 function iconMarkup(iconKey, emojiFallback) {
   if (ICON_KEYS.indexOf(iconKey) >= 0) {
-    return '<img src="' + ICON_DIR + '/' + iconKey + '.svg?v=' + ICONS_VERSION + '" alt="" class="icon-img">';
+    return '<img src="' + ICON_DIR + '/' + iconKey + '.png?v=' + ICONS_VERSION + '" alt="" class="icon-img">';
   }
   return emojiFallback || ICON_EMOJI[iconKey] || ICON_EMOJI[DEFAULT_ICON_KEY];
 }
