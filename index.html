@@ -591,6 +591,22 @@
     .hist-table td.c-qty  { grid-area: qty; color: var(--text-secondary); }
     .hist-table td.c-del  { grid-area: del; text-align: right; }
   }
+
+  /* ---------- Barre de synchronisation (hors ligne) ---------- */
+  .sync-bar {
+    display: none; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30;
+    align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+    margin: 0 0 14px 0; padding: 10px 14px; border-radius: 10px;
+    font-size: 13.5px; font-weight: 600; border: 1px solid var(--border);
+    background: var(--surface); box-shadow: var(--shadow-card);
+  }
+  .sync-bar.show { display: flex; }
+  .sync-bar.offline { background: var(--status-high-bg); border-color: var(--status-high-ring); color: var(--status-high-text); }
+  .sync-bar.pending { background: var(--status-mod-bg);  border-color: var(--status-mod-ring);  color: var(--status-mod-text); }
+  .sync-bar.ok      { background: var(--status-low-bg);  border-color: var(--status-low-ring);  color: var(--status-low-text); }
+  .sync-bar.err     { background: var(--status-crit-bg); border-color: var(--status-crit-ring); color: var(--status-crit-text); }
+  .sync-bar .btn { flex: none; width: auto; padding: 7px 18px; }
+  .sync-bar .btn:disabled { opacity: 0.6; cursor: default; }
 </style>
 </head>
 <body>
@@ -650,6 +666,11 @@
 
     <div class="demo-banner" id="demoBanner">⚠️ Mode démo — Firebase non configuré (voir firebaseConfig dans le code). Les données restent locales à ce navigateur.</div>
 
+    <div class="sync-bar" id="syncBar" role="status" aria-live="polite">
+      <span id="syncText"></span>
+      <button class="btn primary" id="syncBtn" style="display:none;">Envoyer</button>
+    </div>
+
     <div id="dashboardView">
       <div class="alert-panel" style="margin-top:0; margin-bottom:16px;">
         <h3>⚠️ Alerte globale</h3>
@@ -666,6 +687,34 @@
           <input type="text" id="siteNameInput" placeholder="Ex. Site B (Zone Industrielle)"
             style="flex:1; min-width:200px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
           <button class="btn primary" id="saveSiteNameBtn" style="flex:none; width:auto; padding:9px 18px;">Enregistrer</button>
+        </div>
+      </div>
+
+      <div class="card" id="alertTemplateCard" style="cursor:default; margin-bottom:14px;">
+        <h3 style="margin:0 0 6px 0; font-size:15px;">E-mail d'alerte</h3>
+        <p style="margin:0 0 12px 0; font-size:12.5px; color:var(--text-secondary);">
+          Texte envoyé quand un contenant passe son seuil critique. Balises remplacées automatiquement :
+          <code>{contenant}</code> <code>{pct}</code> <code>{seuil}</code> <code>{zone}</code>
+          <code>{site}</code> <code>{auteur}</code> <code>{date}</code>
+        </p>
+        <label style="font-size:12.5px; color:var(--text-secondary); display:block;">
+          Objet
+          <input type="text" id="alertSubjectInput"
+            style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
+        </label>
+        <label style="font-size:12.5px; color:var(--text-secondary); display:block; margin-top:10px;">
+          Message
+          <textarea id="alertBodyInput" rows="6"
+            style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px; font-family:inherit; resize:vertical;"></textarea>
+        </label>
+        <div style="margin-top:10px; padding:10px 12px; border-radius:8px; background:var(--bg); font-size:12.5px;">
+          <div style="color:var(--text-secondary); margin-bottom:4px;">Aperçu</div>
+          <div id="alertPreviewSubject" style="font-weight:700;"></div>
+          <div id="alertPreviewBody" style="margin-top:4px; white-space:pre-wrap;"></div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+          <button class="btn primary" id="saveAlertTemplateBtn" style="flex:none; width:auto; padding:9px 18px;">Enregistrer</button>
+          <button class="btn" id="resetAlertTemplateBtn" style="flex:none; width:auto; padding:9px 18px;">Texte par défaut</button>
         </div>
       </div>
 
@@ -831,6 +880,9 @@
     alertEmail (bool), alertEmailAddress (autre adresse, optionnel)
   sites/{siteId}/settings/alertRecipients
     emails[] (copie des destinataires, lisible par tous les comptes)
+  sites/{siteId}/settings/alertTemplate
+    subject, body (texte avec balises {contenant} {pct} ...)
+  sites/{siteId}/containers/{id}  (champ en plus : lastTs = date du dernier relevé appliqué)
   mail/{id}
     to[], message{subject, html} -> lu par l'extension « Trigger Email »
   (Zones et types de déchets configurables arriveront avec le module
@@ -1088,7 +1140,7 @@ function cardMarkup(c) {
           <span class="icon-slot" data-icon="${icon}">${iconMarkup(icon, emoji)}</span>
         </div>
         <div class="gauge-info">
-          <div class="status-label">${s.label}</div>
+          <div class="status-label">${s.label}${c._pending ? ' · ⏳ non envoyé' : ''}</div>
           <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
           <div class="capacity">Capacité : ${used}${unit} / ${total}${unit}</div>
         </div>
@@ -1507,6 +1559,7 @@ document.getElementById('addZoneBtn').addEventListener('click', async () => {
 
 function renderSettings() {
   document.getElementById('siteNameInput').value = siteName || '';
+  if (!alertFormFilled) { alertFormFilled = true; loadAlertForm(); }
   populateIconSelect();
   renderZonesSettings();
 
@@ -1906,6 +1959,7 @@ function setView(view) {
   document.getElementById('navUsers').classList.toggle('active', view === 'users');
   document.getElementById('navReports').classList.toggle('active', view === 'reports');
   if (view === 'settings') renderSettings();
+  if (view !== 'settings') alertFormFilled = false;
   if (view === 'users') renderUsers();
   if (view === 'reports') renderReports();
   if (view !== 'reports' && unsubscribeHistory) { unsubscribeHistory(); unsubscribeHistory = null; }
@@ -1958,51 +2012,255 @@ modalSlider.addEventListener('input', () => {
 document.getElementById('cancelBtn').addEventListener('click', closeModal);
 modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) closeModal(); });
 
-// Écrit un document dans la collection « mail » : l'extension Firebase
-// « Trigger Email from Firestore » se charge de l'envoi réel.
-async function notifyThresholdCrossed(c, oldPct, newPct) {
-  if (!(FIREBASE_READY && db && fs && fs.addDoc)) return;
-  const threshold = Number.isFinite(c.threshold) ? c.threshold : DEFAULT_THRESHOLD;
-  if (!(oldPct < threshold && newPct >= threshold)) return; // uniquement au franchissement du seuil
+// =====================================================================
+//  RELEVÉS HORS LIGNE : file d'attente locale + envoi groupé
+// =====================================================================
+// Chaque relevé est gardé sur l'appareil (avec son heure réelle et un identifiant
+// unique), affiché tout de suite, puis envoyé d'un coup au serveur (bouton « Envoyer »
+// ou automatiquement dès que le réseau revient). L'identifiant unique sert d'id dans
+// l'historique : un relevé renvoyé deux fois ne crée jamais de doublon ni de 2e e-mail.
+const PENDING_KEY = 'waste-tracker-pending-v1';
+function loadPending() {
+  try { return JSON.parse(localStorage.getItem(PENDING_KEY) || '[]'); } catch (e) { return []; }
+}
+function savePending(list) {
+  try { localStorage.setItem(PENDING_KEY, JSON.stringify(list)); } catch (e) { /* ignore */ }
+}
+let pending = loadPending();
+let syncing = false, syncAgain = false, syncError = '', syncProgress = '', syncFlash = '';
+let syncFlashTimer = null;
+
+function newReadingId() {
+  try { if (crypto && crypto.randomUUID) return 'r' + crypto.randomUUID().replace(/-/g, ''); } catch (e) { /* ignore */ }
+  return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
+}
+
+// Superpose les relevés en attente aux données du serveur (sauf si le serveur a plus récent).
+function applyPending(list) {
+  list.forEach(c => { delete c._pending; });
+  pending.slice().sort((a, b) => (a.ts < b.ts ? -1 : 1)).forEach(e => {
+    const c = list.find(x => x.id === e.containerId);
+    if (!c) return;
+    if (c.lastTs && c.lastTs > e.ts) return;
+    c.pct = e.pct; c.used = e.used; c._pending = true;
+  });
+  return list;
+}
+
+function queueReading(c, pct, used) {
+  pending.push({
+    rid: newReadingId(), containerId: c.id, pct, used,
+    ts: new Date().toISOString(),
+    by: currentUser ? (currentUser.displayName || currentUser.email || '') : ''
+  });
+  savePending(pending);
+  containers = applyPending(containers);
+  render();
+  updateSyncBar();
+  syncPending();
+}
+
+function withTimeout(promise, ms) {
+  let t;
+  const timeout = new Promise((_, rej) => { t = setTimeout(() => rej(Object.assign(new Error('Délai dépassé (réseau trop lent)'), { code: 'timeout' })), ms); });
+  return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
+}
+function isNetworkError(err) {
+  const code = err && err.code;
+  return code === 'timeout' || code === 'unavailable' || code === 'deadline-exceeded' || code === 'cancelled' ||
+         /offline|network|timeout|délai/i.test((err && err.message) || '');
+}
+
+// ---------- Modèle d'e-mail ----------
+const DEFAULT_ALERT_TEMPLATE = {
+  subject: '⚠️ Alerte déchets — {contenant} à {pct}%',
+  body: '{contenant} a atteint {pct}% (seuil critique : {seuil}%).\nSite : {site} — Zone : {zone}\nRelevé saisi par {auteur} le {date}.'
+};
+function fillTemplate(str, vars, asHtml) {
+  const src = asHtml ? escapeHtml(str) : String(str);
+  const out = src.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? (asHtml ? escapeHtml(vars[k]) : String(vars[k])) : m));
+  return asHtml ? out.replace(/\n/g, '<br>') : out;
+}
+async function fetchAlertTemplate() {
   try {
-    const snap = await fs.getDoc(fs.doc(db, 'sites', SITE_ID, 'settings', 'alertRecipients'));
-    const emails = snap.exists() ? (snap.data().emails || []) : [];
-    if (!emails.length) return;
-    const zone = zones.find(z => z.id === c.zoneId);
-    const who = currentUser ? (currentUser.displayName || currentUser.email) : '';
-    await fs.addDoc(fs.collection(db, 'mail'), {
-      to: emails,
-      message: {
-        subject: '⚠️ Alerte déchets — ' + (c.name || 'Contenant') + ' à ' + newPct + '%',
-        html: '<p><b>' + escapeHtml(c.name || 'Contenant') + '</b> a atteint <b>' + newPct + '%</b> ' +
-              '(seuil critique : ' + threshold + '%).</p>' +
-              '<p>Site : ' + escapeHtml(siteName || '') + (zone ? ' — Zone : ' + escapeHtml(zone.name) : '') + '<br>' +
-              (who ? 'Relevé saisi par : ' + escapeHtml(who) + '<br>' : '') +
-              'Le ' + new Date().toLocaleString('fr-FR') + '</p>'
-      }
-    });
+    const snap = await withTimeout(fs.getDoc(fs.doc(db, 'sites', SITE_ID, 'settings', 'alertTemplate')), 15000);
+    if (snap.exists()) {
+      const d = snap.data();
+      return { subject: d.subject || DEFAULT_ALERT_TEMPLATE.subject, body: d.body || DEFAULT_ALERT_TEMPLATE.body };
+    }
   } catch (e) {
-    console.error('Envoi de l\'alerte e-mail impossible (non bloquant) :', e);
+    if (isNetworkError(e)) throw e;
+    console.error('Lecture du modèle d\'e-mail impossible, texte par défaut utilisé :', e);
+  }
+  return DEFAULT_ALERT_TEMPLATE;
+}
+async function fetchAlertRecipients() {
+  try {
+    const snap = await withTimeout(fs.getDoc(fs.doc(db, 'sites', SITE_ID, 'settings', 'alertRecipients')), 15000);
+    return snap.exists() ? (snap.data().emails || []) : [];
+  } catch (e) {
+    if (isNetworkError(e)) throw e;
+    console.error('Lecture des destinataires impossible :', e);
+    return [];
   }
 }
 
+// Envoie UN relevé dans une transaction : si l'historique contient déjà ce relevé, on ne fait rien.
+async function sendOneReading(e, template, recipients) {
+  const contRef = fs.doc(db, 'sites', SITE_ID, 'containers', e.containerId);
+  const histRef = fs.doc(db, 'sites', SITE_ID, 'containers', e.containerId, 'history', e.rid);
+  const mailRef = fs.doc(db, 'mail', 'alert-' + e.rid);
+  await fs.runTransaction(db, async (tx) => {
+    const h = await tx.get(histRef);
+    if (h.exists()) return;                       // déjà envoyé lors d'un essai précédent
+    const cs = await tx.get(contRef);
+    if (!cs.exists()) return;                     // contenant supprimé entre-temps
+    const cd = cs.data();
+    tx.set(histRef, { id: e.rid, ts: e.ts, pct: e.pct, used: e.used });
+    if (cd.lastTs && cd.lastTs > e.ts) return;    // un relevé plus récent est déjà sur le serveur
+    tx.update(contRef, { pct: e.pct, used: e.used, lastTs: e.ts });
+
+    const threshold = Number.isFinite(cd.threshold) ? cd.threshold : DEFAULT_THRESHOLD;
+    const prev = Number.isFinite(cd.pct) ? cd.pct : 0;
+    if (recipients.length && prev < threshold && e.pct >= threshold) {   // franchissement du seuil
+      const zone = zones.find(z => z.id === cd.zoneId);
+      const vars = {
+        contenant: cd.name || 'Contenant', pct: e.pct, seuil: threshold,
+        zone: zone ? zone.name : 'Non classé', site: siteName || '',
+        auteur: e.by || 'inconnu', date: new Date(e.ts).toLocaleString('fr-FR')
+      };
+      tx.set(mailRef, {
+        to: recipients,
+        message: { subject: fillTemplate(template.subject, vars, false), html: fillTemplate(template.body, vars, true) }
+      });
+    }
+  });
+}
+
+async function syncPending() {
+  if (!(FIREBASE_READY && db && fs && currentUser)) return;
+  if (!pending.length) { updateSyncBar(); return; }
+  if (syncing) { syncAgain = true; return; }       // un seul envoi à la fois
+  syncing = true; syncError = ''; syncProgress = ''; updateSyncBar();
+  let sent = 0, failed = false;
+  try {
+    const template = await fetchAlertTemplate();
+    const recipients = await fetchAlertRecipients();
+    const batch = pending.slice().sort((a, b) => (a.ts < b.ts ? -1 : 1));
+    for (const e of batch) {
+      await withTimeout(sendOneReading(e, template, recipients), 20000);
+      pending = pending.filter(p => p.rid !== e.rid);   // retiré seulement une fois confirmé
+      savePending(pending);
+      sent++;
+      syncProgress = sent + '/' + batch.length;
+      updateSyncBar();
+    }
+  } catch (err) {
+    failed = true;
+    console.error('Envoi des relevés interrompu :', err);
+    syncError = isNetworkError(err) ? 'réseau indisponible, nouvel essai automatique' : ('erreur : ' + (err && err.message ? err.message : err));
+  } finally {
+    syncing = false;
+    containers = applyPending(containers);
+    render();
+    if (!failed && sent) {
+      syncFlash = '✅ ' + sent + ' relevé' + (sent > 1 ? 's' : '') + ' envoyé' + (sent > 1 ? 's' : '');
+      clearTimeout(syncFlashTimer);
+      syncFlashTimer = setTimeout(() => { syncFlash = ''; updateSyncBar(); }, 4000);
+    }
+    updateSyncBar();
+    if (syncAgain) { syncAgain = false; if (pending.length && !failed) syncPending(); }
+  }
+}
+
+function updateSyncBar() {
+  const bar = document.getElementById('syncBar');
+  if (!bar) return;
+  const txt = document.getElementById('syncText');
+  const btn = document.getElementById('syncBtn');
+  if (!(FIREBASE_READY && currentUser)) { bar.className = 'sync-bar'; return; }
+  const n = pending.length;
+  const online = navigator.onLine !== false;
+  const plural = n > 1 ? 's' : '';
+  let cls = '', msg = '';
+  if (syncing) { cls = 'pending'; msg = '⏳ Envoi en cours… ' + syncProgress; }
+  else if (n > 0 && !online) { cls = 'offline'; msg = '📴 Hors ligne — ' + n + ' relevé' + plural + ' en attente d\'envoi'; }
+  else if (n > 0) { cls = syncError ? 'err' : 'pending'; msg = '🕒 ' + n + ' relevé' + plural + ' en attente' + (syncError ? ' — ' + syncError : ''); }
+  else if (!online) { cls = 'offline'; msg = '📴 Hors ligne — tes relevés seront gardés sur cet appareil'; }
+  else if (syncFlash) { cls = 'ok'; msg = syncFlash; }
+  bar.className = 'sync-bar' + (cls ? ' show ' + cls : '');
+  txt.textContent = msg;
+  btn.style.display = (n > 0 || syncing) ? '' : 'none';
+  btn.disabled = syncing;
+  btn.textContent = syncing ? 'Envoi…' : 'Envoyer';
+}
+
+document.getElementById('syncBtn').addEventListener('click', () => syncPending());
+window.addEventListener('online', () => { updateSyncBar(); syncPending(); });
+window.addEventListener('offline', updateSyncBar);
+setInterval(() => { if (pending.length && navigator.onLine !== false && !syncing) syncPending(); }, 30000);
+
+// ---------- Modèle d'e-mail : formulaire Paramètres ----------
+let alertFormFilled = false;
+function alertPreviewVars() {
+  return { contenant: 'Benne à Pneus', pct: 90, seuil: 85, zone: 'Extérieur', site: siteName || 'Site',
+           auteur: 'Prénom Nom', date: new Date().toLocaleString('fr-FR') };
+}
+function updateAlertPreview() {
+  const subj = document.getElementById('alertSubjectInput').value;
+  const body = document.getElementById('alertBodyInput').value;
+  const v = alertPreviewVars();
+  document.getElementById('alertPreviewSubject').textContent = fillTemplate(subj, v, false);
+  document.getElementById('alertPreviewBody').textContent = fillTemplate(body, v, false);
+}
+async function loadAlertForm() {
+  const card = document.getElementById('alertTemplateCard');
+  if (!(FIREBASE_READY && db && fs)) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  const subjEl = document.getElementById('alertSubjectInput');
+  const bodyEl = document.getElementById('alertBodyInput');
+  subjEl.value = DEFAULT_ALERT_TEMPLATE.subject; bodyEl.value = DEFAULT_ALERT_TEMPLATE.body;
+  updateAlertPreview();
+  try {
+    const t = await fetchAlertTemplate();
+    subjEl.value = t.subject; bodyEl.value = t.body;
+  } catch (e) { console.warn('Modèle d\'e-mail non chargé (hors ligne ?) :', e); }
+  updateAlertPreview();
+}
+document.getElementById('alertSubjectInput').addEventListener('input', updateAlertPreview);
+document.getElementById('alertBodyInput').addEventListener('input', updateAlertPreview);
+document.getElementById('resetAlertTemplateBtn').addEventListener('click', () => {
+  document.getElementById('alertSubjectInput').value = DEFAULT_ALERT_TEMPLATE.subject;
+  document.getElementById('alertBodyInput').value = DEFAULT_ALERT_TEMPLATE.body;
+  updateAlertPreview();
+});
+document.getElementById('saveAlertTemplateBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('saveAlertTemplateBtn');
+  const subject = document.getElementById('alertSubjectInput').value.trim();
+  const body = document.getElementById('alertBodyInput').value.trim();
+  if (!subject || !body) { alert('L\'objet et le message ne peuvent pas être vides.'); return; }
+  btn.disabled = true; btn.textContent = '…';
+  try {
+    await withTimeout(fs.setDoc(fs.doc(db, 'sites', SITE_ID, 'settings', 'alertTemplate'),
+      { subject, body, updatedAt: new Date().toISOString() }), 15000);
+    btn.textContent = 'Enregistré ✓';
+  } catch (e) {
+    console.error('Enregistrement du modèle d\'e-mail échoué :', e);
+    alert('Enregistrement impossible : ' + (e && e.message ? e.message : e));
+    btn.textContent = 'Enregistrer';
+  }
+  setTimeout(() => { btn.textContent = 'Enregistrer'; btn.disabled = false; }, 1200);
+});
+
+// ---------- Confirmer un relevé ----------
 document.getElementById('confirmBtn').addEventListener('click', async () => {
   const c = containers.find(x => x.id === activeId);
+  if (!c) { closeModal(); return; }
   const pct = Number(modalSlider.value);
-  const oldPct = Number.isFinite(c.pct) ? c.pct : 0;
   const used = Math.round((pct / 100) * c.total * 10) / 10;
 
-  if (FIREBASE_READY && db && fs) {
-    try {
-      await fs.updateDoc(fs.doc(db, 'sites', SITE_ID, 'containers', c.id), { pct, used });
-      await recordHistory(c.id, pct, used);
-      notifyThresholdCrossed(c, oldPct, pct);
-      // onSnapshot() met à jour containers[] et redessine automatiquement.
-    } catch (e) {
-      console.error('Écriture Firestore échouée, mise à jour locale seulement :', e);
-      c.pct = pct; c.used = used;
-      render();
-    }
+  if (FIREBASE_READY && db && fs && currentUser) {
+    queueReading(c, pct, used);   // affiché tout de suite, envoyé dès que possible
   } else {
     c.pct = pct;
     c.used = used;
@@ -2027,15 +2285,19 @@ backdrop.addEventListener('click', () => {
 
 // ---------- PWA : installation + service worker ----------
 if ('serviceWorker' in navigator) {
-  const swCode = `
-    self.addEventListener('install', () => self.skipWaiting());
-    self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
-    self.addEventListener('fetch', (e) => {
-      e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-    });
-  `;
-  const swBlob = new Blob([swCode], { type: 'application/javascript' });
-  navigator.serviceWorker.register(URL.createObjectURL(swBlob))
+  // sw.js doit être posé à côté de index.html (même dossier). Il garde l'app et les
+  // icônes en cache pour pouvoir l'ouvrir sans réseau.
+  navigator.serviceWorker.register('sw.js')
+    .then(() => navigator.serviceWorker.ready)
+    .then(() => {
+      // Demande au service worker de mémoriser aussi les fichiers Firebase déjà chargés par la page.
+      try {
+        performance.getEntriesByType('resource')
+          .map(r => r.name)
+          .filter(u => u.indexOf('gstatic.com/firebasejs') >= 0)
+          .forEach(u => fetch(u).catch(() => {}));
+      } catch (e) { /* ignore */ }
+    })
     .catch(e => console.warn('Enregistrement du service worker échoué :', e));
 }
 
@@ -2108,14 +2370,21 @@ async function startFirebase() {
   const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js');
   const { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } =
     await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js');
-  const { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, onSnapshot } =
+  const { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, runTransaction,
+          doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, onSnapshot } =
     await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js');
 
-  fs = { doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, onSnapshot };
+  fs = { doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, onSnapshot, runTransaction };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  db = getFirestore(app);
+  // Cache local persistant : l'app s'ouvre et affiche les derniers contenants même sans réseau.
+  try {
+    db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
+  } catch (e) {
+    console.warn('Cache persistant indisponible, mode standard :', e);
+    db = getFirestore(app);
+  }
   const provider = new GoogleAuthProvider();
 
   document.getElementById('googleLoginBtn').addEventListener('click', async () => {
@@ -2134,6 +2403,7 @@ async function startFirebase() {
     if (!user) {
       currentUser = null;
       currentRole = null;
+      updateSyncBar();
       loginScreen.classList.add('show');
       if (unsubscribeContainers) { unsubscribeContainers(); unsubscribeContainers = null; }
       if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
@@ -2170,6 +2440,7 @@ async function startFirebase() {
         }, (err) => console.error('Erreur de synchronisation des utilisateurs :', err));
       }
 
+      updateSyncBar();
       // Nom du site
       const siteRef = doc(db, 'sites', SITE_ID);
       const siteSnap = await getDoc(siteRef);
@@ -2180,6 +2451,7 @@ async function startFirebase() {
         await setDoc(siteRef, { name: siteName }, { merge: true });
       }
       updateSiteSubtitle();
+      syncPending(); // renvoie les relevés restés en attente (si le réseau est là)
 
       // Synchro temps réel des zones du site (visibles par tous les rôles)
       const zonesRef = collection(db, 'sites', SITE_ID, 'zones');
@@ -2197,7 +2469,7 @@ async function startFirebase() {
           await Promise.all(DEFAULT_CONTAINERS.map(c => setDoc(doc(containersRef, c.id), c)));
           return; // le prochain onSnapshot() rendra les données qu'on vient d'écrire
         }
-        containers = snap.docs.map(d => d.data());
+        containers = applyPending(snap.docs.map(d => d.data()));
         render();
         if (currentView === 'settings') renderSettings();
         if (currentView === 'reports') renderReportsPicker();
