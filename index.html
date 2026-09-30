@@ -382,6 +382,8 @@
     border: 1px solid var(--border); background: var(--bg); color: var(--text-primary);
     font-size: 15px; font-weight: 700;
   }
+  .modal .empty-btn { width: 100%; flex: none; margin: 0 0 12px 0; }
+  .pct-badge.emptied { background: var(--bg); color: var(--text-primary); border: 1px solid var(--border); margin-right: 6px; }
   .modal .range-labels {
     display: flex; justify-content: space-between;
     font-size: 11.5px; color: var(--text-secondary);
@@ -584,7 +586,8 @@
   .report-head .icon-img, .report-head svg { width: 40px; height: 40px; }
   .report-head h3 { margin: 0; font-size: 17px; }
   .report-head small { color: var(--text-secondary); font-size: 12.5px; }
-  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  @media (min-width: 640px) { .kpis { grid-template-columns: repeat(4, 1fr); } }
   .kpi { background: var(--bg); border-radius: 10px; padding: 10px 12px; }
   .kpi span { display: block; font-size: 11.5px; color: var(--text-secondary); }
   .kpi b { display: block; margin-top: 2px; font-size: 16px; }
@@ -876,6 +879,7 @@
       <input type="number" id="modalExact" inputmode="decimal" min="0" max="100" step="1">
       <span id="modalExactUnit">%</span>
     </div>
+    <button type="button" class="btn empty-btn" id="emptyBtn">🚛 Vidé / enlevé</button>
     <div class="actions">
       <button class="btn" id="cancelBtn">Annuler</button>
       <button class="btn primary" id="confirmBtn">Confirmer</button>
@@ -1079,10 +1083,10 @@ function loadLocalHistory() {
 function saveLocalHistory(all) {
   try { localStorage.setItem(HISTORY_KEY, JSON.stringify(all)); } catch (e) { /* ignore */ }
 }
-function addLocalHistoryEntry(containerId, pct, used) {
+function addLocalHistoryEntry(containerId, pct, used, extra) {
   const all = loadLocalHistory();
   if (!all[containerId]) all[containerId] = [];
-  all[containerId].push({ id: generateLocalId(), ts: new Date().toISOString(), pct, used });
+  all[containerId].push(Object.assign({ id: generateLocalId(), ts: new Date().toISOString(), pct, used }, extra || {}));
   saveLocalHistory(all);
 }
 
@@ -1094,18 +1098,18 @@ function removeLocalHistoryEntry(containerId, entryId) {
   }
 }
 
-async function recordHistory(containerId, pct, used) {
+async function recordHistory(containerId, pct, used, extra) {
   if (FIREBASE_READY && db && fs) {
     try {
       const histRef = fs.collection(db, 'sites', SITE_ID, 'containers', containerId, 'history');
       const newRef = fs.doc(histRef);
-      await fs.setDoc(newRef, { id: newRef.id, ts: new Date().toISOString(), pct, used });
+      await fs.setDoc(newRef, Object.assign({ id: newRef.id, ts: new Date().toISOString(), pct, used }, extra || {}));
     } catch (e) {
       console.error('Échec de l\'enregistrement de l\'historique :', e);
       // Non bloquant : la mise à jour du contenant lui-même a déjà réussi.
     }
   } else {
-    addLocalHistoryEntry(containerId, pct, used);
+    addLocalHistoryEntry(containerId, pct, used, extra);
   }
 }
 
@@ -1199,9 +1203,9 @@ function render() {
       const bg = hexToRgba(z.color, 0.10);
       return `
         <div class="zone-section" data-zone-id="${z.id}" style="background:${bg}; border-color:${hexToRgba(z.color, 0.4)};">
-          <div class="zone-header" style="color:${z.color};">
+          <div class="zone-header" style="color:${z.color}; color:color-mix(in srgb, ${z.color} 50%, var(--text-primary));">
             <span>${z.name}</span>
-            <span class="zone-count" style="color:${z.color};">${items.length}</span>
+            <span class="zone-count" style="background:var(--surface); color:${z.color}; color:color-mix(in srgb, ${z.color} 50%, var(--text-primary));">${items.length}</span>
           </div>
           <div class="zone-grid">
             ${items.map(cardMarkup).join('') || `<div class="zone-empty-hint">Glisse un contenant ici pour le classer dans cette zone.</div>`}
@@ -1782,11 +1786,13 @@ function renderReportDetailContent(entries, c) {
   const unit = (c && c.unit) || '';
   const curPct = Number.isFinite(c && c.pct) ? c.pct : 0;
   const last = entries.length ? entries[entries.length - 1] : null;
+  const lastEmptied = entries.slice().reverse().find(e => e.emptied) || null;
   if (kpis) {
     kpis.innerHTML = `
       <div class="kpi"><span>Remplissage actuel</span><b><span class="pct-badge ${statusFor(curPct, threshold).tag}">${curPct}%</span></b></div>
       <div class="kpi"><span>Dernier relevé</span><b>${last ? formatDateShort(last.ts) : '—'}</b></div>
-      <div class="kpi"><span>Seuil critique</span><b>${threshold}%</b></div>`;
+      <div class="kpi"><span>Seuil critique</span><b>${threshold}%</b></div>
+      <div class="kpi"><span>Dernier enlèvement</span><b>${lastEmptied ? formatDateShort(lastEmptied.ts) : '—'}</b></div>`;
   }
 
   if (!entries.length) {
@@ -1810,7 +1816,7 @@ function renderReportDetailContent(entries, c) {
           return `
           <tr data-entry-id="${e.id || ''}">
             <td class="c-date">${formatDateShort(e.ts)}</td>
-            <td class="c-pct"><span class="pct-badge ${statusFor(p, threshold).tag}">${p}%</span></td>
+            <td class="c-pct">${e.emptied ? `<span class="pct-badge emptied">🚛 Enlevé${Number(e.removed) > 0 ? ' (' + e.removed + unit + ')' : ''}</span>` : ''}<span class="pct-badge ${statusFor(p, threshold).tag}">${p}%</span></td>
             <td class="c-qty">${Number.isFinite(e.used) ? e.used : 0}${unit}</td>
             <td class="c-del">
               ${canDelete && e.id ? `<button class="btn delete-entry" style="width:auto; padding:4px 9px; font-size:12px; color:var(--status-crit-text); border-color:var(--status-crit-ring);">Supprimer</button>` : ''}
@@ -2187,12 +2193,12 @@ function applyPending(list) {
   return list;
 }
 
-function queueReading(c, pct, used) {
-  pending.push({
+function queueReading(c, pct, used, extra) {
+  pending.push(Object.assign({
     rid: newReadingId(), containerId: c.id, pct, used,
     ts: new Date().toISOString(),
     by: currentUser ? (currentUser.displayName || currentUser.email || '') : ''
-  });
+  }, extra || {}));
   savePending(pending);
   containers = applyPending(containers);
   render();
@@ -2256,7 +2262,9 @@ async function sendOneReading(e, template, recipients) {
     const cs = await tx.get(contRef);
     if (!cs.exists()) return;                     // contenant supprimé entre-temps
     const cd = cs.data();
-    tx.set(histRef, { id: e.rid, ts: e.ts, pct: e.pct, used: e.used });
+    const histDoc = { id: e.rid, ts: e.ts, pct: e.pct, used: e.used };
+    if (e.emptied) { histDoc.emptied = true; histDoc.removed = Number(e.removed) || 0; histDoc.removedPct = Number(e.removedPct) || 0; }
+    tx.set(histRef, histDoc);
     if (cd.lastTs && cd.lastTs > e.ts) return;    // un relevé plus récent est déjà sur le serveur
     tx.update(contRef, { pct: e.pct, used: e.used, lastTs: e.ts });
 
@@ -2399,16 +2407,32 @@ document.getElementById('confirmBtn').addEventListener('click', async () => {
   const c = containers.find(x => x.id === activeId);
   if (!c) { closeModal(); return; }
   const { pct, used } = modalResult();
+  await commitReading(c, pct, used);
+  closeModal();
+});
 
+async function commitReading(c, pct, used, extra) {
   if (FIREBASE_READY && db && fs && currentUser) {
-    queueReading(c, pct, used);   // affiché tout de suite, envoyé dès que possible
+    queueReading(c, pct, used, extra);   // affiché tout de suite, envoyé dès que possible
   } else {
     c.pct = pct;
     c.used = used;
     saveContainers(containers);
-    await recordHistory(c.id, pct, used);
+    await recordHistory(c.id, pct, used, extra);
     render();
   }
+}
+
+// ---------- Vidé / enlevé : remet à 0 et note l'enlèvement dans l'historique ----------
+document.getElementById('emptyBtn').addEventListener('click', async () => {
+  const c = containers.find(x => x.id === activeId);
+  if (!c) return;
+  const removed = Number.isFinite(c.used) ? c.used : 0;
+  const removedPct = Number.isFinite(c.pct) ? c.pct : 0;
+  if (removed <= 0 && removedPct <= 0) { alert('Ce contenant est déjà à 0.'); return; }
+  if (!confirm('Confirmer : « ' + (c.name || 'ce contenant') + ' » a été vidé / enlevé ?\n' +
+               'Le remplissage repasse à 0 et l\'enlèvement est noté dans l\'historique.')) return;
+  await commitReading(c, 0, 0, { emptied: true, removed, removedPct });
   closeModal();
 });
 
