@@ -1868,7 +1868,7 @@ function renderUsers() {
         setTimeout(() => { btn.textContent = 'Enregistrer'; btn.disabled = false; }, 1200);
       } catch (e) {
         console.error('Échec de la mise à jour du rôle :', e);
-        alert('Impossible de changer ce rôle : ' + (e && e.message ? e.message : e));
+        alert('Enregistrement impossible : ' + (e && e.message ? e.message : e));
         btn.textContent = 'Enregistrer';
         btn.disabled = false;
       }
@@ -1895,8 +1895,16 @@ async function syncAlertRecipients(list) {
 
 async function persistUserSettings(uid, fields) {
   if (!(FIREBASE_READY && db && fs)) return; // pas de gestion des rôles en mode démo
-  await fs.updateDoc(fs.doc(db, 'users', uid), fields);
-  await syncAlertRecipients(users.map(u => u.id === uid ? { ...u, ...fields } : u));
+  try {
+    await fs.updateDoc(fs.doc(db, 'users', uid), fields);
+  } catch (e) {
+    throw new Error('écriture refusée sur la collection « users » (' + (e && e.message ? e.message : e) + ')');
+  }
+  try {
+    await syncAlertRecipients(users.map(u => u.id === uid ? { ...u, ...fields } : u));
+  } catch (e) {
+    throw new Error('compte enregistré, mais liste des destinataires refusée : écriture interdite sur sites/' + SITE_ID + '/settings/alertRecipients (' + (e && e.message ? e.message : e) + ')');
+  }
   // onSnapshot() sur users[] redessine automatiquement, y compris pour le compte
   // actuellement connecté si c'est le sien qui vient de changer.
 }
