@@ -660,6 +660,7 @@
       <div class="nav-item" id="navReports"><span class="n-icon icon-slot" data-icon="rapports">📄</span> Rapports</div>
       <div class="nav-item" id="navSettings"><span class="n-icon icon-slot" data-icon="parametres">⚙️</span> Paramètres</div>
       <div class="nav-item" id="navUsers"><span class="n-icon icon-slot" data-icon="utilisateurs">👥</span> Utilisateurs</div>
+      <div class="nav-item" id="navSystem"><span class="n-icon">🛠️</span> Système</div>
     </nav>
     <button id="installAppBtn" class="nav-item" style="display:none; border:none; width:100%; text-align:left; cursor:pointer; margin-top:8px; background:var(--accent); color:#fff;">
       <span class="n-icon">⬇️</span> Installer l'app
@@ -711,53 +712,6 @@
           <input type="text" id="siteNameInput" placeholder="Ex. Site B (Zone Industrielle)"
             style="flex:1; min-width:200px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
           <button class="btn primary" id="saveSiteNameBtn" style="flex:none; width:auto; padding:9px 18px;">Enregistrer</button>
-        </div>
-      </div>
-
-      <div class="card" id="alertTemplateCard" style="cursor:default; margin-bottom:14px;">
-        <h3 style="margin:0 0 6px 0; font-size:15px;">E-mail d'alerte</h3>
-        <p style="margin:0 0 12px 0; font-size:12.5px; color:var(--text-secondary);">
-          Texte envoyé quand un contenant passe son seuil critique. Balises remplacées automatiquement :
-          <code>{contenant}</code> <code>{pct}</code> <code>{seuil}</code> <code>{zone}</code>
-          <code>{site}</code> <code>{auteur}</code> <code>{date}</code>
-        </p>
-        <div style="margin:0 0 16px 0; padding:12px; border-radius:10px; background:var(--bg);">
-          <div style="font-weight:700; font-size:13.5px; margin-bottom:4px;">Connexion EmailJS</div>
-          <p style="margin:0 0 10px 0; font-size:12px; color:var(--text-secondary);">
-            À copier depuis ton compte EmailJS : <b>Account</b> (Public Key), <b>Email Services</b> (Service ID), <b>Email Templates</b> (Template ID).
-          </p>
-          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:8px;">
-            <input type="text" id="emailjsPublicKey" placeholder="Public Key" autocomplete="off"
-              style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-primary); font-size:13px;">
-            <input type="text" id="emailjsServiceId" placeholder="Service ID (service_…)" autocomplete="off"
-              style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-primary); font-size:13px;">
-            <input type="text" id="emailjsTemplateId" placeholder="Template ID (template_…)" autocomplete="off"
-              style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-primary); font-size:13px;">
-          </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
-            <button class="btn primary" id="saveEmailjsBtn" style="flex:none; width:auto; padding:8px 16px;">Enregistrer la connexion</button>
-            <button class="btn" id="testEmailjsBtn" style="flex:none; width:auto; padding:8px 16px;">✉️ Envoyer un mail de test</button>
-          </div>
-          <div id="emailjsStatus" style="margin-top:8px; font-size:12.5px;"></div>
-        </div>
-        <label style="font-size:12.5px; color:var(--text-secondary); display:block;">
-          Objet
-          <input type="text" id="alertSubjectInput"
-            style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
-        </label>
-        <label style="font-size:12.5px; color:var(--text-secondary); display:block; margin-top:10px;">
-          Message
-          <textarea id="alertBodyInput" rows="6"
-            style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px; font-family:inherit; resize:vertical;"></textarea>
-        </label>
-        <div style="margin-top:10px; padding:10px 12px; border-radius:8px; background:var(--bg); font-size:12.5px;">
-          <div style="color:var(--text-secondary); margin-bottom:4px;">Aperçu</div>
-          <div id="alertPreviewSubject" style="font-weight:700;"></div>
-          <div id="alertPreviewBody" style="margin-top:4px; white-space:pre-wrap;"></div>
-        </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
-          <button class="btn primary" id="saveAlertTemplateBtn" style="flex:none; width:auto; padding:9px 18px;">Enregistrer</button>
-          <button class="btn" id="resetAlertTemplateBtn" style="flex:none; width:auto; padding:9px 18px;">Texte par défaut</button>
         </div>
       </div>
 
@@ -844,6 +798,55 @@
         </div>
       </div>
     </div>
+    <div id="systemView" style="display:none;">
+      <div class="card" id="alertTemplateCard" style="cursor:default; margin-bottom:14px;">
+        <h3 style="margin:0 0 6px 0; font-size:15px;">E-mail d'alerte</h3>
+        <p style="margin:0 0 12px 0; font-size:12.5px; color:var(--text-secondary);">
+          Texte envoyé quand un contenant passe son seuil critique. Balises remplacées automatiquement :
+          <code>{contenant}</code> <code>{pct}</code> <code>{seuil}</code> <code>{zone}</code>
+          <code>{site}</code> <code>{auteur}</code> <code>{date}</code>
+        </p>
+        <div style="margin:0 0 16px 0; padding:12px; border-radius:10px; background:var(--bg);">
+          <div style="font-weight:700; font-size:13.5px; margin-bottom:4px;">Connexion EmailJS</div>
+          <p style="margin:0 0 10px 0; font-size:12px; color:var(--text-secondary);">
+            À copier depuis ton compte EmailJS : <b>Account</b> (Public Key), <b>Email Services</b> (Service ID), <b>Email Templates</b> (Template ID).
+          </p>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:8px;">
+            <input type="text" id="emailjsPublicKey" placeholder="Public Key" autocomplete="off"
+              style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-primary); font-size:13px;">
+            <input type="text" id="emailjsServiceId" placeholder="Service ID (service_…)" autocomplete="off"
+              style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-primary); font-size:13px;">
+            <input type="text" id="emailjsTemplateId" placeholder="Template ID (template_…)" autocomplete="off"
+              style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-primary); font-size:13px;">
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+            <button class="btn primary" id="saveEmailjsBtn" style="flex:none; width:auto; padding:8px 16px;">Enregistrer la connexion</button>
+            <button class="btn" id="testEmailjsBtn" style="flex:none; width:auto; padding:8px 16px;">✉️ Envoyer un mail de test</button>
+          </div>
+          <div id="emailjsStatus" style="margin-top:8px; font-size:12.5px;"></div>
+        </div>
+        <label style="font-size:12.5px; color:var(--text-secondary); display:block;">
+          Objet
+          <input type="text" id="alertSubjectInput"
+            style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
+        </label>
+        <label style="font-size:12.5px; color:var(--text-secondary); display:block; margin-top:10px;">
+          Message
+          <textarea id="alertBodyInput" rows="6"
+            style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px; font-family:inherit; resize:vertical;"></textarea>
+        </label>
+        <div style="margin-top:10px; padding:10px 12px; border-radius:8px; background:var(--bg); font-size:12.5px;">
+          <div style="color:var(--text-secondary); margin-bottom:4px;">Aperçu</div>
+          <div id="alertPreviewSubject" style="font-weight:700;"></div>
+          <div id="alertPreviewBody" style="margin-top:4px; white-space:pre-wrap;"></div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
+          <button class="btn primary" id="saveAlertTemplateBtn" style="flex:none; width:auto; padding:9px 18px;">Enregistrer</button>
+          <button class="btn" id="resetAlertTemplateBtn" style="flex:none; width:auto; padding:9px 18px;">Texte par défaut</button>
+        </div>
+      </div>
+    </div>
+
     <div id="usersView" style="display:none;">
       <div class="card" style="cursor:default;">
         <h3 style="margin:0 0 6px 0; font-size:15px;">Gestion des accès</h3>
@@ -1072,7 +1075,7 @@ let db = null;
 let unsubscribeContainers = null;
 let unsubscribeHistory = null;
 let reportSelectedId = null;
-let currentView = 'dashboard'; // 'dashboard' | 'settings' | 'users' | 'reports'
+let currentView = 'dashboard'; // 'dashboard' | 'settings' | 'users' | 'reports' | 'system'
 
 const ROLE_LABELS = { super_admin: 'Super Admin', site_admin: 'Administrateur de site', atelier: 'Atelier' };
 
@@ -1615,7 +1618,7 @@ document.getElementById('addZoneBtn').addEventListener('click', async () => {
 
 function renderSettings() {
   document.getElementById('siteNameInput').value = siteName || '';
-  if (!alertFormFilled) { alertFormFilled = true; loadAlertForm(); }
+
   populateIconSelect();
   renderZonesSettings();
 
@@ -2014,20 +2017,24 @@ function setView(view) {
   document.getElementById('dashboardView').style.display = view === 'dashboard' ? '' : 'none';
   document.getElementById('settingsView').style.display = view === 'settings' ? '' : 'none';
   document.getElementById('usersView').style.display = view === 'users' ? '' : 'none';
+  document.getElementById('systemView').style.display = view === 'system' ? '' : 'none';
   document.getElementById('reportsView').style.display = view === 'reports' ? '' : 'none';
   const titles = {
     dashboard: 'Tableau de bord — Gestion des déchets',
     settings: 'Paramètres — Sites, zones et contenants',
     users: 'Utilisateurs — Gestion des accès',
+    system: 'Système — Alertes e-mail',
     reports: 'Rapports — Historique de remplissage',
   };
   document.getElementById('mainTitle').textContent = titles[view] || titles.dashboard;
   document.getElementById('navDashboard').classList.toggle('active', view === 'dashboard');
   document.getElementById('navSettings').classList.toggle('active', view === 'settings');
   document.getElementById('navUsers').classList.toggle('active', view === 'users');
+  document.getElementById('navSystem').classList.toggle('active', view === 'system');
   document.getElementById('navReports').classList.toggle('active', view === 'reports');
   if (view === 'settings') renderSettings();
-  if (view !== 'settings') alertFormFilled = false;
+  if (view === 'system' && !alertFormFilled) { alertFormFilled = true; loadAlertForm(); }
+  if (view !== 'system') alertFormFilled = false;
   if (view === 'users') renderUsers();
   if (view === 'reports') renderReports();
   if (view !== 'reports' && unsubscribeHistory) { unsubscribeHistory(); unsubscribeHistory = null; }
@@ -2039,6 +2046,7 @@ function setView(view) {
 document.getElementById('navDashboard').addEventListener('click', () => setView('dashboard'));
 document.getElementById('navSettings').addEventListener('click', () => setView('settings'));
 document.getElementById('navUsers').addEventListener('click', () => setView('users'));
+document.getElementById('navSystem').addEventListener('click', () => setView('system'));
 document.getElementById('navReports').addEventListener('click', () => setView('reports'));
 
 function updateNavForRole(role) {
@@ -2047,6 +2055,9 @@ function updateNavForRole(role) {
   const usersAllowed = FIREBASE_READY && role === 'super_admin';
   document.getElementById('navSettings').style.display = settingsAllowed ? '' : 'none';
   document.getElementById('navUsers').style.display = usersAllowed ? '' : 'none';
+  const systemAllowed = FIREBASE_READY && role === 'super_admin';
+  document.getElementById('navSystem').style.display = systemAllowed ? '' : 'none';
+  if (!systemAllowed && currentView === 'system') setView('dashboard');
   if (!settingsAllowed && currentView === 'settings') setView('dashboard');
   if (!usersAllowed && currentView === 'users') setView('dashboard');
 }
