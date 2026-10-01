@@ -721,6 +721,25 @@
           <code>{contenant}</code> <code>{pct}</code> <code>{seuil}</code> <code>{zone}</code>
           <code>{site}</code> <code>{auteur}</code> <code>{date}</code>
         </p>
+        <div style="margin:0 0 16px 0; padding:12px; border-radius:10px; background:var(--bg);">
+          <div style="font-weight:700; font-size:13.5px; margin-bottom:4px;">Connexion EmailJS</div>
+          <p style="margin:0 0 10px 0; font-size:12px; color:var(--text-secondary);">
+            À copier depuis ton compte EmailJS : <b>Account</b> (Public Key), <b>Email Services</b> (Service ID), <b>Email Templates</b> (Template ID).
+          </p>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:8px;">
+            <input type="text" id="emailjsPublicKey" placeholder="Public Key" autocomplete="off"
+              style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-primary); font-size:13px;">
+            <input type="text" id="emailjsServiceId" placeholder="Service ID (service_…)" autocomplete="off"
+              style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-primary); font-size:13px;">
+            <input type="text" id="emailjsTemplateId" placeholder="Template ID (template_…)" autocomplete="off"
+              style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-primary); font-size:13px;">
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+            <button class="btn primary" id="saveEmailjsBtn" style="flex:none; width:auto; padding:8px 16px;">Enregistrer la connexion</button>
+            <button class="btn" id="testEmailjsBtn" style="flex:none; width:auto; padding:8px 16px;">✉️ Envoyer un mail de test</button>
+          </div>
+          <div id="emailjsStatus" style="margin-top:8px; font-size:12.5px;"></div>
+        </div>
         <label style="font-size:12.5px; color:var(--text-secondary); display:block;">
           Objet
           <input type="text" id="alertSubjectInput"
@@ -918,8 +937,8 @@
   sites/{siteId}/settings/alertTemplate
     subject, body (texte avec balises {contenant} {pct} ...)
   sites/{siteId}/containers/{id}  (champ en plus : lastTs = date du dernier relevé appliqué)
-  mail/{id}
-    to[], message{subject, html} -> lu par l'extension « Trigger Email »
+  sites/{siteId}/settings/emailjs
+    publicKey, serviceId, templateId (connexion EmailJS, lisible par les comptes connectés)
   (Zones et types de déchets configurables arriveront avec le module
   Paramétrage admin — voir les prochaines étapes du projet.)
   --------------------------------------------------------------
@@ -939,8 +958,8 @@ const firebaseConfig = {
   appId: "1:269081398609:web:0a3cadf25281e6fc375770"
 };
 
-// Alertes e-mail : mettre true une fois l'extension Firebase « Trigger Email » installée (formule Blaze).
-const EMAIL_ALERTS_ENABLED = false;
+// Alertes e-mail envoyées via EmailJS (gratuit, sans Blaze). Mettre false pour tout désactiver.
+const EMAIL_ALERTS_ENABLED = true;
 const SITE_ID = 'site-demo'; // à rendre sélectionnable quand le multi-site sera géré
 
 const FIREBASE_READY = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('VOTRE_');
@@ -2251,12 +2270,88 @@ async function fetchAlertRecipients() {
   }
 }
 
+// ---------- Alertes e-mail via EmailJS ----------
+// Les identifiants EmailJS (clé publique, service, modèle) sont dans Firestore
+// (sites/{siteId}/settings/emailjs), pas dans le code de la page.
+const OUTBOX_KEY = 'waste-tracker-alert-outbox-v1';
+function loadOutbox() { try { return JSON.parse(localStorage.getItem(OUTBOX_KEY) || '[]'); } catch (e) { return []; } }
+function saveOutbox(list) { try { localStorage.setItem(OUTBOX_KEY, JSON.stringify(list)); } catch (e) { /* ignore */ } }
+let outbox = loadOutbox();
+
+async function fetchEmailJsConfig() {
+  const snap = await withTimeout(fs.getDoc(fs.doc(db, 'sites', SITE_ID, 'settings', 'emailjs')), 15000);
+  if (!snap.exists()) return null;
+  const d = snap.data();
+  if (!d.publicKey || !d.serviceId || !d.templateId) return null;
+  return { publicKey: d.publicKey, serviceId: d.serviceId, templateId: d.templateId };
+}
+
+async function sendEmailJs(cfg, to, subject, message, vars) {
+  const res = await withTimeout(fetch('https://api.emailjs.com/api/v1.0/email/send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      service_id: cfg.serviceId,
+      template_id: cfg.templateId,
+      user_id: cfg.publicKey,
+      template_params: Object.assign({}, vars || {}, { to_email: to, subject, message })
+    })
+  }), 15000);
+  if (!res.ok) {
+    let detail = '';
+    try { detail = await res.text(); } catch (e) { /* ignore */ }
+    throw new Error('EmailJS ' + res.status + (detail ? ' : ' + detail : ''));
+  }
+}
+
+function enqueueAlert(id, recipients, subject, message, vars) {
+  if (outbox.some(o => o.id === id)) return;
+  outbox.push({ id, to: recipients.slice(), subject, message, vars, attempts: 0 });
+  saveOutbox(outbox);
+}
+
+// Envoie les alertes en attente (une demande par destinataire). Un destinataire déjà servi n'est jamais re-servi.
+let flushingAlerts = false;
+async function flushAlerts() {
+  if (!EMAIL_ALERTS_ENABLED || flushingAlerts || !outbox.length) return;
+  flushingAlerts = true;
+  try {
+    const cfg = await fetchEmailJsConfig();
+    if (!cfg) { console.warn('EmailJS non configuré (Paramètres > E-mail d\'alerte) : alertes non envoyées.'); outbox = []; saveOutbox(outbox); return; }
+    for (const item of outbox.slice()) {
+      for (const to of item.to.slice()) {
+        try {
+          await sendEmailJs(cfg, to, item.subject, item.message, item.vars);
+          item.to = item.to.filter(x => x !== to);
+          saveOutbox(outbox);
+        } catch (err) {
+          item.attempts++;
+          console.error('Envoi d\'alerte e-mail échoué (' + to + ') :', err);
+          saveOutbox(outbox);
+          break;                                         // on réessaiera plus tard
+        }
+      }
+      if (!item.to.length || item.attempts >= 5) {
+        if (item.to.length) console.error('Alerte abandonnée après 5 essais :', item.id);
+        outbox = outbox.filter(o => o.id !== item.id);
+        saveOutbox(outbox);
+      }
+    }
+  } catch (err) {
+    console.error('Alertes e-mail : impossible de lire la configuration EmailJS :', err);
+  } finally {
+    flushingAlerts = false;
+  }
+}
+
 // Envoie UN relevé dans une transaction : si l'historique contient déjà ce relevé, on ne fait rien.
+// Retourne les infos de l'alerte à envoyer (seuil franchi), sinon null.
 async function sendOneReading(e, template, recipients) {
   const contRef = fs.doc(db, 'sites', SITE_ID, 'containers', e.containerId);
   const histRef = fs.doc(db, 'sites', SITE_ID, 'containers', e.containerId, 'history', e.rid);
-  const mailRef = fs.doc(db, 'mail', 'alert-' + e.rid);
+  let alertInfo = null;
   await fs.runTransaction(db, async (tx) => {
+    alertInfo = null;                             // la transaction peut être rejouée par Firestore
     const h = await tx.get(histRef);
     if (h.exists()) return;                       // déjà envoyé lors d'un essai précédent
     const cs = await tx.get(contRef);
@@ -2272,22 +2367,21 @@ async function sendOneReading(e, template, recipients) {
     const prev = Number.isFinite(cd.pct) ? cd.pct : 0;
     if (recipients.length && prev < threshold && e.pct >= threshold) {   // franchissement du seuil
       const zone = zones.find(z => z.id === cd.zoneId);
-      const vars = {
+      alertInfo = {
         contenant: cd.name || 'Contenant', pct: e.pct, seuil: threshold,
         zone: zone ? zone.name : 'Non classé', site: siteName || '',
         auteur: e.by || 'inconnu', date: new Date(e.ts).toLocaleString('fr-FR')
       };
-      tx.set(mailRef, {
-        to: recipients,
-        message: { subject: fillTemplate(template.subject, vars, false), html: fillTemplate(template.body, vars, true) }
-      });
     }
   });
+  if (alertInfo) {
+    enqueueAlert('alert-' + e.rid, recipients, fillTemplate(template.subject, alertInfo, false), fillTemplate(template.body, alertInfo, false), alertInfo);
+  }
 }
 
 async function syncPending() {
   if (!(FIREBASE_READY && db && fs && currentUser)) return;
-  if (!pending.length) { updateSyncBar(); return; }
+  if (!pending.length) { updateSyncBar(); flushAlerts(); return; }
   if (syncing) { syncAgain = true; return; }       // un seul envoi à la fois
   syncing = true; syncError = ''; syncProgress = ''; updateSyncBar();
   let sent = 0, failed = false;
@@ -2317,6 +2411,7 @@ async function syncPending() {
       syncFlashTimer = setTimeout(() => { syncFlash = ''; updateSyncBar(); }, 4000);
     }
     updateSyncBar();
+    flushAlerts();                                 // e-mails d'alerte (sans bloquer l'envoi des relevés)
     if (syncAgain) { syncAgain = false; if (pending.length && !failed) syncPending(); }
   }
 }
@@ -2348,7 +2443,7 @@ function updateSyncBar() {
 document.getElementById('syncBtn').addEventListener('click', () => syncPending());
 window.addEventListener('online', () => { updateSyncBar(); syncPending(); });
 window.addEventListener('offline', updateSyncBar);
-setInterval(() => { if (pending.length && navigator.onLine !== false && !syncing) syncPending(); }, 30000);
+setInterval(() => { if ((pending.length || outbox.length) && navigator.onLine !== false && !syncing) syncPending(); }, 30000);
 
 // ---------- Modèle d'e-mail : formulaire Paramètres ----------
 let alertFormFilled = false;
@@ -2376,7 +2471,56 @@ async function loadAlertForm() {
     subjEl.value = t.subject; bodyEl.value = t.body;
   } catch (e) { console.warn('Modèle d\'e-mail non chargé (hors ligne ?) :', e); }
   updateAlertPreview();
+  try {
+    const cfg = await fetchEmailJsConfig();
+    document.getElementById('emailjsPublicKey').value = cfg ? cfg.publicKey : '';
+    document.getElementById('emailjsServiceId').value = cfg ? cfg.serviceId : '';
+    document.getElementById('emailjsTemplateId').value = cfg ? cfg.templateId : '';
+  } catch (e) { console.warn('Connexion EmailJS non chargée (hors ligne ?) :', e); }
 }
+
+function setEmailjsStatus(msg, ok) {
+  const el = document.getElementById('emailjsStatus');
+  el.textContent = msg;
+  el.style.color = ok ? 'var(--status-low-text)' : 'var(--status-crit-text)';
+}
+function readEmailjsForm() {
+  return {
+    publicKey: document.getElementById('emailjsPublicKey').value.trim(),
+    serviceId: document.getElementById('emailjsServiceId').value.trim(),
+    templateId: document.getElementById('emailjsTemplateId').value.trim()
+  };
+}
+document.getElementById('saveEmailjsBtn').addEventListener('click', async () => {
+  const cfg = readEmailjsForm();
+  if (!cfg.publicKey || !cfg.serviceId || !cfg.templateId) { setEmailjsStatus('Remplis les trois champs.', false); return; }
+  try {
+    await withTimeout(fs.setDoc(fs.doc(db, 'sites', SITE_ID, 'settings', 'emailjs'), Object.assign({}, cfg, { updatedAt: new Date().toISOString() })), 15000);
+    setEmailjsStatus('Connexion enregistrée ✓', true);
+  } catch (e) {
+    console.error('Enregistrement EmailJS échoué :', e);
+    setEmailjsStatus('Enregistrement impossible : ' + (e && e.message ? e.message : e), false);
+  }
+});
+document.getElementById('testEmailjsBtn').addEventListener('click', async () => {
+  const cfg = readEmailjsForm();
+  if (!cfg.publicKey || !cfg.serviceId || !cfg.templateId) { setEmailjsStatus('Remplis les trois champs avant le test.', false); return; }
+  const to = currentUser && currentUser.email;
+  if (!to) { setEmailjsStatus('Adresse de ton compte introuvable.', false); return; }
+  const btn = document.getElementById('testEmailjsBtn');
+  btn.disabled = true; setEmailjsStatus('Envoi du test à ' + to + '…', true);
+  try {
+    const v = alertPreviewVars();
+    await sendEmailJs(cfg, to,
+      '[TEST] ' + fillTemplate(document.getElementById('alertSubjectInput').value, v, false),
+      fillTemplate(document.getElementById('alertBodyInput').value, v, false), v);
+    setEmailjsStatus('Mail de test envoyé à ' + to + ' ✓ (regarde aussi les spams)', true);
+  } catch (e) {
+    console.error('Test EmailJS échoué :', e);
+    setEmailjsStatus('Échec : ' + (e && e.message ? e.message : e), false);
+  }
+  btn.disabled = false;
+});
 document.getElementById('alertSubjectInput').addEventListener('input', updateAlertPreview);
 document.getElementById('alertBodyInput').addEventListener('input', updateAlertPreview);
 document.getElementById('resetAlertTemplateBtn').addEventListener('click', () => {
