@@ -631,6 +631,11 @@
   .sync-bar .btn { flex: none; width: auto; padding: 7px 18px; }
   .sync-bar .btn:disabled { opacity: 0.6; cursor: default; }
   body.no-mail-alerts .mail-col { display: none !important; }
+  .gauge-info .forecast { font-size: 12px; margin-top: 4px; color: var(--text-secondary); }
+  .gauge-info .forecast b { color: var(--text-primary); }
+  .forecast-box { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--bg); font-size: 13px; line-height: 1.6; }
+  .forecast-box .fc-title { font-weight: 700; margin-bottom: 2px; }
+  .forecast-box .fc-muted { color: var(--text-secondary); font-size: 12px; }
 </style>
 </head>
 <body class="no-mail-alerts">
@@ -963,7 +968,79 @@ const firebaseConfig = {
 
 // Alertes e-mail envoyées via EmailJS (gratuit, sans Blaze). Mettre false pour tout désactiver.
 const EMAIL_ALERTS_ENABLED = true;
-const SITE_ID = 'site-demo'; // à rendre sélectionnable quand le multi-site sera géré
+const SITE_ID = 'site-demo';
+
+// =====================================================================
+//  PRÉVISION DE REMPLISSAGE
+// =====================================================================
+// Pour chaque contenant on garde les derniers relevés du cycle en cours (depuis le dernier
+// enlèvement) dans le champ « trend » : [{ t: date en ms, u: quantité }]. Dès qu'il y a
+// FORECAST_MIN_POINTS relevés, on calcule le rythme de remplissage (droite de tendance sur
+// les 10 derniers relevés) et on en déduit la date de saturation. Chaque nouveau relevé
+// recalcule tout : la prévision s'ajuste donc au réel.
+const FORECAST_MIN_POINTS = 5;
+const FORECAST_WINDOW = 10;
+const TREND_MAX = 30;
+const DAY_MS = 86400000;
+
+function nextTrend(trend, e) {            // e : { ts, used, emptied }
+  if (e.emptied) return [];               // un enlèvement ouvre un nouveau cycle
+  const list = Array.isArray(trend) ? trend.slice() : [];
+  const t = Date.parse(e.ts);
+  if (Number.isFinite(t) && Number.isFinite(e.used)) list.push({ t, u: e.used });
+  return list.slice(-TREND_MAX);
+}
+
+function computeForecast(points, total, thresholdPct) {
+  const n = Array.isArray(points) ? points.length : 0;
+  if (!(total > 0)) return { state: 'none' };
+  if (n < FORECAST_MIN_POINTS) return { state: 'collecting', n };
+  const pts = points.slice(-FORECAST_WINDOW);
+  const m = pts.length;
+  const t0 = pts[0].t;
+  const xs = pts.map(p => (p.t - t0) / DAY_MS);
+  const ys = pts.map(p => p.u);
+  const mx = xs.reduce((a, b) => a + b, 0) / m;
+  const my = ys.reduce((a, b) => a + b, 0) / m;
+  let num = 0, den = 0;
+  for (let i = 0; i < m; i++) { num += (xs[i] - mx) * (ys[i] - my); den += (xs[i] - mx) * (xs[i] - mx); }
+  const last = pts[m - 1];
+  if (last.u >= total) return { state: 'full', n };
+  if (den < 1e-6) return { state: 'collecting', n };       // relevés tous à la même heure : pas de tendance
+  const slope = num / den;                                  // unités par jour
+  if (slope <= total * 0.002) return { state: 'stable', n, slope };   // ne se remplit (quasi) pas
+  const elapsed = Math.max(0, (Date.now() - last.t) / DAY_MS);
+  const thrUsed = total * (Number.isFinite(thresholdPct) ? thresholdPct : 85) / 100;
+  return {
+    state: 'ok', n: m, slope,
+    daysFull: Math.max(0, (total - last.u) / slope - elapsed),
+    daysThr: last.u >= thrUsed ? 0 : Math.max(0, (thrUsed - last.u) / slope - elapsed)
+  };
+}
+
+function fmtDays(d) {
+  if (d < 1) return 'moins d\'1 jour';
+  if (d < 1.5) return 'environ 1 jour';
+  if (d < 90) return 'environ ' + Math.round(d) + ' jours';
+  if (d < 365) return 'environ ' + Math.round(d / 30) + ' mois';
+  return 'plus d\'1 an';
+}
+function fmtDaysShort(d) {
+  if (d < 1) return '< 1 j';
+  if (d < 90) return '~' + Math.round(d) + ' j';
+  if (d < 365) return '~' + Math.round(d / 30) + ' mois';
+  return '> 1 an';
+}
+function forecastLineForCard(c) {
+  const f = computeForecast(c.trend, c.total, c.threshold);
+  if (f.state === 'ok') {
+    const rate = (Math.round(f.slope * 10) / 10) + (c.unit || '') + '/jour';
+    return '<div class="forecast" title="Basé sur ' + f.n + ' relevés (' + rate + ')">📈 Plein dans <b>' + fmtDaysShort(f.daysFull) + '</b></div>';
+  }
+  if (f.state === 'stable') return '<div class="forecast">📈 Remplissage stable</div>';
+  if (f.state === 'collecting' && f.n >= 1) return '<div class="forecast">📈 Prévision : ' + f.n + '/' + FORECAST_MIN_POINTS + ' relevés</div>';
+  return '';
+} // à rendre sélectionnable quand le multi-site sera géré
 
 const FIREBASE_READY = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('VOTRE_');
 
@@ -1202,6 +1279,7 @@ function cardMarkup(c) {
           <div class="status-label">${s.label}${c._pending ? ' · ⏳ non envoyé' : ''}</div>
           <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
           <div class="capacity">Capacité : ${used}${unit} / ${total}${unit}</div>
+          ${forecastLineForCard(c)}
         </div>
       </div>
     </div>`;
@@ -1770,6 +1848,7 @@ function selectReportContainer(id) {
         </div>
       </div>
       <div class="kpis" id="reportKpis"></div>
+      <div class="forecast-box" id="reportForecast"></div>
     </div>
     <div class="card" style="cursor:default; margin-bottom:14px;">
       <h3 style="margin:0 0 14px 0; font-size:15px;">Évolution du remplissage</h3>
@@ -1798,6 +1877,7 @@ function selectReportContainer(id) {
   }
 }
 
+const trendBackfilled = new Set();
 function renderReportDetailContent(entries, c) {
   const chartWrap = document.getElementById('reportChartWrap');
   const tableWrap = document.getElementById('reportTableWrap');
@@ -1815,6 +1895,39 @@ function renderReportDetailContent(entries, c) {
       <div class="kpi"><span>Dernier relevé</span><b>${last ? formatDateShort(last.ts) : '—'}</b></div>
       <div class="kpi"><span>Seuil critique</span><b>${threshold}%</b></div>
       <div class="kpi"><span>Dernier enlèvement</span><b>${lastEmptied ? formatDateShort(lastEmptied.ts) : '—'}</b></div>`;
+  }
+
+  // Prévision : relevés du cycle en cours (après le dernier enlèvement)
+  const forecastBox = document.getElementById('reportForecast');
+  if (forecastBox) {
+    const lastEmptyIdx = entries.map(e => !!e.emptied).lastIndexOf(true);
+    const cycle = entries.slice(lastEmptyIdx + 1).filter(e => !e.emptied && Number.isFinite(e.used) && Number.isFinite(Date.parse(e.ts)));
+    const points = cycle.map(e => ({ t: Date.parse(e.ts), u: e.used }));
+    const f = computeForecast(points, c ? c.total : 0, threshold);
+    const rate = f.slope ? (Math.round(f.slope * 10) / 10) + unit + '/jour' : '';
+    if (f.state === 'ok') {
+      const dFull = new Date(Date.now() + f.daysFull * DAY_MS).toLocaleDateString('fr-FR');
+      forecastBox.innerHTML =
+        '<div class="fc-title">📈 Prévision de remplissage</div>' +
+        'Plein dans <b>' + fmtDays(f.daysFull) + '</b> (vers le ' + dFull + ')<br>' +
+        (f.daysThr > 0 ? 'Seuil critique (' + threshold + '%) dans <b>' + fmtDays(f.daysThr) + '</b>' : 'Seuil critique <b>déjà atteint</b>') +
+        '<div class="fc-muted">Rythme : ' + rate + ' — basé sur les ' + f.n + ' derniers relevés depuis le dernier enlèvement. Se recalcule à chaque relevé.</div>';
+    } else if (f.state === 'stable') {
+      forecastBox.innerHTML = '<div class="fc-title">📈 Prévision de remplissage</div>Le remplissage est stable : pas de saturation prévue.';
+    } else if (f.state === 'full') {
+      forecastBox.innerHTML = '<div class="fc-title">📈 Prévision de remplissage</div>Contenant plein.';
+    } else if (f.state === 'collecting') {
+      forecastBox.innerHTML = '<div class="fc-title">📈 Prévision de remplissage</div>' +
+        '<span class="fc-muted">Disponible à partir de ' + FORECAST_MIN_POINTS + ' relevés depuis le dernier enlèvement (' + f.n + '/' + FORECAST_MIN_POINTS + ' pour l\'instant).</span>';
+    } else {
+      forecastBox.innerHTML = '';
+    }
+    // Rattrape la tendance du dashboard avec l'historique déjà enregistré (une seule fois par contenant)
+    if (c && FIREBASE_READY && db && fs && currentUser && points.length > (Array.isArray(c.trend) ? c.trend.length : 0) && !trendBackfilled.has(c.id)) {
+      trendBackfilled.add(c.id);
+      fs.updateDoc(fs.doc(db, 'sites', SITE_ID, 'containers', c.id), { trend: points.slice(-TREND_MAX) })
+        .catch(err => console.warn('Mise à jour de la tendance impossible :', err));
+    }
   }
 
   if (!entries.length) {
@@ -2213,11 +2326,13 @@ function newReadingId() {
 
 // Superpose les relevés en attente aux données du serveur (sauf si le serveur a plus récent).
 function applyPending(list) {
-  list.forEach(c => { delete c._pending; });
+  list.forEach(c => { delete c._pending; if (c._trendBase !== undefined) c.trend = c._trendBase; });
   pending.slice().sort((a, b) => (a.ts < b.ts ? -1 : 1)).forEach(e => {
     const c = list.find(x => x.id === e.containerId);
     if (!c) return;
     if (c.lastTs && c.lastTs > e.ts) return;
+    if (c._trendBase === undefined) c._trendBase = Array.isArray(c.trend) ? c.trend : [];
+    c.trend = nextTrend(c.trend, e);
     c.pct = e.pct; c.used = e.used; c._pending = true;
   });
   return list;
@@ -2372,7 +2487,7 @@ async function sendOneReading(e, template, recipients) {
     if (e.emptied) { histDoc.emptied = true; histDoc.removed = Number(e.removed) || 0; histDoc.removedPct = Number(e.removedPct) || 0; }
     tx.set(histRef, histDoc);
     if (cd.lastTs && cd.lastTs > e.ts) return;    // un relevé plus récent est déjà sur le serveur
-    tx.update(contRef, { pct: e.pct, used: e.used, lastTs: e.ts });
+    tx.update(contRef, { pct: e.pct, used: e.used, lastTs: e.ts, trend: nextTrend(cd.trend, e) });
 
     const threshold = Number.isFinite(cd.threshold) ? cd.threshold : DEFAULT_THRESHOLD;
     const prev = Number.isFinite(cd.pct) ? cd.pct : 0;
@@ -2572,6 +2687,7 @@ async function commitReading(c, pct, used, extra) {
   } else {
     c.pct = pct;
     c.used = used;
+    c.trend = nextTrend(c.trend, { ts: new Date().toISOString(), used, emptied: !!(extra && extra.emptied) });
     saveContainers(containers);
     await recordHistory(c.id, pct, used, extra);
     render();
