@@ -1,7 +1,7 @@
 // Waste Tracker — service worker (ouverture de l'app sans réseau)
 // À poser dans le même dossier que index.html.
 // Si tu modifies ce fichier, incrémente CACHE_VERSION pour forcer la mise à jour.
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE = 'waste-tracker-' + CACHE_VERSION;
 
 const ICON_KEYS = [
@@ -61,7 +61,8 @@ self.addEventListener('fetch', (event) => {
     event.respondWith((async () => {
       const cache = await caches.open(CACHE);
       try {
-        const res = await Promise.race([fetch(req), timeout(4000)]);
+        // 'no-cache' : on revalide toujours auprès du serveur, pour ne jamais rester sur une ancienne version
+        const res = await Promise.race([fetch(req, { cache: 'no-cache' }), timeout(4000)]);
         if (res && res.ok) cache.put('./index.html', res.clone());
         return res;
       } catch (e) {
