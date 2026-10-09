@@ -1117,6 +1117,7 @@ const ICON_EMOJI = {
   'palette': '🪵',
   'pare-brise': '🚗',
   'pare-chocs': '🚘',
+  'airbag': '💥',
   'deee': '💻',
   'ampoules': '💡',
   'piles': '🪫',
@@ -1137,12 +1138,12 @@ const DEFAULT_ICON_KEY = 'poubelle';
 // Après un remplacement, incrémente ICONS_VERSION (1 -> 2) pour que les
 // navigateurs rechargent les icônes au lieu de garder l'ancienne en cache.
 const ICON_DIR = 'icons';
-const ICONS_VERSION = '1';
+const ICONS_VERSION = '2';
 const ICON_KEYS = [
   'pneu', 'batterie', 'filtre-huile', 'huile-usagee', 'gazole-usage',
   'liquide-refroidissement', 'liquide-de-frein', 'dechets-souilles', 'carton',
   'tout-venant', 'aluminium', 'ferraille', 'plastique', 'citerne', 'aerosol',
-  'inflammable', 'palette', 'pare-brise', 'pare-chocs', 'deee', 'ampoules', 'piles',
+  'inflammable', 'palette', 'pare-brise', 'pare-chocs', 'airbag', 'deee', 'ampoules', 'piles',
   'solvant', 'peinture', 'clim', 'lave-glace', 'eaux-usees', 'pieces-usagees',
   'catalyseur', 'poubelle',
 ];
@@ -1649,6 +1650,7 @@ function populateIconSelect() {
     'palette': '🪵 Palette bois',
     'pare-brise': '🚗 Pare-brise',
     'pare-chocs': '🚘 Pare-chocs',
+    'airbag': '💥 Airbag (pyrotechnique)',
     'deee': '💻 DEEE / électronique',
     'ampoules': '💡 Lampes / ampoules',
     'piles': '🪫 Piles et petites batteries',
