@@ -362,33 +362,12 @@
     accent-color: var(--accent);
     margin-bottom: 6px;
   }
-  .modal { max-height: calc(100vh - 40px); overflow-y: auto; }
-  .modal .mode-toggle {
-    display: flex; gap: 4px; padding: 4px; border-radius: 10px; background: var(--bg);
-    margin: 0 auto 14px auto; max-width: 260px;
-  }
-  .modal .mode-toggle button {
-    flex: 1; padding: 8px 10px; border-radius: 8px; border: 0; background: transparent;
-    color: var(--text-secondary); font-size: 13.5px; font-weight: 700; cursor: pointer;
-  }
-  .modal .mode-toggle button.active { background: var(--surface); color: var(--text-primary); box-shadow: var(--shadow-card); }
-  .modal .modal-sub { font-size: 13px; color: var(--text-secondary); margin: -8px 0 14px 0; }
-  .modal .exact-row {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    margin: 0 0 20px 0; font-size: 13px; color: var(--text-secondary);
-  }
-  .modal .exact-row input {
-    width: 110px; padding: 8px 10px; border-radius: 8px; text-align: center;
-    border: 1px solid var(--border); background: var(--bg); color: var(--text-primary);
-    font-size: 15px; font-weight: 700;
-  }
-  .modal .empty-btn { width: 100%; flex: none; margin: 0 0 12px 0; }
-  .pct-badge.emptied { background: var(--bg); color: var(--text-primary); border: 1px solid var(--border); margin-right: 6px; }
   .modal .range-labels {
     display: flex; justify-content: space-between;
     font-size: 11.5px; color: var(--text-secondary);
-    margin-bottom: 14px;
+    margin-bottom: 22px;
   }
+  .modal .ov-btn { flex: none; padding: 9px 14px; }
   .modal .actions { display: flex; gap: 10px; }
   .btn {
     flex: 1;
@@ -559,86 +538,9 @@
     color: var(--text-secondary); font-size: 13px; line-height: 1; padding: 0 2px;
   }
   .zone-chip button:hover { color: var(--status-crit-text); }
-
-  /* ---------- Rapports : liste à gauche (PC) / menu déroulant (mobile) ---------- */
-  .reports-layout { display: grid; gap: 14px; grid-template-columns: 1fr; }
-  .reports-side .report-list { display: none; }
-  .report-select {
-    width: 100%; padding: 12px 14px; border-radius: 10px; font-size: 15px; font-weight: 600;
-    border: 1px solid var(--border); background: var(--surface); color: var(--text-primary);
-  }
-  .report-item {
-    display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
-    padding: 9px 10px; border-radius: 10px; border: 1px solid transparent;
-    background: transparent; color: var(--text-primary); cursor: pointer; font-size: 13.5px;
-  }
-  .report-item:hover { background: var(--bg); }
-  .report-item.active { background: var(--bg); border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
-  .report-item .icon-img, .report-item svg { width: 26px; height: 26px; flex-shrink: 0; }
-  .report-item .ri-name { flex: 1; min-width: 0; font-weight: 600; }
-  .report-item .ri-zone { display: block; font-size: 11.5px; font-weight: 400; color: var(--text-secondary); }
-  .pct-badge { padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
-  .pct-badge.low  { background: var(--status-low-bg);  color: var(--status-low-text); }
-  .pct-badge.mod  { background: var(--status-mod-bg);  color: var(--status-mod-text); }
-  .pct-badge.high { background: var(--status-high-bg); color: var(--status-high-text); }
-  .pct-badge.crit { background: var(--status-crit-bg); color: var(--status-crit-text); }
-  .report-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-  .report-head .icon-img, .report-head svg { width: 40px; height: 40px; }
-  .report-head h3 { margin: 0; font-size: 17px; }
-  .report-head small { color: var(--text-secondary); font-size: 12.5px; }
-  .kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-  @media (min-width: 640px) { .kpis { grid-template-columns: repeat(4, 1fr); } }
-  .kpi { background: var(--bg); border-radius: 10px; padding: 10px 12px; }
-  .kpi span { display: block; font-size: 11.5px; color: var(--text-secondary); }
-  .kpi b { display: block; margin-top: 2px; font-size: 16px; }
-  .hist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .hist-table th { text-align: left; padding: 6px 8px; color: var(--text-secondary); font-size: 12px; }
-  .hist-table td { padding: 8px; border-top: 1px solid var(--border); }
-  @media (min-width: 900px) {
-    .reports-layout { grid-template-columns: 300px 1fr; align-items: start; }
-    .reports-side { position: sticky; top: 16px; max-height: calc(100vh - 110px); overflow-y: auto; }
-    .reports-side .report-select { display: none; }
-    .reports-side .report-list { display: flex; flex-direction: column; gap: 4px; }
-  }
-  @media (max-width: 639px) {
-    .kpi b { font-size: 14px; }
-    .hist-table thead { display: none; }
-    .hist-table, .hist-table tbody { display: block; }
-    .hist-table tr {
-      display: grid; grid-template-columns: 1fr auto; grid-template-areas: "date pct" "qty del";
-      gap: 4px 10px; padding: 10px 0; border-top: 1px solid var(--border); align-items: center;
-    }
-    .hist-table td { padding: 0; border: 0; }
-    .hist-table td.c-date { grid-area: date; font-weight: 600; }
-    .hist-table td.c-pct  { grid-area: pct; text-align: right; }
-    .hist-table td.c-qty  { grid-area: qty; color: var(--text-secondary); }
-    .hist-table td.c-del  { grid-area: del; text-align: right; }
-  }
-
-  /* ---------- Barre de synchronisation (hors ligne) ---------- */
-  .sync-bar {
-    display: none; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30;
-    align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
-    margin: 0 0 14px 0; padding: 10px 14px; border-radius: 10px;
-    font-size: 13.5px; font-weight: 600; border: 1px solid var(--border);
-    background: var(--surface); box-shadow: var(--shadow-card);
-  }
-  .sync-bar.show { display: flex; }
-  .sync-bar.offline { background: var(--status-high-bg); border-color: var(--status-high-ring); color: var(--status-high-text); }
-  .sync-bar.pending { background: var(--status-mod-bg);  border-color: var(--status-mod-ring);  color: var(--status-mod-text); }
-  .sync-bar.ok      { background: var(--status-low-bg);  border-color: var(--status-low-ring);  color: var(--status-low-text); }
-  .sync-bar.err     { background: var(--status-crit-bg); border-color: var(--status-crit-ring); color: var(--status-crit-text); }
-  .sync-bar .btn { flex: none; width: auto; padding: 7px 18px; }
-  .sync-bar .btn:disabled { opacity: 0.6; cursor: default; }
-  body.no-mail-alerts .mail-col { display: none !important; }
-  .gauge-info .forecast { font-size: 12px; margin-top: 4px; color: var(--text-secondary); }
-  .gauge-info .forecast b { color: var(--text-primary); }
-  .forecast-box { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--bg); font-size: 13px; line-height: 1.6; }
-  .forecast-box .fc-title { font-weight: 700; margin-bottom: 2px; }
-  .forecast-box .fc-muted { color: var(--text-secondary); font-size: 12px; }
 </style>
 </head>
-<body class="no-mail-alerts">
+<body>
 
 <div class="login-screen" id="loginScreen">
   <div class="login-card">
@@ -665,12 +567,10 @@
       <div class="nav-item" id="navReports"><span class="n-icon icon-slot" data-icon="rapports">📄</span> Rapports</div>
       <div class="nav-item" id="navSettings"><span class="n-icon icon-slot" data-icon="parametres">⚙️</span> Paramètres</div>
       <div class="nav-item" id="navUsers"><span class="n-icon icon-slot" data-icon="utilisateurs">👥</span> Utilisateurs</div>
-      <div class="nav-item" id="navSystem"><span class="n-icon">🛠️</span> Système</div>
     </nav>
     <button id="installAppBtn" class="nav-item" style="display:none; border:none; width:100%; text-align:left; cursor:pointer; margin-top:8px; background:var(--accent); color:#fff;">
       <span class="n-icon">⬇️</span> Installer l'app
     </button>
-    <div id="appVersion" style="font-size:11px; padding:0 18px 8px; color:var(--sidebar-text); opacity:0.7;">v3 · prévision</div>
     <div class="sidebar-footer" id="sidebarFooter" title="Cliquer pour se déconnecter">
       <div class="avatar" id="sidebarAvatar">JM</div>
       <div>
@@ -696,11 +596,6 @@
     </div>
 
     <div class="demo-banner" id="demoBanner">⚠️ Mode démo — Firebase non configuré (voir firebaseConfig dans le code). Les données restent locales à ce navigateur.</div>
-
-    <div class="sync-bar" id="syncBar" role="status" aria-live="polite">
-      <span id="syncText"></span>
-      <button class="btn primary" id="syncBtn" style="display:none;">Envoyer</button>
-    </div>
 
     <div id="dashboardView">
       <div class="alert-panel" style="margin-top:0; margin-bottom:16px;">
@@ -804,63 +699,12 @@
         </div>
       </div>
     </div>
-    <div id="systemView" style="display:none;">
-      <div class="card" id="alertTemplateCard" style="cursor:default; margin-bottom:14px;">
-        <h3 style="margin:0 0 6px 0; font-size:15px;">E-mail d'alerte</h3>
-        <p style="margin:0 0 12px 0; font-size:12.5px; color:var(--text-secondary);">
-          Texte envoyé quand un contenant passe son seuil critique. Balises remplacées automatiquement :
-          <code>{contenant}</code> <code>{pct}</code> <code>{seuil}</code> <code>{zone}</code>
-          <code>{site}</code> <code>{auteur}</code> <code>{date}</code>
-        </p>
-        <div style="margin:0 0 16px 0; padding:12px; border-radius:10px; background:var(--bg);">
-          <div style="font-weight:700; font-size:13.5px; margin-bottom:4px;">Connexion EmailJS</div>
-          <p style="margin:0 0 10px 0; font-size:12px; color:var(--text-secondary);">
-            À copier depuis ton compte EmailJS : <b>Account</b> (Public Key), <b>Email Services</b> (Service ID), <b>Email Templates</b> (Template ID).
-          </p>
-          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:8px;">
-            <input type="text" id="emailjsPublicKey" placeholder="Public Key" autocomplete="off"
-              style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-primary); font-size:13px;">
-            <input type="text" id="emailjsServiceId" placeholder="Service ID (service_…)" autocomplete="off"
-              style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-primary); font-size:13px;">
-            <input type="text" id="emailjsTemplateId" placeholder="Template ID (template_…)" autocomplete="off"
-              style="padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text-primary); font-size:13px;">
-          </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
-            <button class="btn primary" id="saveEmailjsBtn" style="flex:none; width:auto; padding:8px 16px;">Enregistrer la connexion</button>
-            <button class="btn" id="testEmailjsBtn" style="flex:none; width:auto; padding:8px 16px;">✉️ Envoyer un mail de test</button>
-          </div>
-          <div id="emailjsStatus" style="margin-top:8px; font-size:12.5px;"></div>
-        </div>
-        <label style="font-size:12.5px; color:var(--text-secondary); display:block;">
-          Objet
-          <input type="text" id="alertSubjectInput"
-            style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px;">
-        </label>
-        <label style="font-size:12.5px; color:var(--text-secondary); display:block; margin-top:10px;">
-          Message
-          <textarea id="alertBodyInput" rows="6"
-            style="width:100%; margin-top:4px; padding:9px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13.5px; font-family:inherit; resize:vertical;"></textarea>
-        </label>
-        <div style="margin-top:10px; padding:10px 12px; border-radius:8px; background:var(--bg); font-size:12.5px;">
-          <div style="color:var(--text-secondary); margin-bottom:4px;">Aperçu</div>
-          <div id="alertPreviewSubject" style="font-weight:700;"></div>
-          <div id="alertPreviewBody" style="margin-top:4px; white-space:pre-wrap;"></div>
-        </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
-          <button class="btn primary" id="saveAlertTemplateBtn" style="flex:none; width:auto; padding:9px 18px;">Enregistrer</button>
-          <button class="btn" id="resetAlertTemplateBtn" style="flex:none; width:auto; padding:9px 18px;">Texte par défaut</button>
-        </div>
-      </div>
-    </div>
-
     <div id="usersView" style="display:none;">
       <div class="card" style="cursor:default;">
         <h3 style="margin:0 0 6px 0; font-size:15px;">Gestion des accès</h3>
         <p style="margin:0 0 14px 0; font-size:12.5px; color:var(--text-secondary);">
           Réservé au Super Admin. Attribue un rôle à chaque compte : Atelier (saisie terrain uniquement),
-          Administrateur de site (configuration + saisie), Super Admin (accès complet).<span class="mail-col"><br>
-          Case « Alerte e-mail » : la personne reçoit un e-mail quand un contenant passe son seuil critique.
-          Tu peux indiquer une autre adresse (plusieurs possibles, séparées par une virgule).</span>
+          Administrateur de site (configuration + saisie), Super Admin (accès complet).
         </p>
         <div class="overflow-x">
           <table style="width:100%; border-collapse:collapse; font-size:13px;">
@@ -868,7 +712,6 @@
               <tr style="text-align:left; color:var(--text-secondary); font-size:12px;">
                 <th style="padding:6px 8px;">Compte</th>
                 <th style="padding:6px 8px;">Rôle</th>
-                <th class="mail-col" style="padding:6px 8px;">Alerte e-mail</th>
                 <th style="padding:6px 8px;"></th>
               </tr>
             </thead>
@@ -878,12 +721,12 @@
       </div>
     </div>
     <div id="reportsView" style="display:none;">
-      <div class="reports-layout">
-        <div class="card reports-side" style="cursor:default;">
-          <div id="reportsPicker"></div>
-        </div>
-        <div id="reportsDetail"></div>
+      <div class="card" style="cursor:default; margin-bottom:14px;">
+        <h3 style="margin:0 0 12px 0; font-size:15px;">Choisir un contenant</h3>
+        <div id="reportsPicker" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
       </div>
+
+      <div id="reportsDetail"></div>
     </div>
   </main>
 
@@ -894,20 +737,20 @@
     <h3 id="modalTitle">Ajuster le remplissage</h3>
     <div class="icon-slot big" id="modalIcon">🛞</div>
     <div class="capacity-line" id="modalCapacity"></div>
-    <div class="mode-toggle" id="modeToggle">
-      <button type="button" id="modePctBtn" class="active">En %</button>
-      <button type="button" id="modeQtyBtn">En quantité</button>
+    <div class="pct-display"><span id="modalPct">0</span>%</div>
+    <input type="range" min="0" max="100" value="0" id="modalSlider">
+    <div class="range-labels"><span>0%</span><span>100%</span></div>
+    <div id="overflowBlock" style="display:none; margin:-10px 0 16px 0; text-align:left;">
+      <div style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">
+        Benne pleine ? Note le dépassement en attendant l'enlèvement :
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button type="button" class="btn ov-btn" data-add="5">+5 %</button>
+        <button type="button" class="btn ov-btn" data-add="10">+10 %</button>
+        <button type="button" class="btn ov-btn" data-add="25">+25 %</button>
+        <button type="button" class="btn" id="ovReset">Retour à 100 %</button>
+      </div>
     </div>
-    <div class="pct-display"><span id="modalPct">0</span><span id="modalPctUnit">%</span></div>
-    <div class="modal-sub" id="modalSub"></div>
-    <input type="range" min="0" max="100" step="1" value="0" id="modalSlider">
-    <div class="range-labels"><span id="modalMin">0%</span><span id="modalMax">100%</span></div>
-    <div class="exact-row">
-      <span>Valeur exacte :</span>
-      <input type="number" id="modalExact" inputmode="decimal" min="0" max="100" step="1">
-      <span id="modalExactUnit">%</span>
-    </div>
-    <button type="button" class="btn empty-btn" id="emptyBtn">🚛 Vidé / enlevé</button>
     <div class="actions">
       <button class="btn" id="cancelBtn">Annuler</button>
       <button class="btn primary" id="confirmBtn">Confirmer</button>
@@ -939,15 +782,7 @@
   sites/{siteId}/containers/{containerId}
     name, zone, icon, pct, used, total, unit
   users/{uid}
-    email, role ('super_admin' | 'site_admin' | 'atelier'), siteId,
-    alertEmail (bool), alertEmailAddress (autre adresse, optionnel)
-  sites/{siteId}/settings/alertRecipients
-    emails[] (copie des destinataires, lisible par tous les comptes)
-  sites/{siteId}/settings/alertTemplate
-    subject, body (texte avec balises {contenant} {pct} ...)
-  sites/{siteId}/containers/{id}  (champ en plus : lastTs = date du dernier relevé appliqué)
-  sites/{siteId}/settings/emailjs
-    publicKey, serviceId, templateId (connexion EmailJS, lisible par les comptes connectés)
+    email, role ('super_admin' | 'site_admin' | 'atelier'), siteId
   (Zones et types de déchets configurables arriveront avec le module
   Paramétrage admin — voir les prochaines étapes du projet.)
   --------------------------------------------------------------
@@ -967,81 +802,7 @@ const firebaseConfig = {
   appId: "1:269081398609:web:0a3cadf25281e6fc375770"
 };
 
-// Alertes e-mail envoyées via EmailJS (gratuit, sans Blaze). Mettre false pour tout désactiver.
-const EMAIL_ALERTS_ENABLED = true;
-const SITE_ID = 'site-demo';
-
-// =====================================================================
-//  PRÉVISION DE REMPLISSAGE
-// =====================================================================
-// Pour chaque contenant on garde les derniers relevés du cycle en cours (depuis le dernier
-// enlèvement) dans le champ « trend » : [{ t: date en ms, u: quantité }]. Dès qu'il y a
-// FORECAST_MIN_POINTS relevés, on calcule le rythme de remplissage (droite de tendance sur
-// les 10 derniers relevés) et on en déduit la date de saturation. Chaque nouveau relevé
-// recalcule tout : la prévision s'ajuste donc au réel.
-const FORECAST_MIN_POINTS = 5;
-const FORECAST_WINDOW = 10;
-const TREND_MAX = 30;
-const DAY_MS = 86400000;
-
-function nextTrend(trend, e) {            // e : { ts, used, emptied }
-  if (e.emptied) return [];               // un enlèvement ouvre un nouveau cycle
-  const list = Array.isArray(trend) ? trend.slice() : [];
-  const t = Date.parse(e.ts);
-  if (Number.isFinite(t) && Number.isFinite(e.used)) list.push({ t, u: e.used });
-  return list.slice(-TREND_MAX);
-}
-
-function computeForecast(points, total, thresholdPct) {
-  const n = Array.isArray(points) ? points.length : 0;
-  if (!(total > 0)) return { state: 'none' };
-  if (n < FORECAST_MIN_POINTS) return { state: 'collecting', n };
-  const pts = points.slice(-FORECAST_WINDOW);
-  const m = pts.length;
-  const t0 = pts[0].t;
-  const xs = pts.map(p => (p.t - t0) / DAY_MS);
-  const ys = pts.map(p => p.u);
-  const mx = xs.reduce((a, b) => a + b, 0) / m;
-  const my = ys.reduce((a, b) => a + b, 0) / m;
-  let num = 0, den = 0;
-  for (let i = 0; i < m; i++) { num += (xs[i] - mx) * (ys[i] - my); den += (xs[i] - mx) * (xs[i] - mx); }
-  const last = pts[m - 1];
-  if (last.u >= total) return { state: 'full', n };
-  if (den < 1e-6) return { state: 'collecting', n };       // relevés tous à la même heure : pas de tendance
-  const slope = num / den;                                  // unités par jour
-  if (slope <= total * 0.002) return { state: 'stable', n, slope };   // ne se remplit (quasi) pas
-  const elapsed = Math.max(0, (Date.now() - last.t) / DAY_MS);
-  const thrUsed = total * (Number.isFinite(thresholdPct) ? thresholdPct : 85) / 100;
-  return {
-    state: 'ok', n: m, slope,
-    daysFull: Math.max(0, (total - last.u) / slope - elapsed),
-    daysThr: last.u >= thrUsed ? 0 : Math.max(0, (thrUsed - last.u) / slope - elapsed)
-  };
-}
-
-function fmtDays(d) {
-  if (d < 1) return 'moins d\'1 jour';
-  if (d < 1.5) return 'environ 1 jour';
-  if (d < 90) return 'environ ' + Math.round(d) + ' jours';
-  if (d < 365) return 'environ ' + Math.round(d / 30) + ' mois';
-  return 'plus d\'1 an';
-}
-function fmtDaysShort(d) {
-  if (d < 1) return '< 1 j';
-  if (d < 90) return '~' + Math.round(d) + ' j';
-  if (d < 365) return '~' + Math.round(d / 30) + ' mois';
-  return '> 1 an';
-}
-function forecastLineForCard(c) {
-  const f = computeForecast(c.trend, c.total, c.threshold);
-  if (f.state === 'ok') {
-    const rate = (Math.round(f.slope * 10) / 10) + (c.unit || '') + '/jour';
-    return '<div class="forecast" title="Basé sur ' + f.n + ' relevés (' + rate + ')">📈 Plein dans <b>' + fmtDaysShort(f.daysFull) + '</b></div>';
-  }
-  if (f.state === 'stable') return '<div class="forecast">📈 Remplissage stable</div>';
-  if (f.state === 'collecting' && f.n >= 1) return '<div class="forecast">📈 Prévision : ' + f.n + '/' + FORECAST_MIN_POINTS + ' relevés</div>';
-  return '';
-} // à rendre sélectionnable quand le multi-site sera géré
+const SITE_ID = 'site-demo'; // à rendre sélectionnable quand le multi-site sera géré
 
 const FIREBASE_READY = firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith('VOTRE_');
 
@@ -1099,7 +860,6 @@ const ICON_EMOJI = {
   'inflammable': '🔥',
   'palette': '🪵',
   'pare-brise': '🚗',
-  'pare-chocs': '🚘',
   'deee': '💻',
   'ampoules': '💡',
   'piles': '🪫',
@@ -1113,30 +873,39 @@ const ICON_EMOJI = {
   'poubelle': '🗑️',
 };
 const DEFAULT_ICON_KEY = 'poubelle';
-// ---------- Icônes : fichiers PNG séparés dans le dossier icons/ ----------
-// Chaque icône est un fichier icons/<nom>.png posé à côté de ce index.html.
-// Pour changer une icône : remplace simplement le fichier SVG (sur GitHub
-// par ex.) — aucun code à modifier ici.
+// ---------- Icônes : fichiers séparés dans le dossier icons/ ----------
+// Chaque icône est un fichier icons/<nom>.png ou icons/<nom>.svg posé à côté
+// de ce index.html. L'app essaie le PNG en premier, puis le SVG si le PNG
+// n'existe pas — tu peux donc mélanger les deux formats.
+// Pour changer une icône : remplace simplement le fichier (sur GitHub
+// par ex.) — aucun code à modifier ici, du moment que le NOM reste le même.
 // Après un remplacement, incrémente ICONS_VERSION (1 -> 2) pour que les
 // navigateurs rechargent les icônes au lieu de garder l'ancienne en cache.
 const ICON_DIR = 'icons';
 const ICONS_VERSION = '1';
+const ICON_EXTS = ['png', 'svg']; // formats testés dans l'ordre
 const ICON_KEYS = [
   'pneu', 'batterie', 'filtre-huile', 'huile-usagee', 'gazole-usage',
   'liquide-refroidissement', 'liquide-de-frein', 'dechets-souilles', 'carton',
   'tout-venant', 'aluminium', 'ferraille', 'plastique', 'citerne', 'aerosol',
-  'inflammable', 'palette', 'pare-brise', 'pare-chocs', 'deee', 'ampoules', 'piles',
+  'inflammable', 'palette', 'pare-brise', 'deee', 'ampoules', 'piles',
   'solvant', 'peinture', 'clim', 'lave-glace', 'eaux-usees', 'pieces-usagees',
   'catalyseur', 'poubelle',
 ];
 
-function iconMarkup(iconKey, emojiFallback) {
-  if (ICON_KEYS.indexOf(iconKey) >= 0) {
-    // Si le fichier PNG est introuvable (mauvais nom, pas encore envoyé), on retombe sur l'emoji.
-    const fb = String(emojiFallback || ICON_EMOJI[iconKey] || ICON_EMOJI[DEFAULT_ICON_KEY]).replace(/["'<>&]/g, '');
-    return '<img src="' + ICON_DIR + '/' + iconKey + '.png?v=' + ICONS_VERSION + '" alt="" class="icon-img" ' +
-           'onerror="this.replaceWith(document.createTextNode(\'' + fb + '\'))">';
+function iconImgMarkup(iconKey, extIdx) {
+  var src = ICON_DIR + '/' + iconKey + '.' + ICON_EXTS[extIdx] + '?v=' + ICONS_VERSION;
+  var next = '';
+  if (extIdx + 1 < ICON_EXTS.length) {
+    // Si ce format est absent, bascule automatiquement sur le suivant (png -> svg).
+    var nextSrc = ICON_DIR + '/' + iconKey + '.' + ICON_EXTS[extIdx + 1] + '?v=' + ICONS_VERSION;
+    next = ' onerror="this.onerror=null;this.src=\'' + nextSrc + '\'"';
   }
+  return '<img src="' + src + '" alt="" class="icon-img"' + next + '>';
+}
+
+function iconMarkup(iconKey, emojiFallback) {
+  if (ICON_KEYS.indexOf(iconKey) >= 0) return iconImgMarkup(iconKey, 0);
   return emojiFallback || ICON_EMOJI[iconKey] || ICON_EMOJI[DEFAULT_ICON_KEY];
 }
 
@@ -1153,7 +922,7 @@ let db = null;
 let unsubscribeContainers = null;
 let unsubscribeHistory = null;
 let reportSelectedId = null;
-let currentView = 'dashboard'; // 'dashboard' | 'settings' | 'users' | 'reports' | 'system'
+let currentView = 'dashboard'; // 'dashboard' | 'settings' | 'users' | 'reports'
 
 const ROLE_LABELS = { super_admin: 'Super Admin', site_admin: 'Administrateur de site', atelier: 'Atelier' };
 
@@ -1183,10 +952,10 @@ function loadLocalHistory() {
 function saveLocalHistory(all) {
   try { localStorage.setItem(HISTORY_KEY, JSON.stringify(all)); } catch (e) { /* ignore */ }
 }
-function addLocalHistoryEntry(containerId, pct, used, extra) {
+function addLocalHistoryEntry(containerId, pct, used) {
   const all = loadLocalHistory();
   if (!all[containerId]) all[containerId] = [];
-  all[containerId].push(Object.assign({ id: generateLocalId(), ts: new Date().toISOString(), pct, used }, extra || {}));
+  all[containerId].push({ id: generateLocalId(), ts: new Date().toISOString(), pct, used });
   saveLocalHistory(all);
 }
 
@@ -1198,18 +967,18 @@ function removeLocalHistoryEntry(containerId, entryId) {
   }
 }
 
-async function recordHistory(containerId, pct, used, extra) {
+async function recordHistory(containerId, pct, used) {
   if (FIREBASE_READY && db && fs) {
     try {
       const histRef = fs.collection(db, 'sites', SITE_ID, 'containers', containerId, 'history');
       const newRef = fs.doc(histRef);
-      await fs.setDoc(newRef, Object.assign({ id: newRef.id, ts: new Date().toISOString(), pct, used }, extra || {}));
+      await fs.setDoc(newRef, { id: newRef.id, ts: new Date().toISOString(), pct, used });
     } catch (e) {
       console.error('Échec de l\'enregistrement de l\'historique :', e);
       // Non bloquant : la mise à jour du contenant lui-même a déjà réussi.
     }
   } else {
-    addLocalHistoryEntry(containerId, pct, used, extra);
+    addLocalHistoryEntry(containerId, pct, used);
   }
 }
 
@@ -1227,6 +996,11 @@ async function removeHistoryEntry(containerId, entryId) {
 let fs = null; // { doc, setDoc, updateDoc, deleteDoc, addDoc, collection, getDoc, onSnapshot }
 
 const DEFAULT_THRESHOLD = 85;
+// Remplissage maximal enregistrable : au-delà de 100 %, on compte le DÉPASSEMENT
+// (benne pleine en attendant l'enlèvement). Ça permet de voir combien de déchets
+// s'accumulent pendant l'attente — utile pour ajuster le seuil critique et
+// prévoir les enlèvements.
+const MAX_PCT = 200;
 
 // Seuils d'alerte : le seuil critique est configurable par contenant (Paramètres),
 // les paliers intermédiaires (modéré/élevé) sont dérivés proportionnellement.
@@ -1234,6 +1008,7 @@ function statusFor(pct, threshold) {
   const crit = Number.isFinite(threshold) ? threshold : DEFAULT_THRESHOLD;
   const high = Math.max(crit - 15, 50);
   const mod = Math.max(crit - 35, 25);
+  if (pct > 100) return { cls: 'status-crit', label: "Dépassement — en attente d'enlèvement", tag: 'crit', over: true };
   if (pct >= crit) return { cls: 'status-crit', label: 'Remplissage Critique', tag: 'crit' };
   if (pct >= high) return { cls: 'status-high', label: 'Remplissage Élevé', tag: 'high' };
   if (pct >= mod)  return { cls: 'status-mod',  label: 'Remplissage Modéré', tag: 'mod' };
@@ -1263,6 +1038,9 @@ function cardMarkup(c) {
   const name = c.name || '(sans nom)';
   const threshold = Number.isFinite(c.threshold) ? c.threshold : DEFAULT_THRESHOLD;
   const s = statusFor(pct, threshold);
+  const overTxt = pct > 100
+    ? ' — débordement : +' + (Math.round((used - total) * 10) / 10) + unit
+    : '';
   return `
     <div class="card ${s.cls}" tabindex="0" role="button" data-id="${c.id}" aria-label="${name}, ${pct}%">
       <div class="card-head">
@@ -1273,14 +1051,13 @@ function cardMarkup(c) {
       </div>
       <div class="gauge-row">
         <div class="gauge-wrap">
-          ${ringMarkup(pct)}
+          ${ringMarkup(Math.min(pct, 100))}
           <span class="icon-slot" data-icon="${icon}">${iconMarkup(icon, emoji)}</span>
         </div>
         <div class="gauge-info">
-          <div class="status-label">${s.label}${c._pending ? ' · ⏳ non envoyé' : ''}</div>
-          <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
-          <div class="capacity">Capacité : ${used}${unit} / ${total}${unit}</div>
-          ${forecastLineForCard(c)}
+          <div class="status-label">${s.label}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${Math.min(pct, 100)}%"></div></div>
+          <div class="capacity">Capacité : ${used}${unit} / ${total}${unit}${overTxt}</div>
         </div>
       </div>
     </div>`;
@@ -1304,9 +1081,9 @@ function render() {
       const bg = hexToRgba(z.color, 0.10);
       return `
         <div class="zone-section" data-zone-id="${z.id}" style="background:${bg}; border-color:${hexToRgba(z.color, 0.4)};">
-          <div class="zone-header" style="color:${z.color}; color:color-mix(in srgb, ${z.color} 50%, var(--text-primary));">
+          <div class="zone-header" style="color:${z.color};">
             <span>${z.name}</span>
-            <span class="zone-count" style="background:var(--surface); color:${z.color}; color:color-mix(in srgb, ${z.color} 50%, var(--text-primary));">${items.length}</span>
+            <span class="zone-count" style="color:${z.color};">${items.length}</span>
           </div>
           <div class="zone-grid">
             ${items.map(cardMarkup).join('') || `<div class="zone-empty-hint">Glisse un contenant ici pour le classer dans cette zone.</div>`}
@@ -1472,7 +1249,7 @@ function renderAlerts() {
     list.innerHTML = `<li class="empty">Aucune alerte — tous les contenants sont sous le seuil.</li>`;
   } else {
     list.innerHTML = critical.map(c => {
-      const label = c.status.tag === 'crit' ? 'Critique' : 'Élevé';
+      const label = c.pct > 100 ? 'DÉBORDEMENT' : c.status.tag === 'crit' ? 'Critique' : 'Élevé';
       return `<li>${c.name || '(sans nom)'} (${c.pct}% — ${label})</li>`;
     }).join('');
   }
@@ -1620,7 +1397,6 @@ function populateIconSelect() {
     'inflammable': '🔥 Inflammable',
     'palette': '🪵 Palette bois',
     'pare-brise': '🚗 Pare-brise',
-    'pare-chocs': '🚘 Pare-chocs',
     'deee': '💻 DEEE / électronique',
     'ampoules': '💡 Lampes / ampoules',
     'piles': '🪫 Piles et petites batteries',
@@ -1697,7 +1473,6 @@ document.getElementById('addZoneBtn').addEventListener('click', async () => {
 
 function renderSettings() {
   document.getElementById('siteNameInput').value = siteName || '';
-
   populateIconSelect();
   renderZonesSettings();
 
@@ -1766,34 +1541,19 @@ function renderSettings() {
 }
 
 // ---------- Vue Rapports ----------
-function pctBadgeClass(c) {
-  const pct = Number.isFinite(c.pct) ? c.pct : 0;
-  return statusFor(pct, Number.isFinite(c.threshold) ? c.threshold : DEFAULT_THRESHOLD).tag;
-}
-
 function renderReportsPicker() {
   const picker = document.getElementById('reportsPicker');
-  const zoneName = c => { const z = zones.find(z => z.id === c.zoneId); return z ? z.name : 'Non classé'; };
-  const sorted = containers.slice().sort((a, b) => (b.pct || 0) - (a.pct || 0));
-  picker.innerHTML = `
-    <select class="report-select" id="reportSelect" aria-label="Choisir un contenant">
-      <option value="">— Choisir un contenant —</option>
-      ${sorted.map(c => `<option value="${c.id}" ${c.id === reportSelectedId ? 'selected' : ''}>${escapeHtml(c.name || '(sans nom)')} — ${c.pct || 0}%</option>`).join('')}
-    </select>
-    <div class="report-list">
-      ${sorted.map(c => `
-        <button class="report-item ${c.id === reportSelectedId ? 'active' : ''}" data-id="${c.id}">
-          <span class="icon-slot" data-icon="${c.icon || DEFAULT_ICON_KEY}">${iconMarkup(c.icon || DEFAULT_ICON_KEY, c.emoji)}</span>
-          <span class="ri-name">${escapeHtml(c.name || '(sans nom)')}<span class="ri-zone">${escapeHtml(zoneName(c))}</span></span>
-          <span class="pct-badge ${pctBadgeClass(c)}">${c.pct || 0}%</span>
-        </button>`).join('')}
-    </div>`;
+  picker.innerHTML = containers.map(c => `
+    <button class="btn report-pick-btn" data-id="${c.id}"
+      style="width:auto; padding:8px 14px; display:flex; align-items:center; gap:8px;
+             ${c.id === reportSelectedId ? 'background:var(--accent); border-color:var(--accent); color:#fff;' : ''}">
+      <span class="icon-slot" data-icon="${c.icon || DEFAULT_ICON_KEY}">${iconMarkup(c.icon || DEFAULT_ICON_KEY, c.emoji)}</span>
+      ${c.name || '(sans nom)'}
+    </button>`).join('');
 
-  picker.querySelectorAll('.report-item').forEach(btn => {
+  picker.querySelectorAll('.report-pick-btn').forEach(btn => {
     btn.addEventListener('click', () => selectReportContainer(btn.dataset.id));
   });
-  const sel = picker.querySelector('#reportSelect');
-  sel.addEventListener('change', () => { if (sel.value) selectReportContainer(sel.value); });
 }
 
 function formatDateShort(iso) {
@@ -1805,17 +1565,18 @@ function formatDateShort(iso) {
 }
 
 function barChartSvg(entries, threshold) {
-  const compact = window.matchMedia('(max-width: 639px)').matches;
-  if (compact) entries = entries.slice(-8);
-  const w = compact ? 360 : 700, h = compact ? 200 : 220, padL = 34, padB = 30, padT = 14, padR = 10;
+  const w = 700, h = 220, padL = 34, padB = 30, padT = 14, padR = 10;
   const chartW = w - padL - padR, chartH = h - padT - padB;
   const n = entries.length;
   const barGap = 10;
   const barW = Math.max(8, Math.min(48, chartW / n - barGap));
+  // Échelle : si des relevés dépassent 100 %, l'axe monte jusqu'au dépassement max.
+  const maxPct = entries.reduce((m, e) => Math.max(m, Number.isFinite(e.pct) ? e.pct : 0), 100);
+  const yMax = Math.min(Math.ceil(maxPct / 25) * 25, MAX_PCT);
   const bars = entries.map((e, i) => {
     const pct = Number.isFinite(e.pct) ? e.pct : 0;
     const x = padL + i * (chartW / n) + ((chartW / n) - barW) / 2;
-    const barH = (pct / 100) * chartH;
+    const barH = (pct / yMax) * chartH;
     const y = padT + (chartH - barH);
     const s = statusFor(pct, threshold);
     const color = `var(--status-${s.tag === 'crit' ? 'crit' : s.tag === 'high' ? 'high' : s.tag === 'mod' ? 'mod' : 'low'}-ring)`;
@@ -1824,13 +1585,23 @@ function barChartSvg(entries, threshold) {
       <text x="${x + barW / 2}" y="${y - 6}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--text-primary)">${pct}%</text>
       <text x="${x + barW / 2}" y="${h - padB + 16}" text-anchor="middle" font-size="10" fill="var(--text-secondary)">${formatDateShort(e.ts).split(' ')[0]}</text>`;
   }).join('');
-  const gridLines = [0, 25, 50, 75, 100].map(v => {
-    const y = padT + chartH - (v / 100) * chartH;
+  const gridVals = [];
+  for (let v = 0; v <= yMax; v += 25) gridVals.push(v);
+  const gridLines = gridVals.map(v => {
+    const y = padT + chartH - (v / yMax) * chartH;
     return `
       <line x1="${padL}" y1="${y}" x2="${w - padR}" y2="${y}" stroke="var(--border)" stroke-width="1"></line>
       <text x="${padL - 8}" y="${y + 4}" text-anchor="end" font-size="10" fill="var(--text-secondary)">${v}%</text>`;
   }).join('');
-  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%; height:auto; overflow:visible;">${gridLines}${bars}</svg>`;
+  // Ligne rouge « 100 % = capacité » quand des dépassements sont visibles
+  let fullLine = '';
+  if (yMax > 100) {
+    const y100 = padT + chartH - (100 / yMax) * chartH;
+    fullLine = `
+      <line x1="${padL}" y1="${y100}" x2="${w - padR}" y2="${y100}" stroke="var(--status-crit-ring)" stroke-width="1.5" stroke-dasharray="5 4"></line>
+      <text x="${w - padR}" y="${y100 - 5}" text-anchor="end" font-size="10" font-weight="700" fill="var(--status-crit-ring)">100 % — capacité</text>`;
+  }
+  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%; height:auto; overflow:visible;">${gridLines}${fullLine}${bars}</svg>`;
 }
 
 function selectReportContainer(id) {
@@ -1838,26 +1609,14 @@ function selectReportContainer(id) {
   renderReportsPicker();
   const detail = document.getElementById('reportsDetail');
   const c = containers.find(x => x.id === id);
-  const z = c ? zones.find(z => z.id === c.zoneId) : null;
   detail.innerHTML = `
     <div class="card" style="cursor:default; margin-bottom:14px;">
-      <div class="report-head">
-        <span class="icon-slot" data-icon="${c ? (c.icon || DEFAULT_ICON_KEY) : ''}">${c ? iconMarkup(c.icon || DEFAULT_ICON_KEY, c.emoji) : ''}</span>
-        <div>
-          <h3>${escapeHtml(c ? c.name : '')}</h3>
-          <small>${escapeHtml(z ? z.name : 'Non classé')}</small>
-        </div>
-      </div>
-      <div class="kpis" id="reportKpis"></div>
-      <div class="forecast-box" id="reportForecast"></div>
-    </div>
-    <div class="card" style="cursor:default; margin-bottom:14px;">
-      <h3 style="margin:0 0 14px 0; font-size:15px;">Évolution du remplissage</h3>
+      <h3 style="margin:0 0 14px 0; font-size:15px;">${c ? c.name : ''} — évolution du remplissage</h3>
       <div id="reportChartWrap">Chargement de l'historique…</div>
     </div>
     <div class="card" style="cursor:default;">
       <h3 style="margin:0 0 14px 0; font-size:15px;">Historique détaillé</h3>
-      <div id="reportTableWrap"></div>
+      <div class="overflow-x" id="reportTableWrap"></div>
     </div>`;
 
   if (unsubscribeHistory) { unsubscribeHistory(); unsubscribeHistory = null; }
@@ -1878,58 +1637,10 @@ function selectReportContainer(id) {
   }
 }
 
-const trendBackfilled = new Set();
 function renderReportDetailContent(entries, c) {
   const chartWrap = document.getElementById('reportChartWrap');
   const tableWrap = document.getElementById('reportTableWrap');
-  const kpis = document.getElementById('reportKpis');
   if (!chartWrap || !tableWrap) return; // vue quittée entre-temps
-
-  const threshold = Number.isFinite(c && c.threshold) ? c.threshold : DEFAULT_THRESHOLD;
-  const unit = (c && c.unit) || '';
-  const curPct = Number.isFinite(c && c.pct) ? c.pct : 0;
-  const last = entries.length ? entries[entries.length - 1] : null;
-  const lastEmptied = entries.slice().reverse().find(e => e.emptied) || null;
-  if (kpis) {
-    kpis.innerHTML = `
-      <div class="kpi"><span>Remplissage actuel</span><b><span class="pct-badge ${statusFor(curPct, threshold).tag}">${curPct}%</span></b></div>
-      <div class="kpi"><span>Dernier relevé</span><b>${last ? formatDateShort(last.ts) : '—'}</b></div>
-      <div class="kpi"><span>Seuil critique</span><b>${threshold}%</b></div>
-      <div class="kpi"><span>Dernier enlèvement</span><b>${lastEmptied ? formatDateShort(lastEmptied.ts) : '—'}</b></div>`;
-  }
-
-  // Prévision : relevés du cycle en cours (après le dernier enlèvement)
-  const forecastBox = document.getElementById('reportForecast');
-  if (forecastBox) {
-    const lastEmptyIdx = entries.map(e => !!e.emptied).lastIndexOf(true);
-    const cycle = entries.slice(lastEmptyIdx + 1).filter(e => !e.emptied && Number.isFinite(e.used) && Number.isFinite(Date.parse(e.ts)));
-    const points = cycle.map(e => ({ t: Date.parse(e.ts), u: e.used }));
-    const f = computeForecast(points, c ? c.total : 0, threshold);
-    const rate = f.slope ? (Math.round(f.slope * 10) / 10) + unit + '/jour' : '';
-    if (f.state === 'ok') {
-      const dFull = new Date(Date.now() + f.daysFull * DAY_MS).toLocaleDateString('fr-FR');
-      forecastBox.innerHTML =
-        '<div class="fc-title">📈 Prévision de remplissage</div>' +
-        'Plein dans <b>' + fmtDays(f.daysFull) + '</b> (vers le ' + dFull + ')<br>' +
-        (f.daysThr > 0 ? 'Seuil critique (' + threshold + '%) dans <b>' + fmtDays(f.daysThr) + '</b>' : 'Seuil critique <b>déjà atteint</b>') +
-        '<div class="fc-muted">Rythme : ' + rate + ' — basé sur les ' + f.n + ' derniers relevés depuis le dernier enlèvement. Se recalcule à chaque relevé.</div>';
-    } else if (f.state === 'stable') {
-      forecastBox.innerHTML = '<div class="fc-title">📈 Prévision de remplissage</div>Le remplissage est stable : pas de saturation prévue.';
-    } else if (f.state === 'full') {
-      forecastBox.innerHTML = '<div class="fc-title">📈 Prévision de remplissage</div>Contenant plein.';
-    } else if (f.state === 'collecting') {
-      forecastBox.innerHTML = '<div class="fc-title">📈 Prévision de remplissage</div>' +
-        '<span class="fc-muted">Disponible à partir de ' + FORECAST_MIN_POINTS + ' relevés depuis le dernier enlèvement (' + f.n + '/' + FORECAST_MIN_POINTS + ' pour l\'instant).</span>';
-    } else {
-      forecastBox.innerHTML = '';
-    }
-    // Rattrape la tendance du dashboard avec l'historique déjà enregistré (une seule fois par contenant)
-    if (c && FIREBASE_READY && db && fs && currentUser && points.length > (Array.isArray(c.trend) ? c.trend.length : 0) && !trendBackfilled.has(c.id)) {
-      trendBackfilled.add(c.id);
-      fs.updateDoc(fs.doc(db, 'sites', SITE_ID, 'containers', c.id), { trend: points.slice(-TREND_MAX) })
-        .catch(err => console.warn('Mise à jour de la tendance impossible :', err));
-    }
-  }
 
   if (!entries.length) {
     chartWrap.innerHTML = `<p style="font-size:13px; color:var(--text-secondary); margin:0;">Aucun mouvement enregistré pour l'instant — ajuste le curseur de remplissage depuis le tableau de bord pour commencer l'historique.</p>`;
@@ -1938,26 +1649,30 @@ function renderReportDetailContent(entries, c) {
   }
 
   const recent = entries.slice(-20); // les 20 derniers points, pour garder le graphique lisible
-  chartWrap.innerHTML = barChartSvg(recent, threshold);
+  chartWrap.innerHTML = barChartSvg(recent, Number.isFinite(c && c.threshold) ? c.threshold : DEFAULT_THRESHOLD);
 
+  const unit = (c && c.unit) || '';
   const canDelete = canDragZones(); // même règle que pour les zones : réservé aux admins
   tableWrap.innerHTML = `
-    <table class="hist-table">
+    <table style="width:100%; border-collapse:collapse; font-size:13px;">
       <thead>
-        <tr><th>Date</th><th>Remplissage</th><th>Quantité</th><th></th></tr>
+        <tr style="text-align:left; color:var(--text-secondary); font-size:12px;">
+          <th style="padding:6px 8px;">Date</th>
+          <th style="padding:6px 8px;">Remplissage</th>
+          <th style="padding:6px 8px;">Quantité</th>
+          <th style="padding:6px 8px;"></th>
+        </tr>
       </thead>
       <tbody>
-        ${entries.slice().reverse().map(e => {
-          const p = Number.isFinite(e.pct) ? e.pct : 0;
-          return `
-          <tr data-entry-id="${e.id || ''}">
-            <td class="c-date">${formatDateShort(e.ts)}</td>
-            <td class="c-pct">${e.emptied ? `<span class="pct-badge emptied">🚛 Enlevé${Number(e.removed) > 0 ? ' (' + e.removed + unit + ')' : ''}</span>` : ''}<span class="pct-badge ${statusFor(p, threshold).tag}">${p}%</span></td>
-            <td class="c-qty">${Number.isFinite(e.used) ? e.used : 0}${unit}</td>
-            <td class="c-del">
+        ${entries.slice().reverse().map(e => `
+          <tr style="border-top:1px solid var(--border);" data-entry-id="${e.id || ''}">
+            <td style="padding:8px;">${formatDateShort(e.ts)}</td>
+            <td style="padding:8px;">${Number.isFinite(e.pct) ? e.pct : 0}%</td>
+            <td style="padding:8px;">${Number.isFinite(e.used) ? e.used : 0}${unit}</td>
+            <td style="padding:8px;">
               ${canDelete && e.id ? `<button class="btn delete-entry" style="width:auto; padding:4px 9px; font-size:12px; color:var(--status-crit-text); border-color:var(--status-crit-ring);">Supprimer</button>` : ''}
             </td>
-          </tr>`; }).join('')}
+          </tr>`).join('')}
       </tbody>
     </table>`;
 
@@ -1980,10 +1695,6 @@ function renderReportDetailContent(entries, c) {
   }
 }
 
-window.matchMedia('(max-width: 639px)').addEventListener('change', () => {
-  if (currentView === 'reports') renderReports();
-});
-
 function renderReports() {
   renderReportsPicker();
   if (reportSelectedId && containers.find(x => x.id === reportSelectedId)) {
@@ -1997,26 +1708,18 @@ function renderReports() {
 function renderUsers() {
   const tbody = document.getElementById('usersTableBody');
   if (!users.length) {
-    tbody.innerHTML = `<tr><td colspan="4" style="padding:10px; color:var(--text-secondary);">Aucun compte pour l'instant — les comptes apparaissent ici après leur première connexion.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="3" style="padding:10px; color:var(--text-secondary);">Aucun compte pour l'instant — les comptes apparaissent ici après leur première connexion.</td></tr>`;
     return;
   }
   tbody.innerHTML = users.map(u => `
     <tr style="border-top:1px solid var(--border);" data-uid="${u.id}">
-      <td style="padding:8px;">${escapeHtml(u.email || u.id)}</td>
+      <td style="padding:8px;">${u.email || u.id}</td>
       <td style="padding:8px;">
         <select class="edit-role" style="padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:13px;">
           <option value="atelier" ${u.role === 'atelier' ? 'selected' : ''}>Atelier</option>
           <option value="site_admin" ${u.role === 'site_admin' ? 'selected' : ''}>Administrateur de site</option>
           <option value="super_admin" ${u.role === 'super_admin' ? 'selected' : ''}>Super Admin</option>
         </select>
-      </td>
-      <td class="mail-col" style="padding:8px; min-width:210px;">
-        <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
-          <input type="checkbox" class="edit-alert" ${u.alertEmail ? 'checked' : ''} style="width:18px; height:18px;"> Recevoir les alertes
-        </label>
-        <input type="text" class="edit-alert-addr" value="${escapeHtml(u.alertEmailAddress || '')}"
-          placeholder="Autre adresse (sinon ${escapeHtml(u.email || 'celle du compte')})"
-          style="width:100%; margin-top:6px; padding:6px 8px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text-primary); font-size:12.5px;">
       </td>
       <td style="padding:8px;">
         <button class="btn save-role" style="width:auto; padding:6px 10px;">Enregistrer</button>
@@ -2029,21 +1732,15 @@ function renderUsers() {
     if (!btn) return;
     btn.addEventListener('click', async () => {
       const role = row.querySelector('.edit-role').value;
-      const alertEmail = row.querySelector('.edit-alert').checked;
-      const alertEmailAddress = row.querySelector('.edit-alert-addr').value.trim();
-      if (alertEmailAddress && parseEmails(alertEmailAddress).length !== alertEmailAddress.split(/[,;\s]+/).filter(Boolean).length) {
-        alert('Adresse e-mail invalide. Sépare plusieurs adresses par une virgule.');
-        return;
-      }
       btn.disabled = true;
       btn.textContent = '…';
       try {
-        await persistUserSettings(uid, { role, alertEmail, alertEmailAddress });
+        await persistUserRole(uid, role);
         btn.textContent = 'Enregistré ✓';
         setTimeout(() => { btn.textContent = 'Enregistrer'; btn.disabled = false; }, 1200);
       } catch (e) {
         console.error('Échec de la mise à jour du rôle :', e);
-        alert('Enregistrement impossible : ' + (e && e.message ? e.message : e));
+        alert('Impossible de changer ce rôle : ' + (e && e.message ? e.message : e));
         btn.textContent = 'Enregistrer';
         btn.disabled = false;
       }
@@ -2051,37 +1748,9 @@ function renderUsers() {
   });
 }
 
-function escapeHtml(v) {
-  return String(v == null ? '' : v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
-}
-function parseEmails(str) {
-  return String(str || '').split(/[,;\s]+/).map(x => x.trim()).filter(x => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x));
-}
-
-// Liste des destinataires d'alerte, recopiée dans sites/{siteId}/settings/alertRecipients
-// pour que n'importe quel compte (même « Atelier ») puisse la lire sans accéder à la collection users.
-async function syncAlertRecipients(list) {
-  const emails = [...new Set(list.filter(u => u.alertEmail).flatMap(u => {
-    const own = parseEmails(u.alertEmailAddress);
-    return own.length ? own : parseEmails(u.email);
-  }))];
-  await fs.setDoc(fs.doc(db, 'sites', SITE_ID, 'settings', 'alertRecipients'), { emails, updatedAt: new Date().toISOString() });
-}
-
-async function persistUserSettings(uid, fields) {
+async function persistUserRole(uid, role) {
   if (!(FIREBASE_READY && db && fs)) return; // pas de gestion des rôles en mode démo
-  if (!EMAIL_ALERTS_ENABLED) fields = { role: fields.role };   // alertes e-mail désactivées : on ne touche qu'au rôle
-  try {
-    await fs.updateDoc(fs.doc(db, 'users', uid), fields);
-  } catch (e) {
-    throw new Error('écriture refusée sur la collection « users » (' + (e && e.message ? e.message : e) + ')');
-  }
-  if (!EMAIL_ALERTS_ENABLED) return;
-  try {
-    await syncAlertRecipients(users.map(u => u.id === uid ? { ...u, ...fields } : u));
-  } catch (e) {
-    throw new Error('compte enregistré, mais liste des destinataires refusée : écriture interdite sur sites/' + SITE_ID + '/settings/alertRecipients (' + (e && e.message ? e.message : e) + ')');
-  }
+  await fs.updateDoc(fs.doc(db, 'users', uid), { role });
   // onSnapshot() sur users[] redessine automatiquement, y compris pour le compte
   // actuellement connecté si c'est le sien qui vient de changer.
 }
@@ -2131,24 +1800,19 @@ function setView(view) {
   document.getElementById('dashboardView').style.display = view === 'dashboard' ? '' : 'none';
   document.getElementById('settingsView').style.display = view === 'settings' ? '' : 'none';
   document.getElementById('usersView').style.display = view === 'users' ? '' : 'none';
-  document.getElementById('systemView').style.display = view === 'system' ? '' : 'none';
   document.getElementById('reportsView').style.display = view === 'reports' ? '' : 'none';
   const titles = {
     dashboard: 'Tableau de bord — Gestion des déchets',
     settings: 'Paramètres — Sites, zones et contenants',
     users: 'Utilisateurs — Gestion des accès',
-    system: 'Système — Alertes e-mail',
     reports: 'Rapports — Historique de remplissage',
   };
   document.getElementById('mainTitle').textContent = titles[view] || titles.dashboard;
   document.getElementById('navDashboard').classList.toggle('active', view === 'dashboard');
   document.getElementById('navSettings').classList.toggle('active', view === 'settings');
   document.getElementById('navUsers').classList.toggle('active', view === 'users');
-  document.getElementById('navSystem').classList.toggle('active', view === 'system');
   document.getElementById('navReports').classList.toggle('active', view === 'reports');
   if (view === 'settings') renderSettings();
-  if (view === 'system' && !alertFormFilled) { alertFormFilled = true; loadAlertForm(); }
-  if (view !== 'system') alertFormFilled = false;
   if (view === 'users') renderUsers();
   if (view === 'reports') renderReports();
   if (view !== 'reports' && unsubscribeHistory) { unsubscribeHistory(); unsubscribeHistory = null; }
@@ -2160,7 +1824,6 @@ function setView(view) {
 document.getElementById('navDashboard').addEventListener('click', () => setView('dashboard'));
 document.getElementById('navSettings').addEventListener('click', () => setView('settings'));
 document.getElementById('navUsers').addEventListener('click', () => setView('users'));
-document.getElementById('navSystem').addEventListener('click', () => setView('system'));
 document.getElementById('navReports').addEventListener('click', () => setView('reports'));
 
 function updateNavForRole(role) {
@@ -2169,9 +1832,6 @@ function updateNavForRole(role) {
   const usersAllowed = FIREBASE_READY && role === 'super_admin';
   document.getElementById('navSettings').style.display = settingsAllowed ? '' : 'none';
   document.getElementById('navUsers').style.display = usersAllowed ? '' : 'none';
-  const systemAllowed = FIREBASE_READY && role === 'super_admin';
-  document.getElementById('navSystem').style.display = systemAllowed ? '' : 'none';
-  if (!systemAllowed && currentView === 'system') setView('dashboard');
   if (!settingsAllowed && currentView === 'settings') setView('dashboard');
   if (!usersAllowed && currentView === 'users') setView('dashboard');
 }
@@ -2180,87 +1840,8 @@ function updateNavForRole(role) {
 const modalBackdrop = document.getElementById('modalBackdrop');
 const modalSlider = document.getElementById('modalSlider');
 const modalPct = document.getElementById('modalPct');
-const modalExact = document.getElementById('modalExact');
 
-// Deux façons de régler : en % (0 à 100) ou directement dans l'unité du contenant (ex. 0 à 1500 L).
-const MODE_KEY = 'waste-tracker-input-mode-v1';
-let modalMode = (function () { try { return localStorage.getItem(MODE_KEY) === 'qty' ? 'qty' : 'pct'; } catch (e) { return 'pct'; } })();
-let modalValue = 0;   // valeur courante, dans l'unité du mode (% ou quantité)
-
-function modalContainer() { return containers.find(x => x.id === activeId); }
-function modalTotal() {
-  const c = modalContainer();
-  return c && Number.isFinite(c.total) && c.total > 0 ? c.total : 0;
-}
-function qtyStep(c) {
-  const total = modalTotal();
-  if (/pi[eè]ce|unit[eé]|^u$/i.test(c.unit || '')) return 1;   // objets entiers
-  if (total >= 50) return 1;
-  if (total >= 10) return 0.5;
-  return 0.1;
-}
-function roundTo(v, step) {
-  const r = Math.round(v / step) * step;
-  return Number(r.toFixed(2));
-}
-function fmtNum(v) { return String(Number(Number(v).toFixed(2))); }
-function modalIsQty() { return modalMode === 'qty' && modalTotal() > 0; }
-
-// Valeurs finales (pct entier + quantité) selon le mode en cours
-function modalResult() {
-  const c = modalContainer();
-  const total = modalTotal();
-  if (modalIsQty()) {
-    const used = Math.min(Math.max(modalValue, 0), total);
-    return { pct: Math.round((used / total) * 100), used };
-  }
-  const pct = Math.min(Math.max(Math.round(modalValue), 0), 100);
-  return { pct, used: Math.round((pct / 100) * (c ? c.total : 0) * 10) / 10 };
-}
-
-function refreshModalUi() {
-  const c = modalContainer();
-  if (!c) return;
-  const unit = c.unit || '';
-  const total = modalTotal();
-  const isQty = modalIsQty();
-  const max = isQty ? total : 100;
-  const step = isQty ? qtyStep(c) : 1;
-
-  document.getElementById('modeToggle').style.display = total > 0 ? '' : 'none';
-  document.getElementById('modePctBtn').classList.toggle('active', !isQty);
-  const qtyBtn = document.getElementById('modeQtyBtn');
-  qtyBtn.classList.toggle('active', isQty);
-  qtyBtn.textContent = 'En ' + (unit || 'quantité');
-
-  modalValue = Math.min(Math.max(modalValue, 0), max);
-  modalSlider.min = 0; modalSlider.max = max; modalSlider.step = step;
-  modalSlider.value = modalValue;
-  modalExact.min = 0; modalExact.max = max; modalExact.step = step;
-  if (document.activeElement !== modalExact) modalExact.value = fmtNum(modalValue);
-  document.getElementById('modalExactUnit').textContent = isQty ? unit : '%';
-
-  modalPct.textContent = fmtNum(modalValue);
-  document.getElementById('modalPctUnit').textContent = isQty ? unit : '%';
-  document.getElementById('modalMin').textContent = '0' + (isQty ? unit : '%');
-  document.getElementById('modalMax').textContent = fmtNum(max) + (isQty ? unit : '%');
-
-  const r = modalResult();
-  document.getElementById('modalSub').textContent = total > 0
-    ? (isQty ? '= ' + r.pct + ' % de la capacité' : '≈ ' + fmtNum(r.used) + unit + ' sur ' + fmtNum(total) + unit)
-    : '';
-}
-
-function setModalMode(mode) {
-  if (mode === modalMode) return;
-  const before = modalResult();            // on garde la même valeur en changeant d'unité
-  modalMode = mode;
-  try { localStorage.setItem(MODE_KEY, mode); } catch (e) { /* ignore */ }
-  const c = modalContainer();
-  if (modalIsQty()) modalValue = roundTo(before.used, qtyStep(c));
-  else modalValue = before.pct;
-  refreshModalUi();
-}
+let modalOverflow = 0; // dépassement au-dessus de 100 % (benne pleine en attente d'enlèvement)
 
 function openModal(id) {
   activeId = id;
@@ -2268,14 +1849,29 @@ function openModal(id) {
   document.getElementById('modalTitle').textContent = `Ajuster le remplissage — ${c.name}`;
   document.getElementById('modalIcon').innerHTML = iconMarkup(c.icon, c.emoji);
   document.getElementById('modalIcon').dataset.icon = c.icon;
-  document.getElementById('modalCapacity').textContent = `Capacité : ${c.used}${c.unit} / ${c.total}${c.unit}`;
-  if (modalIsQty()) {
-    modalValue = roundTo(Number.isFinite(c.used) ? c.used : 0, qtyStep(c));
-  } else {
-    modalValue = Number.isFinite(c.pct) ? c.pct : 0;
-  }
-  refreshModalUi();
+  modalSlider.value = Math.min(c.pct, 100);
+  modalOverflow = Math.max(c.pct - 100, 0);
+  updateModalPct();
   modalBackdrop.classList.add('show');
+}
+
+function totalModalPct() {
+  if (Number(modalSlider.value) < 100) modalOverflow = 0; // repassé sous 100 % : plus de dépassement
+  return Math.min(Number(modalSlider.value) + modalOverflow, MAX_PCT);
+}
+
+function updateModalPct() {
+  const pct = totalModalPct();
+  modalPct.textContent = pct;
+  modalPct.parentElement.style.color = pct > 100 ? 'var(--status-crit-text)' : '';
+  document.getElementById('overflowBlock').style.display = Number(modalSlider.value) >= 100 ? '' : 'none';
+  const c = containers.find(x => x.id === activeId);
+  if (c) {
+    const used = Math.round((pct / 100) * c.total * 10) / 10;
+    let capTxt = `Capacité : ${used}${c.unit} / ${c.total}${c.unit}`;
+    if (pct > 100) capTxt += ` — dépassement : +${Math.round(((pct - 100) / 100) * c.total * 10) / 10}${c.unit}`;
+    document.getElementById('modalCapacity').textContent = capTxt;
+  }
 }
 
 function closeModal() {
@@ -2283,428 +1879,45 @@ function closeModal() {
   activeId = null;
 }
 
-modalSlider.addEventListener('input', () => {
-  modalValue = Number(modalSlider.value);
-  refreshModalUi();
+modalSlider.addEventListener('input', updateModalPct);
+
+document.querySelectorAll('.ov-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (Number(modalSlider.value) < 100) modalSlider.value = 100;
+    modalOverflow = Math.min(modalOverflow + Number(btn.dataset.add), MAX_PCT - 100);
+    updateModalPct();
+  });
 });
-modalExact.addEventListener('input', () => {
-  const v = parseFloat(String(modalExact.value).replace(',', '.'));
-  if (!Number.isFinite(v)) return;
-  modalValue = v;
-  refreshModalUi();          // le champ n'est pas réécrit pendant la frappe
+document.getElementById('ovReset').addEventListener('click', () => {
+  modalOverflow = 0;
+  updateModalPct();
 });
-modalExact.addEventListener('change', () => {   // à la sortie du champ : on recale la valeur affichée
-  modalExact.value = fmtNum(modalValue);
-});
-document.getElementById('modePctBtn').addEventListener('click', () => setModalMode('pct'));
-document.getElementById('modeQtyBtn').addEventListener('click', () => setModalMode('qty'));
 
 document.getElementById('cancelBtn').addEventListener('click', closeModal);
 modalBackdrop.addEventListener('click', e => { if (e.target === modalBackdrop) closeModal(); });
 
-// =====================================================================
-//  RELEVÉS HORS LIGNE : file d'attente locale + envoi groupé
-// =====================================================================
-// Chaque relevé est gardé sur l'appareil (avec son heure réelle et un identifiant
-// unique), affiché tout de suite, puis envoyé d'un coup au serveur (bouton « Envoyer »
-// ou automatiquement dès que le réseau revient). L'identifiant unique sert d'id dans
-// l'historique : un relevé renvoyé deux fois ne crée jamais de doublon ni de 2e e-mail.
-const PENDING_KEY = 'waste-tracker-pending-v1';
-function loadPending() {
-  try { return JSON.parse(localStorage.getItem(PENDING_KEY) || '[]'); } catch (e) { return []; }
-}
-function savePending(list) {
-  try { localStorage.setItem(PENDING_KEY, JSON.stringify(list)); } catch (e) { /* ignore */ }
-}
-let pending = loadPending();
-let syncing = false, syncAgain = false, syncError = '', syncProgress = '', syncFlash = '';
-let syncFlashTimer = null;
-
-function newReadingId() {
-  try { if (crypto && crypto.randomUUID) return 'r' + crypto.randomUUID().replace(/-/g, ''); } catch (e) { /* ignore */ }
-  return 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
-}
-
-// Superpose les relevés en attente aux données du serveur (sauf si le serveur a plus récent).
-function applyPending(list) {
-  list.forEach(c => { delete c._pending; if (c._trendBase !== undefined) c.trend = c._trendBase; });
-  pending.slice().sort((a, b) => (a.ts < b.ts ? -1 : 1)).forEach(e => {
-    const c = list.find(x => x.id === e.containerId);
-    if (!c) return;
-    if (c.lastTs && c.lastTs > e.ts) return;
-    if (c._trendBase === undefined) c._trendBase = Array.isArray(c.trend) ? c.trend : [];
-    c.trend = nextTrend(c.trend, e);
-    c.pct = e.pct; c.used = e.used; c._pending = true;
-  });
-  return list;
-}
-
-function queueReading(c, pct, used, extra) {
-  pending.push(Object.assign({
-    rid: newReadingId(), containerId: c.id, pct, used,
-    ts: new Date().toISOString(),
-    by: currentUser ? (currentUser.displayName || currentUser.email || '') : ''
-  }, extra || {}));
-  savePending(pending);
-  containers = applyPending(containers);
-  render();
-  updateSyncBar();
-  syncPending();
-}
-
-function withTimeout(promise, ms) {
-  let t;
-  const timeout = new Promise((_, rej) => { t = setTimeout(() => rej(Object.assign(new Error('Délai dépassé (réseau trop lent)'), { code: 'timeout' })), ms); });
-  return Promise.race([promise, timeout]).finally(() => clearTimeout(t));
-}
-function isNetworkError(err) {
-  const code = err && err.code;
-  return code === 'timeout' || code === 'unavailable' || code === 'deadline-exceeded' || code === 'cancelled' ||
-         /offline|network|timeout|délai/i.test((err && err.message) || '');
-}
-
-// ---------- Modèle d'e-mail ----------
-const DEFAULT_ALERT_TEMPLATE = {
-  subject: '⚠️ Alerte déchets — {contenant} à {pct}%',
-  body: '{contenant} a atteint {pct}% (seuil critique : {seuil}%).\nSite : {site} — Zone : {zone}\nRelevé saisi par {auteur} le {date}.'
-};
-function fillTemplate(str, vars, asHtml) {
-  const src = asHtml ? escapeHtml(str) : String(str);
-  const out = src.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? (asHtml ? escapeHtml(vars[k]) : String(vars[k])) : m));
-  return asHtml ? out.replace(/\n/g, '<br>') : out;
-}
-async function fetchAlertTemplate() {
-  try {
-    const snap = await withTimeout(fs.getDoc(fs.doc(db, 'sites', SITE_ID, 'settings', 'alertTemplate')), 15000);
-    if (snap.exists()) {
-      const d = snap.data();
-      return { subject: d.subject || DEFAULT_ALERT_TEMPLATE.subject, body: d.body || DEFAULT_ALERT_TEMPLATE.body };
-    }
-  } catch (e) {
-    if (isNetworkError(e)) throw e;
-    console.error('Lecture du modèle d\'e-mail impossible, texte par défaut utilisé :', e);
-  }
-  return DEFAULT_ALERT_TEMPLATE;
-}
-async function fetchAlertRecipients() {
-  try {
-    const snap = await withTimeout(fs.getDoc(fs.doc(db, 'sites', SITE_ID, 'settings', 'alertRecipients')), 15000);
-    return snap.exists() ? (snap.data().emails || []) : [];
-  } catch (e) {
-    if (isNetworkError(e)) throw e;
-    console.error('Lecture des destinataires impossible :', e);
-    return [];
-  }
-}
-
-// ---------- Alertes e-mail via EmailJS ----------
-// Les identifiants EmailJS (clé publique, service, modèle) sont dans Firestore
-// (sites/{siteId}/settings/emailjs), pas dans le code de la page.
-const OUTBOX_KEY = 'waste-tracker-alert-outbox-v1';
-function loadOutbox() { try { return JSON.parse(localStorage.getItem(OUTBOX_KEY) || '[]'); } catch (e) { return []; } }
-function saveOutbox(list) { try { localStorage.setItem(OUTBOX_KEY, JSON.stringify(list)); } catch (e) { /* ignore */ } }
-let outbox = loadOutbox();
-
-async function fetchEmailJsConfig() {
-  const snap = await withTimeout(fs.getDoc(fs.doc(db, 'sites', SITE_ID, 'settings', 'emailjs')), 15000);
-  if (!snap.exists()) return null;
-  const d = snap.data();
-  if (!d.publicKey || !d.serviceId || !d.templateId) return null;
-  return { publicKey: d.publicKey, serviceId: d.serviceId, templateId: d.templateId };
-}
-
-async function sendEmailJs(cfg, to, subject, message, vars) {
-  const res = await withTimeout(fetch('https://api.emailjs.com/api/v1.0/email/send', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      service_id: cfg.serviceId,
-      template_id: cfg.templateId,
-      user_id: cfg.publicKey,
-      template_params: Object.assign({}, vars || {}, { to_email: to, subject, message })
-    })
-  }), 15000);
-  if (!res.ok) {
-    let detail = '';
-    try { detail = await res.text(); } catch (e) { /* ignore */ }
-    throw new Error('EmailJS ' + res.status + (detail ? ' : ' + detail : ''));
-  }
-}
-
-function enqueueAlert(id, recipients, subject, message, vars) {
-  if (outbox.some(o => o.id === id)) return;
-  outbox.push({ id, to: recipients.slice(), subject, message, vars, attempts: 0 });
-  saveOutbox(outbox);
-}
-
-// Envoie les alertes en attente (une demande par destinataire). Un destinataire déjà servi n'est jamais re-servi.
-let flushingAlerts = false;
-async function flushAlerts() {
-  if (!EMAIL_ALERTS_ENABLED || flushingAlerts || !outbox.length) return;
-  flushingAlerts = true;
-  try {
-    const cfg = await fetchEmailJsConfig();
-    if (!cfg) { console.warn('EmailJS non configuré (Paramètres > E-mail d\'alerte) : alertes non envoyées.'); outbox = []; saveOutbox(outbox); return; }
-    for (const item of outbox.slice()) {
-      for (const to of item.to.slice()) {
-        try {
-          await sendEmailJs(cfg, to, item.subject, item.message, item.vars);
-          item.to = item.to.filter(x => x !== to);
-          saveOutbox(outbox);
-        } catch (err) {
-          item.attempts++;
-          console.error('Envoi d\'alerte e-mail échoué (' + to + ') :', err);
-          saveOutbox(outbox);
-          break;                                         // on réessaiera plus tard
-        }
-      }
-      if (!item.to.length || item.attempts >= 5) {
-        if (item.to.length) console.error('Alerte abandonnée après 5 essais :', item.id);
-        outbox = outbox.filter(o => o.id !== item.id);
-        saveOutbox(outbox);
-      }
-    }
-  } catch (err) {
-    console.error('Alertes e-mail : impossible de lire la configuration EmailJS :', err);
-  } finally {
-    flushingAlerts = false;
-  }
-}
-
-// Envoie UN relevé dans une transaction : si l'historique contient déjà ce relevé, on ne fait rien.
-// Retourne les infos de l'alerte à envoyer (seuil franchi), sinon null.
-async function sendOneReading(e, template, recipients) {
-  const contRef = fs.doc(db, 'sites', SITE_ID, 'containers', e.containerId);
-  const histRef = fs.doc(db, 'sites', SITE_ID, 'containers', e.containerId, 'history', e.rid);
-  let alertInfo = null;
-  await fs.runTransaction(db, async (tx) => {
-    alertInfo = null;                             // la transaction peut être rejouée par Firestore
-    const h = await tx.get(histRef);
-    if (h.exists()) return;                       // déjà envoyé lors d'un essai précédent
-    const cs = await tx.get(contRef);
-    if (!cs.exists()) return;                     // contenant supprimé entre-temps
-    const cd = cs.data();
-    const histDoc = { id: e.rid, ts: e.ts, pct: e.pct, used: e.used };
-    if (e.emptied) { histDoc.emptied = true; histDoc.removed = Number(e.removed) || 0; histDoc.removedPct = Number(e.removedPct) || 0; }
-    tx.set(histRef, histDoc);
-    if (cd.lastTs && cd.lastTs > e.ts) return;    // un relevé plus récent est déjà sur le serveur
-    tx.update(contRef, { pct: e.pct, used: e.used, lastTs: e.ts, trend: nextTrend(cd.trend, e) });
-
-    const threshold = Number.isFinite(cd.threshold) ? cd.threshold : DEFAULT_THRESHOLD;
-    const prev = Number.isFinite(cd.pct) ? cd.pct : 0;
-    if (recipients.length && prev < threshold && e.pct >= threshold) {   // franchissement du seuil
-      const zone = zones.find(z => z.id === cd.zoneId);
-      alertInfo = {
-        contenant: cd.name || 'Contenant', pct: e.pct, seuil: threshold,
-        zone: zone ? zone.name : 'Non classé', site: siteName || '',
-        auteur: e.by || 'inconnu', date: new Date(e.ts).toLocaleString('fr-FR')
-      };
-    }
-  });
-  if (alertInfo) {
-    enqueueAlert('alert-' + e.rid, recipients, fillTemplate(template.subject, alertInfo, false), fillTemplate(template.body, alertInfo, false), alertInfo);
-  }
-}
-
-async function syncPending() {
-  if (!(FIREBASE_READY && db && fs && currentUser)) return;
-  if (!pending.length) { updateSyncBar(); flushAlerts(); return; }
-  if (syncing) { syncAgain = true; return; }       // un seul envoi à la fois
-  syncing = true; syncError = ''; syncProgress = ''; updateSyncBar();
-  let sent = 0, failed = false;
-  try {
-    const template = EMAIL_ALERTS_ENABLED ? await fetchAlertTemplate() : DEFAULT_ALERT_TEMPLATE;
-    const recipients = EMAIL_ALERTS_ENABLED ? await fetchAlertRecipients() : [];
-    const batch = pending.slice().sort((a, b) => (a.ts < b.ts ? -1 : 1));
-    for (const e of batch) {
-      await withTimeout(sendOneReading(e, template, recipients), 20000);
-      pending = pending.filter(p => p.rid !== e.rid);   // retiré seulement une fois confirmé
-      savePending(pending);
-      sent++;
-      syncProgress = sent + '/' + batch.length;
-      updateSyncBar();
-    }
-  } catch (err) {
-    failed = true;
-    console.error('Envoi des relevés interrompu :', err);
-    syncError = isNetworkError(err) ? 'réseau indisponible, nouvel essai automatique' : ('erreur : ' + (err && err.message ? err.message : err));
-  } finally {
-    syncing = false;
-    containers = applyPending(containers);
-    render();
-    if (!failed && sent) {
-      syncFlash = '✅ ' + sent + ' relevé' + (sent > 1 ? 's' : '') + ' envoyé' + (sent > 1 ? 's' : '');
-      clearTimeout(syncFlashTimer);
-      syncFlashTimer = setTimeout(() => { syncFlash = ''; updateSyncBar(); }, 4000);
-    }
-    updateSyncBar();
-    flushAlerts();                                 // e-mails d'alerte (sans bloquer l'envoi des relevés)
-    if (syncAgain) { syncAgain = false; if (pending.length && !failed) syncPending(); }
-  }
-}
-
-if (EMAIL_ALERTS_ENABLED) document.body.classList.remove('no-mail-alerts');
-
-function updateSyncBar() {
-  const bar = document.getElementById('syncBar');
-  if (!bar) return;
-  const txt = document.getElementById('syncText');
-  const btn = document.getElementById('syncBtn');
-  if (!(FIREBASE_READY && currentUser)) { bar.className = 'sync-bar'; return; }
-  const n = pending.length;
-  const online = navigator.onLine !== false;
-  const plural = n > 1 ? 's' : '';
-  let cls = '', msg = '';
-  if (syncing) { cls = 'pending'; msg = '⏳ Envoi en cours… ' + syncProgress; }
-  else if (n > 0 && !online) { cls = 'offline'; msg = '📴 Hors ligne — ' + n + ' relevé' + plural + ' en attente d\'envoi'; }
-  else if (n > 0) { cls = syncError ? 'err' : 'pending'; msg = '🕒 ' + n + ' relevé' + plural + ' en attente' + (syncError ? ' — ' + syncError : ''); }
-  else if (!online) { cls = 'offline'; msg = '📴 Hors ligne — tes relevés seront gardés sur cet appareil'; }
-  else if (syncFlash) { cls = 'ok'; msg = syncFlash; }
-  bar.className = 'sync-bar' + (cls ? ' show ' + cls : '');
-  txt.textContent = msg;
-  btn.style.display = (n > 0 || syncing) ? '' : 'none';
-  btn.disabled = syncing;
-  btn.textContent = syncing ? 'Envoi…' : 'Envoyer';
-}
-
-document.getElementById('syncBtn').addEventListener('click', () => syncPending());
-window.addEventListener('online', () => { updateSyncBar(); syncPending(); });
-window.addEventListener('offline', updateSyncBar);
-setInterval(() => { if ((pending.length || outbox.length) && navigator.onLine !== false && !syncing) syncPending(); }, 30000);
-
-// ---------- Modèle d'e-mail : formulaire Paramètres ----------
-let alertFormFilled = false;
-function alertPreviewVars() {
-  return { contenant: 'Benne à Pneus', pct: 90, seuil: 85, zone: 'Extérieur', site: siteName || 'Site',
-           auteur: 'Prénom Nom', date: new Date().toLocaleString('fr-FR') };
-}
-function updateAlertPreview() {
-  const subj = document.getElementById('alertSubjectInput').value;
-  const body = document.getElementById('alertBodyInput').value;
-  const v = alertPreviewVars();
-  document.getElementById('alertPreviewSubject').textContent = fillTemplate(subj, v, false);
-  document.getElementById('alertPreviewBody').textContent = fillTemplate(body, v, false);
-}
-async function loadAlertForm() {
-  const card = document.getElementById('alertTemplateCard');
-  if (!EMAIL_ALERTS_ENABLED || !(FIREBASE_READY && db && fs)) { card.style.display = 'none'; return; }
-  card.style.display = '';
-  const subjEl = document.getElementById('alertSubjectInput');
-  const bodyEl = document.getElementById('alertBodyInput');
-  subjEl.value = DEFAULT_ALERT_TEMPLATE.subject; bodyEl.value = DEFAULT_ALERT_TEMPLATE.body;
-  updateAlertPreview();
-  try {
-    const t = await fetchAlertTemplate();
-    subjEl.value = t.subject; bodyEl.value = t.body;
-  } catch (e) { console.warn('Modèle d\'e-mail non chargé (hors ligne ?) :', e); }
-  updateAlertPreview();
-  try {
-    const cfg = await fetchEmailJsConfig();
-    document.getElementById('emailjsPublicKey').value = cfg ? cfg.publicKey : '';
-    document.getElementById('emailjsServiceId').value = cfg ? cfg.serviceId : '';
-    document.getElementById('emailjsTemplateId').value = cfg ? cfg.templateId : '';
-  } catch (e) { console.warn('Connexion EmailJS non chargée (hors ligne ?) :', e); }
-}
-
-function setEmailjsStatus(msg, ok) {
-  const el = document.getElementById('emailjsStatus');
-  el.textContent = msg;
-  el.style.color = ok ? 'var(--status-low-text)' : 'var(--status-crit-text)';
-}
-function readEmailjsForm() {
-  return {
-    publicKey: document.getElementById('emailjsPublicKey').value.trim(),
-    serviceId: document.getElementById('emailjsServiceId').value.trim(),
-    templateId: document.getElementById('emailjsTemplateId').value.trim()
-  };
-}
-document.getElementById('saveEmailjsBtn').addEventListener('click', async () => {
-  const cfg = readEmailjsForm();
-  if (!cfg.publicKey || !cfg.serviceId || !cfg.templateId) { setEmailjsStatus('Remplis les trois champs.', false); return; }
-  try {
-    await withTimeout(fs.setDoc(fs.doc(db, 'sites', SITE_ID, 'settings', 'emailjs'), Object.assign({}, cfg, { updatedAt: new Date().toISOString() })), 15000);
-    setEmailjsStatus('Connexion enregistrée ✓', true);
-  } catch (e) {
-    console.error('Enregistrement EmailJS échoué :', e);
-    setEmailjsStatus('Enregistrement impossible : ' + (e && e.message ? e.message : e), false);
-  }
-});
-document.getElementById('testEmailjsBtn').addEventListener('click', async () => {
-  const cfg = readEmailjsForm();
-  if (!cfg.publicKey || !cfg.serviceId || !cfg.templateId) { setEmailjsStatus('Remplis les trois champs avant le test.', false); return; }
-  const to = currentUser && currentUser.email;
-  if (!to) { setEmailjsStatus('Adresse de ton compte introuvable.', false); return; }
-  const btn = document.getElementById('testEmailjsBtn');
-  btn.disabled = true; setEmailjsStatus('Envoi du test à ' + to + '…', true);
-  try {
-    const v = alertPreviewVars();
-    await sendEmailJs(cfg, to,
-      '[TEST] ' + fillTemplate(document.getElementById('alertSubjectInput').value, v, false),
-      fillTemplate(document.getElementById('alertBodyInput').value, v, false), v);
-    setEmailjsStatus('Mail de test envoyé à ' + to + ' ✓ (regarde aussi les spams)', true);
-  } catch (e) {
-    console.error('Test EmailJS échoué :', e);
-    setEmailjsStatus('Échec : ' + (e && e.message ? e.message : e), false);
-  }
-  btn.disabled = false;
-});
-document.getElementById('alertSubjectInput').addEventListener('input', updateAlertPreview);
-document.getElementById('alertBodyInput').addEventListener('input', updateAlertPreview);
-document.getElementById('resetAlertTemplateBtn').addEventListener('click', () => {
-  document.getElementById('alertSubjectInput').value = DEFAULT_ALERT_TEMPLATE.subject;
-  document.getElementById('alertBodyInput').value = DEFAULT_ALERT_TEMPLATE.body;
-  updateAlertPreview();
-});
-document.getElementById('saveAlertTemplateBtn').addEventListener('click', async () => {
-  const btn = document.getElementById('saveAlertTemplateBtn');
-  const subject = document.getElementById('alertSubjectInput').value.trim();
-  const body = document.getElementById('alertBodyInput').value.trim();
-  if (!subject || !body) { alert('L\'objet et le message ne peuvent pas être vides.'); return; }
-  btn.disabled = true; btn.textContent = '…';
-  try {
-    await withTimeout(fs.setDoc(fs.doc(db, 'sites', SITE_ID, 'settings', 'alertTemplate'),
-      { subject, body, updatedAt: new Date().toISOString() }), 15000);
-    btn.textContent = 'Enregistré ✓';
-  } catch (e) {
-    console.error('Enregistrement du modèle d\'e-mail échoué :', e);
-    alert('Enregistrement impossible : ' + (e && e.message ? e.message : e));
-    btn.textContent = 'Enregistrer';
-  }
-  setTimeout(() => { btn.textContent = 'Enregistrer'; btn.disabled = false; }, 1200);
-});
-
-// ---------- Confirmer un relevé ----------
 document.getElementById('confirmBtn').addEventListener('click', async () => {
   const c = containers.find(x => x.id === activeId);
-  if (!c) { closeModal(); return; }
-  const { pct, used } = modalResult();
-  await commitReading(c, pct, used);
-  closeModal();
-});
+  const pct = totalModalPct();
+  const used = Math.round((pct / 100) * c.total * 10) / 10;
 
-async function commitReading(c, pct, used, extra) {
-  if (FIREBASE_READY && db && fs && currentUser) {
-    queueReading(c, pct, used, extra);   // affiché tout de suite, envoyé dès que possible
+  if (FIREBASE_READY && db && fs) {
+    try {
+      await fs.updateDoc(fs.doc(db, 'sites', SITE_ID, 'containers', c.id), { pct, used });
+      await recordHistory(c.id, pct, used);
+      // onSnapshot() met à jour containers[] et redessine automatiquement.
+    } catch (e) {
+      console.error('Écriture Firestore échouée, mise à jour locale seulement :', e);
+      c.pct = pct; c.used = used;
+      render();
+    }
   } else {
     c.pct = pct;
     c.used = used;
-    c.trend = nextTrend(c.trend, { ts: new Date().toISOString(), used, emptied: !!(extra && extra.emptied) });
     saveContainers(containers);
-    await recordHistory(c.id, pct, used, extra);
+    await recordHistory(c.id, pct, used);
     render();
   }
-}
-
-// ---------- Vidé / enlevé : remet à 0 et note l'enlèvement dans l'historique ----------
-document.getElementById('emptyBtn').addEventListener('click', async () => {
-  const c = containers.find(x => x.id === activeId);
-  if (!c) return;
-  const removed = Number.isFinite(c.used) ? c.used : 0;
-  const removedPct = Number.isFinite(c.pct) ? c.pct : 0;
-  if (removed <= 0 && removedPct <= 0) { alert('Ce contenant est déjà à 0.'); return; }
-  if (!confirm('Confirmer : « ' + (c.name || 'ce contenant') + ' » a été vidé / enlevé ?\n' +
-               'Le remplissage repasse à 0 et l\'enlèvement est noté dans l\'historique.')) return;
-  await commitReading(c, 0, 0, { emptied: true, removed, removedPct });
   closeModal();
 });
 
@@ -2722,19 +1935,15 @@ backdrop.addEventListener('click', () => {
 
 // ---------- PWA : installation + service worker ----------
 if ('serviceWorker' in navigator) {
-  // sw.js doit être posé à côté de index.html (même dossier). Il garde l'app et les
-  // icônes en cache pour pouvoir l'ouvrir sans réseau.
-  navigator.serviceWorker.register('sw.js')
-    .then(() => navigator.serviceWorker.ready)
-    .then(() => {
-      // Demande au service worker de mémoriser aussi les fichiers Firebase déjà chargés par la page.
-      try {
-        performance.getEntriesByType('resource')
-          .map(r => r.name)
-          .filter(u => u.indexOf('gstatic.com/firebasejs') >= 0)
-          .forEach(u => fetch(u).catch(() => {}));
-      } catch (e) { /* ignore */ }
-    })
+  const swCode = `
+    self.addEventListener('install', () => self.skipWaiting());
+    self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
+    self.addEventListener('fetch', (e) => {
+      e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    });
+  `;
+  const swBlob = new Blob([swCode], { type: 'application/javascript' });
+  navigator.serviceWorker.register(URL.createObjectURL(swBlob))
     .catch(e => console.warn('Enregistrement du service worker échoué :', e));
 }
 
@@ -2807,21 +2016,14 @@ async function startFirebase() {
   const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js');
   const { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } =
     await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js');
-  const { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, runTransaction,
-          doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, onSnapshot } =
+  const { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, collection, onSnapshot } =
     await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js');
 
-  fs = { doc, getDoc, setDoc, updateDoc, deleteDoc, addDoc, collection, onSnapshot, runTransaction };
+  fs = { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, onSnapshot };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  // Cache local persistant : l'app s'ouvre et affiche les derniers contenants même sans réseau.
-  try {
-    db = initializeFirestore(app, { localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }) });
-  } catch (e) {
-    console.warn('Cache persistant indisponible, mode standard :', e);
-    db = getFirestore(app);
-  }
+  db = getFirestore(app);
   const provider = new GoogleAuthProvider();
 
   document.getElementById('googleLoginBtn').addEventListener('click', async () => {
@@ -2840,7 +2042,6 @@ async function startFirebase() {
     if (!user) {
       currentUser = null;
       currentRole = null;
-      updateSyncBar();
       loginScreen.classList.add('show');
       if (unsubscribeContainers) { unsubscribeContainers(); unsubscribeContainers = null; }
       if (unsubscribeUsers) { unsubscribeUsers(); unsubscribeUsers = null; }
@@ -2877,7 +2078,6 @@ async function startFirebase() {
         }, (err) => console.error('Erreur de synchronisation des utilisateurs :', err));
       }
 
-      updateSyncBar();
       // Nom du site
       const siteRef = doc(db, 'sites', SITE_ID);
       const siteSnap = await getDoc(siteRef);
@@ -2888,7 +2088,6 @@ async function startFirebase() {
         await setDoc(siteRef, { name: siteName }, { merge: true });
       }
       updateSiteSubtitle();
-      syncPending(); // renvoie les relevés restés en attente (si le réseau est là)
 
       // Synchro temps réel des zones du site (visibles par tous les rôles)
       const zonesRef = collection(db, 'sites', SITE_ID, 'zones');
@@ -2906,7 +2105,7 @@ async function startFirebase() {
           await Promise.all(DEFAULT_CONTAINERS.map(c => setDoc(doc(containersRef, c.id), c)));
           return; // le prochain onSnapshot() rendra les données qu'on vient d'écrire
         }
-        containers = applyPending(snap.docs.map(d => d.data()));
+        containers = snap.docs.map(d => d.data());
         render();
         if (currentView === 'settings') renderSettings();
         if (currentView === 'reports') renderReportsPicker();
